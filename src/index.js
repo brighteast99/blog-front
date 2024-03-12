@@ -4,7 +4,7 @@ import { BrowserRouter } from 'react-router-dom'
 import { Provider } from 'react-redux'
 import { ApolloContext } from 'ApolloContext'
 import { store } from 'app/store'
-import App from './App'
+import App from './App.tsx'
 import 'index.scss'
 
 const container = document.getElementById('root')
