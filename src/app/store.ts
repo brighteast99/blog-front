@@ -1,7 +1,12 @@
 import { configureStore } from '@reduxjs/toolkit'
+import windowReducer from 'features/window/windowSlice'
+import sidebarReducer from 'features/sidebar/sidebarSlice'
 
 export const store = configureStore({
-  reducer: {}
+  reducer: {
+    window: windowReducer,
+    sidebar: sidebarReducer
+  }
 })
 
 export type RootState = ReturnType<typeof store.getState>
