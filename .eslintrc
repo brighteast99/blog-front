@@ -21,7 +21,6 @@
   ],
   "rules": {
     "comma-dangle": "error",
-    "space-before-function-paren": "error",
     "no-unused-vars": [
       1,
       {
