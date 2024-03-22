@@ -7,6 +7,7 @@ import { selectBreakpoint, updateSize } from 'features/window/windowSlice'
 import { Sidebar, SidebarHandle } from 'features/sidebar/Sidebar'
 import { CategoryPage } from 'pages/category'
 import { MainPage } from 'pages/main'
+import { Error404 } from 'pages/errors/404'
 
 function App() {
   const dispatch = useAppDispatch()
@@ -35,7 +36,8 @@ function App() {
       <div className='relative h-full min-w-0 shrink grow'>
         <Routes>
           <Route path='/' element={<MainPage />} />
-          <Route path='/category/:categoryId' element={<CategoryPage />} />
+          <Route path='/category/:categoryId?' element={<CategoryPage />} />
+          <Route path='/*' element={<Error404 />} />
         </Routes>
 
         {breakpoint !== 'desktop' && (
