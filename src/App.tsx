@@ -36,6 +36,10 @@ function App() {
       <div className='relative h-full min-w-0 shrink grow'>
         <Routes>
           <Route path='/' element={<MainPage />} />
+          <Route
+            path='/category/:categoryId/post/:postId?'
+            element={<CategoryPage />}
+          />
           <Route path='/category/:categoryId?' element={<CategoryPage />} />
           <Route path='/*' element={<Error404 />} />
         </Routes>

@@ -6,30 +6,13 @@ import { Category } from 'types/data'
 
 const GET_CATEGORIES = gql`
   query CategoryList {
-    categoryList {
-      id
-      name
-      hasSub
-      postCount
-      subcategories {
-        id
-        name
-        hasSub
-        postCount
-        subcategories {
-          id
-          name
-          hasSub
-          postCount
-        }
-      }
-    }
+    categoryList
   }
 `
 
 export const CategoryItem: FC<{ category: Category }> = ({ category }) => {
   const { pathname } = useContext(CategoryListContext)
-  const isActive = pathname === `/category/${category.id}`
+  const isActive = pathname === `/category/${category.id ?? ''}`
 
   return (
     <li>
@@ -38,7 +21,7 @@ export const CategoryItem: FC<{ category: Category }> = ({ category }) => {
           'flex justify-between py-0.5 transition-colors',
           isActive && 'pointer-events-none text-primary'
         )}
-        to={`/category/${category.id}`}
+        to={`/category/${category.id ?? ''}`}
       >
         <span className={clsx(isActive ? 'font-semibold' : 'font-medium')}>
           {category.name}{' '}
@@ -47,7 +30,7 @@ export const CategoryItem: FC<{ category: Category }> = ({ category }) => {
           ({category.postCount})
         </span>
       </Link>
-      {category.hasSub && (
+      {category.subcategories.length > 0 && (
         <ul className='ml-4'>
           {category.subcategories.map((subcategory) => (
             <CategoryItem key={subcategory.id} category={subcategory} />
@@ -62,27 +45,16 @@ const CategoryListContext = createContext({ pathname: '/' })
 
 export const CategoryList: FC = () => {
   let { pathname } = useLocation()
-  const { data } = useSuspenseQuery<{ categoryList: Category[] }>(
-    GET_CATEGORIES
-  )
-
-  const DefaultCategory: Category = {
-    id: 0,
-    name: '전체 게시물',
-    description: '',
-    hasSub: false,
-    subcategories: [],
-    postCount: 0,
-    posts: []
-  }
+  const { data } = useSuspenseQuery<{ categoryList: string }>(GET_CATEGORIES)
 
   return (
     <CategoryListContext.Provider value={{ pathname }}>
       <ul>
-        <CategoryItem category={DefaultCategory} />
-        {data.categoryList.map((category) => (
-          <CategoryItem key={category.id} category={category} />
-        ))}
+        {(JSON.parse(JSON.parse(data?.categoryList)) as Category[]).map(
+          (category) => (
+            <CategoryItem key={category.id ?? null} category={category} />
+          )
+        )}
       </ul>
     </CategoryListContext.Provider>
   )
