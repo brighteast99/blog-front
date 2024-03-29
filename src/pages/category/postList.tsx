@@ -32,7 +32,7 @@ export const PostItem: FC<{ post: Post }> = ({ post }) => {
     <li>
       <Link
         className='group flex h-36 gap-2 px-3 py-1.5 hover:bg-neutral-100'
-        to={`/category/${post.category?.id || 0}/post/${post.id}`}
+        to={`/post/${post.id}`}
       >
         <div className='flex min-w-0 grow flex-col'>
           <p className='truncate text-lg font-bold'>
