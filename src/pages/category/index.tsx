@@ -83,7 +83,7 @@ export const CategoryPage: FC = () => {
         />
       </div>
 
-      <div className='sticky top-0 -mt-24 h-24 w-full bg-background' />
+      <div className='sticky top-0 -mt-28 h-32 w-full bg-background' />
       <div className='mx-auto w-5/6'>
         <ErrorBoundary fallback={<p>Failed to load posts</p>}>
           <Suspense fallback={<Spinner />}>

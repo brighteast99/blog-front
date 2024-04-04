@@ -39,44 +39,40 @@ export const PostPage: FC = () => {
   return (
     <div className='size-full overflow-y-auto'>
       <div
-        className='h-56 bg-neutral-500 bg-cover bg-center bg-no-repeat'
+        className='h-56 border-b border-neutral-300 bg-neutral-500 bg-cover bg-center bg-no-repeat'
         style={{
           backgroundImage: `url(${data?.post?.thumbnail})`
         }}
       >
-        <div className='flex size-full flex-col items-center justify-center gap-2 py-5 backdrop-blur backdrop-brightness-50'>
+        <div className='flex size-full flex-col items-center justify-center gap-1 py-5 backdrop-blur backdrop-brightness-50'>
+          <Link to={`/category/${data?.post?.category?.id || 0}`}>
+            <SuspendedText
+              className='text-lg'
+              loading={loading}
+              text={data?.post?.category.name}
+              align='center'
+              length={6}
+            />
+          </Link>
           <SuspendedText
-            className='w-3/5 text-3xl font-semibold'
+            className='w-3/5 text-4xl font-medium'
             loading={loading}
             text={data?.post?.title}
             align='center'
             length={100}
             lines={2}
           />
-          <div className='flex items-center gap-2 text-lg text-neutral-700'>
-            <Link
-              to={`/category/${data?.post?.category?.id || 0}`}
-              className='hover:brightness-110'
-            >
-              <SuspendedText
-                loading={loading}
-                text={data?.post?.category.name}
-                align='center'
-                length={6}
-              />
-            </Link>
-            <span className='-mt-1 text-xl'>|</span>
-            <SuspendedText
-              loading={loading}
-              text={
-                isUpdated
-                  ? `${getRelativeTimeFromNow(data?.post?.updatedAt || new Date())} (수정됨)`
-                  : getRelativeTimeFromNow(data?.post?.createdAt || new Date())
-              }
-              align='center'
-              length={8}
-            />
-          </div>
+          <SuspendedText
+            className='font-thin'
+            loading={loading}
+            text={
+              isUpdated
+                ? `${getRelativeTimeFromNow(data?.post?.updatedAt || new Date())} (수정됨)`
+                : getRelativeTimeFromNow(data?.post?.createdAt || new Date())
+            }
+            align='center'
+            length={8}
+          />
         </div>
       </div>
       <div className='mx-auto w-5/6 p-5'>{data?.post?.content}</div>

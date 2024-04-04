@@ -1,4 +1,4 @@
-import { FC, createContext, useContext } from 'react'
+import { FC, createContext } from 'react'
 import { gql, useSuspenseQuery } from '@apollo/client'
 import { Link, useLocation } from 'react-router-dom'
 import clsx from 'clsx'
@@ -11,22 +11,19 @@ const GET_CATEGORIES = gql`
 `
 
 export const CategoryItem: FC<{ category: Category }> = ({ category }) => {
-  const { pathname } = useContext(CategoryListContext)
-  const isActive = pathname === `/category/${category.id ?? ''}`
+  const hasId = category.id !== undefined
 
   return (
     <li>
       <Link
         className={clsx(
-          'flex justify-between py-0.5 transition-colors',
-          isActive && 'pointer-events-none text-primary'
+          'flex justify-between py-0.5',
+          hasId ? 'font-light' : 'font-medium'
         )}
         to={`/category/${category.id ?? ''}`}
       >
-        <span className={clsx(isActive ? 'font-semibold' : 'font-medium')}>
-          {category.name}{' '}
-        </span>
-        <span className={clsx('font-light opacity-50')}>
+        {category.name}
+        <span className={clsx(hasId && 'text-neutral-700')}>
           ({category.postCount})
         </span>
       </Link>

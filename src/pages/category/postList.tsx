@@ -25,17 +25,25 @@ const GET_POSTS = gql`
   }
 `
 
-export const PostItem: FC<{ post: Post }> = ({ post }) => {
+export const PostItem: FC<{ post: Post; showCategory?: boolean }> = ({
+  post,
+  showCategory = true
+}) => {
   const isUpdated = post.createdAt !== post.updatedAt
 
   return (
-    <li>
-      <Link
-        className='group flex h-36 gap-2 px-3 py-1.5 hover:bg-neutral-100'
-        to={`/post/${post.id}`}
-      >
-        <div className='flex min-w-0 grow flex-col'>
-          <p className='truncate text-lg font-bold'>
+    <li className='flex h-50 items-center gap-2 py-2'>
+      <div className='flex min-w-0 grow flex-col justify-center gap-1 py-5'>
+        {showCategory && (
+          <Link
+            to={`/category/${post.category?.id}`}
+            className='text-sm font-light text-neutral-700'
+          >
+            {post.category?.name || '분류 미지정'}
+          </Link>
+        )}
+        <Link to={`/post/${post.id}`}>
+          <p className='truncate text-2xl font-medium'>
             {post.isHidden && (
               <Icon
                 path={mdiLock}
@@ -45,31 +53,28 @@ export const PostItem: FC<{ post: Post }> = ({ post }) => {
             )}
             {post.title}
           </p>
+        </Link>
 
-          <p className='mb-1 text-sm font-light text-neutral-700'>
-            {post.category?.name && (
-              <span className='font-semibold'>
-                {post.category?.name || '분류 미지정'} |{' '}
-              </span>
-            )}
-            {isUpdated
-              ? `${getRelativeTimeFromNow(post.updatedAt)} (수정됨)`
-              : getRelativeTimeFromNow(post.createdAt)}
-          </p>
+        <p className='mb-1 text-sm text-neutral-700'>
+          {isUpdated
+            ? `${getRelativeTimeFromNow(post.updatedAt)} (수정됨)`
+            : getRelativeTimeFromNow(post.createdAt)}
+        </p>
 
-          <p className='line-clamp-3 text-neutral-800'>{post.content}</p>
+        <p className='line-clamp-3 font-thin text-neutral-800'>
+          {post.content}
+        </p>
+      </div>
+
+      {post.thumbnail && (
+        <div className='aspect-square h-full shrink-0 p-1.5'>
+          <img
+            src={post.thumbnail}
+            alt='thumbnail'
+            className='block size-full'
+          />
         </div>
-
-        {post.thumbnail && (
-          <div className='aspect-square h-full shrink-0 p-1.5'>
-            <img
-              src={post.thumbnail}
-              alt='thumbnail'
-              className='block size-full'
-            />
-          </div>
-        )}
-      </Link>
+      )}
     </li>
   )
 }
@@ -117,7 +122,13 @@ export const PostList: FC<PostListProps> = ({ categoryId }) => {
       >
         {data?.postList
           .slice(currentPage * pageSize, (currentPage + 1) * pageSize)
-          .map((post) => <PostItem key={post.id} post={post} />)}
+          .map((post) => (
+            <PostItem
+              key={post.id}
+              post={post}
+              showCategory={post.category.id !== categoryId}
+            />
+          ))}
       </ul>
 
       <div className='flex justify-center gap-2 py-1'>

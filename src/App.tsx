@@ -34,7 +34,7 @@ function App() {
     <div className='flex size-full min-h-[720px] bg-background text-foreground'>
       <Sidebar foldable={breakpoint !== 'desktop'} />
 
-      <div className='relative h-full min-w-0 shrink grow'>
+      <div className='relative h-full min-w-120 shrink grow'>
         <Routes>
           <Route path='/' element={<MainPage />} />
           <Route path='/category/:categoryId?' element={<CategoryPage />} />
