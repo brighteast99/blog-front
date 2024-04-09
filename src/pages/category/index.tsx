@@ -25,7 +25,8 @@ export const CategoryPage: FC = () => {
   const { loading, data } = useQuery<{ categoryInfo?: Category }>(
     GET_CATEGORY_INFO,
     {
-      variables: { id: Number(categoryId) }
+      variables: { id: Number(categoryId) },
+      skip: isNaN(Number(categoryId)) && categoryId !== 'all'
     }
   )
 
@@ -33,7 +34,7 @@ export const CategoryPage: FC = () => {
     return (
       <Error404
         message='존재하지 않는 게시판입니다.'
-        action={{ label: '전체 게시글 보기', to: '/category/0' }}
+        action={{ label: '전체 게시글 보기', to: '/category/all' }}
       />
     )
   return (

@@ -20,7 +20,7 @@ export const CategoryItem: FC<{ category: Category }> = ({ category }) => {
           'flex justify-between py-0.5',
           hasId ? 'font-light' : 'font-medium'
         )}
-        to={`/category/${category.id ?? ''}`}
+        to={`/category/${category.id ?? 'all'}`}
       >
         {category.name}
         <span className={clsx(hasId && 'text-neutral-700')}>
