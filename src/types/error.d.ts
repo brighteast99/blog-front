@@ -1,7 +1,4 @@
 export interface ErrorProps {
+  code?: number | string
   message?: string
-  action?: {
-    label: string
-    to: string
-  }
 }

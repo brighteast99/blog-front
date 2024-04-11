@@ -1,14 +1,9 @@
 import { FC } from 'react'
-import { TypedDocumentNode, gql, useSuspenseQuery } from '@apollo/client'
+import { QueryReference, useReadQuery } from '@apollo/client'
 import { Link } from 'react-router-dom'
 import clsx from 'clsx'
 import { Category } from 'types/data'
-
-const GET_CATEGORIES: TypedDocumentNode<{ categoryList: string }> = gql`
-  query CategoryList {
-    categoryList
-  }
-`
+import { CategoryListQueryResult } from './Sidebar'
 
 export const CategoryItem: FC<{ category: Category }> = ({ category }) => {
   const hasId = category.id !== undefined
@@ -38,10 +33,11 @@ export const CategoryItem: FC<{ category: Category }> = ({ category }) => {
   )
 }
 
-export const CategoryList: FC = () => {
-  const { data, error } = useSuspenseQuery(GET_CATEGORIES)
+export const CategoryList: FC<{
+  queryRef: QueryReference<CategoryListQueryResult>
+}> = ({ queryRef }) => {
+  const { data } = useReadQuery(queryRef)
 
-  if (error) return null
   return (
     <ul>
       {(JSON.parse(JSON.parse(data.categoryList)) as Category[]).map(

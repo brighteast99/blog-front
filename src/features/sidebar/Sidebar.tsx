@@ -1,11 +1,21 @@
 import { FC, useLayoutEffect, Suspense } from 'react'
-import { ErrorBoundary } from 'react-error-boundary'
 import clsx from 'clsx'
 import { useAppDispatch, useAppSelector } from 'app/hooks'
 import { expand, selectSidebarIsFolded } from './sidebarSlice'
+import { ErrorBoundary } from 'react-error-boundary'
 import { Avatar } from 'components/Avatar'
 import { Spinner } from 'components/Spinner'
 import { CategoryList } from './CategoryList'
+import { Error } from 'components/Error'
+import { TypedDocumentNode, gql, useLoadableQuery } from '@apollo/client'
+
+export type CategoryListQueryResult = { categoryList: string }
+
+const GET_CATEGORIES: TypedDocumentNode<CategoryListQueryResult> = gql`
+  query CategoryList {
+    categoryList
+  }
+`
 
 export interface SidebarProps {
   /**
@@ -18,10 +28,16 @@ export interface SidebarProps {
 export const Sidebar: FC<SidebarProps> = ({ foldable = false }) => {
   const dispatch = useAppDispatch()
   const isFolded = useAppSelector(selectSidebarIsFolded)
+  const [loadCategories, queryRef, { refetch }] =
+    useLoadableQuery(GET_CATEGORIES)
 
   useLayoutEffect(() => {
     dispatch(expand())
   }, [dispatch, foldable])
+
+  useLayoutEffect(() => {
+    if (!queryRef) loadCategories()
+  }, [queryRef, loadCategories])
 
   return (
     <div
@@ -38,11 +54,27 @@ export const Sidebar: FC<SidebarProps> = ({ foldable = false }) => {
         <hr className='mb-4 mt-2' />
 
         <div className='relative min-h-0 grow overflow-y-auto'>
-          <ErrorBoundary fallback={<p>Failed to load category list</p>}>
+          <ErrorBoundary
+            FallbackComponent={({ resetErrorBoundary }) => (
+              <Error
+                message='오류가 발생했습니다'
+                hideDefaultAction
+                actions={[
+                  {
+                    label: '다시 시도',
+                    handler: () => {
+                      refetch()
+                      resetErrorBoundary()
+                    }
+                  }
+                ]}
+              />
+            )}
+          >
             <Suspense
               fallback={<Spinner size='sm' className='absolute inset-0' />}
             >
-              <CategoryList />
+              {queryRef && <CategoryList queryRef={queryRef} />}
             </Suspense>
           </ErrorBoundary>
         </div>

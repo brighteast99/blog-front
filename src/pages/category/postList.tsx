@@ -1,50 +1,26 @@
 import { FC, useLayoutEffect, useRef, useState } from 'react'
-import { TypedDocumentNode, gql, useSuspenseQuery } from '@apollo/client'
+import { QueryReference, useReadQuery } from '@apollo/client'
 import { Link } from 'react-router-dom'
 import { getRelativeTimeFromNow } from 'utils/timeFormatter'
 import { Post } from 'types/data'
 import Icon from '@mdi/react'
 import { mdiLock } from '@mdi/js'
 import clsx from 'clsx'
+import { PostListQueryResult, PostListQueryVariables } from '.'
 
-const GET_POSTS: TypedDocumentNode<
-  { postList: Post[] },
-  { categoryId: number | null }
-> = gql`
-  query PostList($categoryId: Int) {
-    postList(categoryId: $categoryId) {
-      category {
-        id
-        name
-      }
-      id
-      title
-      content
-      thumbnail
-      isHidden
-      createdAt
-      updatedAt
-    }
-  }
-`
-
-export const PostItem: FC<{ post: Post; showCategory?: boolean }> = ({
-  post,
-  showCategory = true
-}) => {
+export const PostItem: FC<{ post: Post }> = ({ post }) => {
   const isUpdated = post.createdAt !== post.updatedAt
 
   return (
     <li className='flex h-50 items-center gap-2 py-2'>
       <div className='flex min-w-0 grow flex-col justify-center gap-1 py-5'>
-        {showCategory && (
-          <Link
-            to={`/category/${post.category?.id}`}
-            className='text-sm font-light text-neutral-700'
-          >
-            {post.category?.name || '분류 미지정'}
-          </Link>
-        )}
+        <Link
+          to={`/category/${post.category?.id}`}
+          className='text-sm font-light text-neutral-700'
+        >
+          {post.category?.name || '분류 미지정'}
+        </Link>
+
         <Link to={`/post/${post.id}`}>
           <p className='truncate text-2xl font-medium'>
             {post.isHidden && (
@@ -83,11 +59,11 @@ export const PostItem: FC<{ post: Post; showCategory?: boolean }> = ({
 }
 
 export interface PostListProps {
-  categoryId?: number
+  queryRef: QueryReference<PostListQueryResult, PostListQueryVariables>
   cursor?: number
 }
 
-export const PostList: FC<PostListProps> = ({ categoryId }) => {
+export const PostList: FC<PostListProps> = ({ queryRef }) => {
   const listRef = useRef<HTMLUListElement>(null)
   const [{ pageSize, currentPage, pages }, setPagination] = useState({
     pageSize: 10,
@@ -95,10 +71,7 @@ export const PostList: FC<PostListProps> = ({ categoryId }) => {
     pages: 1
   })
 
-  const allPosts = categoryId === undefined
-  const { data } = useSuspenseQuery(GET_POSTS, {
-    variables: { categoryId: allPosts ? null : categoryId }
-  })
+  const { data } = useReadQuery(queryRef)
 
   useLayoutEffect(() => {
     setPagination((prev) => {
@@ -125,13 +98,7 @@ export const PostList: FC<PostListProps> = ({ categoryId }) => {
       >
         {data?.postList
           .slice(currentPage * pageSize, (currentPage + 1) * pageSize)
-          .map((post) => (
-            <PostItem
-              key={post.id}
-              post={post}
-              showCategory={post.category.id !== categoryId}
-            />
-          ))}
+          .map((post) => <PostItem key={post.id} post={post} />)}
       </ul>
 
       <div className='flex justify-center gap-2 py-1'>

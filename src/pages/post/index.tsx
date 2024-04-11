@@ -3,7 +3,7 @@ import { Link, useParams } from 'react-router-dom'
 import { TypedDocumentNode, gql, useQuery } from '@apollo/client'
 import { Post } from 'types/data'
 import { SuspendedText } from 'components/SuspendedText'
-import { Error404 } from 'pages/errors/404'
+import { Error } from 'components/Error'
 import { getRelativeTimeFromNow } from 'utils/timeFormatter'
 
 const GET_POST: TypedDocumentNode<{ post: Post }, { id: number }> = gql`
@@ -25,14 +25,29 @@ const GET_POST: TypedDocumentNode<{ post: Post }, { id: number }> = gql`
 
 export const PostPage: FC = () => {
   const { postId } = useParams()
-  const { loading, data } = useQuery(GET_POST, {
-    variables: { id: Number(postId) }
+  const { data, loading, error, refetch } = useQuery(GET_POST, {
+    variables: { id: Number(postId) },
+    notifyOnNetworkStatusChange: true,
+    skip: isNaN(Number(postId))
   })
 
   const isUpdated = data?.post?.createdAt !== data?.post?.updatedAt
 
+  if (error)
+    return (
+      <Error
+        message='게시글 정보를 불러오지 못했습니다.'
+        actions={[
+          {
+            label: '다시 시도',
+            handler: () => refetch()
+          }
+        ]}
+      />
+    )
+
   if (!loading && !data?.post)
-    return <Error404 message='존재하지 않는 게시글입니다.' />
+    return <Error code={404} message='존재하지 않는 게시글입니다.' />
 
   return (
     <div className='size-full overflow-y-auto'>
@@ -73,7 +88,19 @@ export const PostPage: FC = () => {
           />
         </div>
       </div>
-      <div className='mx-auto w-5/6 p-5'>{data?.post?.content}</div>
+      <div className='mx-auto w-5/6 p-5'>
+        {loading ? (
+          <SuspendedText
+            className='font-thin'
+            loading={true}
+            align='left'
+            lines={5}
+            length={100}
+          />
+        ) : (
+          <p>{data?.post?.content}</p>
+        )}
+      </div>
     </div>
   )
 }

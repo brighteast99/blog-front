@@ -1,13 +1,21 @@
-import { FC, Suspense } from 'react'
-import { useParams } from 'react-router-dom'
-import { TypedDocumentNode, gql, useQuery } from '@apollo/client'
+import { FC, Suspense, useLayoutEffect } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
+import {
+  TypedDocumentNode,
+  gql,
+  useLoadableQuery,
+  useQuery
+} from '@apollo/client'
 import clsx from 'clsx'
-import { Category } from 'types/data'
-import { PostList } from './postList'
+import { Category, Post } from 'types/data'
+import { PostList } from './PostList'
 import { Spinner } from 'components/Spinner'
 import { SuspendedText } from 'components/SuspendedText'
 import { ErrorBoundary } from 'react-error-boundary'
-import { Error404 } from 'pages/errors/404'
+import { Error } from 'components/Error'
+
+export type PostListQueryResult = { postList: Post[] }
+export type PostListQueryVariables = { categoryId: number | null }
 
 const GET_CATEGORY_INFO: TypedDocumentNode<
   { categoryInfo: Category },
@@ -23,21 +31,63 @@ const GET_CATEGORY_INFO: TypedDocumentNode<
     }
   }
 `
+const GET_POSTS: TypedDocumentNode<
+  PostListQueryResult,
+  PostListQueryVariables
+> = gql`
+  query PostList($categoryId: Int) {
+    postList(categoryId: $categoryId) {
+      category {
+        id
+        name
+      }
+      id
+      title
+      content
+      thumbnail
+      isHidden
+      createdAt
+      updatedAt
+    }
+  }
+`
+
 export const CategoryPage: FC = () => {
   const { categoryId } = useParams()
-  const { loading, data, error, refetch } = useQuery(GET_CATEGORY_INFO, {
+  const {
+    data,
+    loading,
+    error,
+    refetch: refetchCategoryInfo
+  } = useQuery(GET_CATEGORY_INFO, {
     variables: { id: Number(categoryId) },
-    skip: isNaN(Number(categoryId)) && categoryId !== 'all'
+    notifyOnNetworkStatusChange: true,
+    skip:
+      isNaN(Number(categoryId)) &&
+      categoryId !== undefined &&
+      categoryId !== 'all'
   })
+  const [getPosts, queryRef, { refetch: refetchPostList }] =
+    useLoadableQuery(GET_POSTS)
+
+  const navigate = useNavigate()
+
+  useLayoutEffect(() => {
+    if (categoryId === undefined) navigate('/category/all', { replace: true })
+  }, [categoryId, navigate])
+
+  useLayoutEffect(() => {
+    getPosts({ categoryId: categoryId ? Number(categoryId) : null })
+  }, [categoryId])
 
   if (error)
     return (
-      <Error404
+      <Error
         message='게시판 정보를 불러오지 못했습니다.'
         actions={[
           {
             label: '다시 시도',
-            handler: () => refetch()
+            handler: () => refetchCategoryInfo()
           }
         ]}
       />
@@ -45,9 +95,15 @@ export const CategoryPage: FC = () => {
 
   if (!loading && !data?.categoryInfo)
     return (
-      <Error404
+      <Error
+        code={404}
         message='존재하지 않는 게시판입니다.'
-        action={{ label: '전체 게시글 보기', to: '/category/all' }}
+        actions={[
+          {
+            label: '전체 게시글 보기',
+            href: { to: '/category/all' }
+          }
+        ]}
       />
     )
 
@@ -104,12 +160,20 @@ export const CategoryPage: FC = () => {
           FallbackComponent={({ resetErrorBoundary }) => (
             <Error
               message='게시글 목록을 불러오지 못했습니다.'
-              actions={[{ label: '다시 시도', handler: resetErrorBoundary }]}
+              actions={[
+                {
+                  label: '다시 시도',
+                  handler: () => {
+                    refetchPostList()
+                    resetErrorBoundary()
+                  }
+                }
+              ]}
             />
           )}
         >
           <Suspense fallback={<Spinner />}>
-            <PostList categoryId={Number(categoryId)} />
+            {queryRef && <PostList queryRef={queryRef} />}
           </Suspense>
         </ErrorBoundary>
       </div>

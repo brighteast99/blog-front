@@ -8,7 +8,7 @@ import { Sidebar } from 'features/sidebar/Sidebar'
 import { SidebarHandle } from 'features/sidebar/SidebarHandle'
 import { CategoryPage } from 'pages/category'
 import { MainPage } from 'pages/main'
-import { Error404 } from 'pages/errors/404'
+import { Error } from 'components/Error'
 import { PostPage } from 'pages/post'
 import { NewPostPage } from 'pages/post/New'
 
@@ -40,8 +40,12 @@ function App() {
         <Routes>
           <Route path='/' element={<MainPage />} />
           <Route path='/category/:categoryId?' element={<CategoryPage />} />
+          <Route path='/post/new' element={<NewPostPage />} />
           <Route path='/post/:postId?' element={<PostPage />} />
-          <Route path='/*' element={<Error404 />} />
+          <Route
+            path='/*'
+            element={<Error code={404} message='유효하지 않은 페이지입니다' />}
+          />
         </Routes>
 
         {breakpoint !== 'desktop' && (
