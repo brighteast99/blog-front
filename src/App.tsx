@@ -4,11 +4,13 @@ import { throttle } from 'throttle-debounce'
 import { useSelector } from 'react-redux'
 import { useAppDispatch } from 'app/hooks'
 import { selectBreakpoint, updateSize } from 'features/window/windowSlice'
-import { Sidebar, SidebarHandle } from 'features/sidebar/Sidebar'
+import { Sidebar } from 'features/sidebar/Sidebar'
+import { SidebarHandle } from 'features/sidebar/SidebarHandle'
 import { CategoryPage } from 'pages/category'
 import { MainPage } from 'pages/main'
 import { Error404 } from 'pages/errors/404'
 import { PostPage } from 'pages/post'
+import { NewPostPage } from 'pages/post/New'
 
 function App() {
   const dispatch = useAppDispatch()
