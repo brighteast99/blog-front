@@ -1,6 +1,6 @@
 import { FC, Suspense } from 'react'
 import { useParams } from 'react-router-dom'
-import { gql, useQuery } from '@apollo/client'
+import { TypedDocumentNode, gql, useQuery } from '@apollo/client'
 import clsx from 'clsx'
 import { Category } from 'types/data'
 import { PostList } from './postList'
@@ -9,7 +9,10 @@ import { SuspendedText } from 'components/SuspendedText'
 import { ErrorBoundary } from 'react-error-boundary'
 import { Error404 } from 'pages/errors/404'
 
-const GET_CATEGORY_INFO = gql`
+const GET_CATEGORY_INFO: TypedDocumentNode<
+  { categoryInfo: Category },
+  { id: number }
+> = gql`
   query CategoryInfo($id: Int) {
     categoryInfo(id: $id) {
       id
@@ -22,13 +25,23 @@ const GET_CATEGORY_INFO = gql`
 `
 export const CategoryPage: FC = () => {
   const { categoryId } = useParams()
-  const { loading, data } = useQuery<{ categoryInfo?: Category }>(
-    GET_CATEGORY_INFO,
-    {
-      variables: { id: Number(categoryId) },
-      skip: isNaN(Number(categoryId)) && categoryId !== 'all'
-    }
-  )
+  const { loading, data, error, refetch } = useQuery(GET_CATEGORY_INFO, {
+    variables: { id: Number(categoryId) },
+    skip: isNaN(Number(categoryId)) && categoryId !== 'all'
+  })
+
+  if (error)
+    return (
+      <Error404
+        message='게시판 정보를 불러오지 못했습니다.'
+        actions={[
+          {
+            label: '다시 시도',
+            handler: () => refetch()
+          }
+        ]}
+      />
+    )
 
   if (!loading && !data?.categoryInfo)
     return (
@@ -37,6 +50,7 @@ export const CategoryPage: FC = () => {
         action={{ label: '전체 게시글 보기', to: '/category/all' }}
       />
     )
+
   return (
     <div className='size-full overflow-y-auto'>
       {data?.categoryInfo?.coverImage && (
@@ -86,7 +100,14 @@ export const CategoryPage: FC = () => {
 
       <div className='sticky top-0 -mt-28 h-32 w-full bg-background' />
       <div className='mx-auto w-5/6'>
-        <ErrorBoundary fallback={<p>Failed to load posts</p>}>
+        <ErrorBoundary
+          FallbackComponent={({ resetErrorBoundary }) => (
+            <Error
+              message='게시글 목록을 불러오지 못했습니다.'
+              actions={[{ label: '다시 시도', handler: resetErrorBoundary }]}
+            />
+          )}
+        >
           <Suspense fallback={<Spinner />}>
             <PostList categoryId={Number(categoryId)} />
           </Suspense>

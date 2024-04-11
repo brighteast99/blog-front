@@ -1,12 +1,12 @@
 import { FC } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { gql, useQuery } from '@apollo/client'
+import { TypedDocumentNode, gql, useQuery } from '@apollo/client'
 import { Post } from 'types/data'
 import { SuspendedText } from 'components/SuspendedText'
 import { Error404 } from 'pages/errors/404'
 import { getRelativeTimeFromNow } from 'utils/timeFormatter'
 
-const GET_POST = gql`
+const GET_POST: TypedDocumentNode<{ post: Post }, { id: number }> = gql`
   query PostMeta($id: Int!) {
     post(id: $id) {
       id
@@ -25,9 +25,7 @@ const GET_POST = gql`
 
 export const PostPage: FC = () => {
   const { postId } = useParams()
-  const { loading, data } = useQuery<{
-    post?: Post
-  }>(GET_POST, {
+  const { loading, data } = useQuery(GET_POST, {
     variables: { id: Number(postId) }
   })
 

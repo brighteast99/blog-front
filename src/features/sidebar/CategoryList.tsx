@@ -1,10 +1,10 @@
 import { FC } from 'react'
-import { gql, useSuspenseQuery } from '@apollo/client'
+import { TypedDocumentNode, gql, useSuspenseQuery } from '@apollo/client'
 import { Link } from 'react-router-dom'
 import clsx from 'clsx'
 import { Category } from 'types/data'
 
-const GET_CATEGORIES = gql`
+const GET_CATEGORIES: TypedDocumentNode<{ categoryList: string }> = gql`
   query CategoryList {
     categoryList
   }
@@ -39,9 +39,7 @@ export const CategoryItem: FC<{ category: Category }> = ({ category }) => {
 }
 
 export const CategoryList: FC = () => {
-  const { data, error } = useSuspenseQuery<{ categoryList: string }>(
-    GET_CATEGORIES
-  )
+  const { data, error } = useSuspenseQuery(GET_CATEGORIES)
 
   if (error) return null
   return (

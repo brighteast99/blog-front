@@ -1,5 +1,5 @@
 import { FC, useLayoutEffect, useRef, useState } from 'react'
-import { gql, useSuspenseQuery } from '@apollo/client'
+import { TypedDocumentNode, gql, useSuspenseQuery } from '@apollo/client'
 import { Link } from 'react-router-dom'
 import { getRelativeTimeFromNow } from 'utils/timeFormatter'
 import { Post } from 'types/data'
@@ -7,7 +7,10 @@ import Icon from '@mdi/react'
 import { mdiLock } from '@mdi/js'
 import clsx from 'clsx'
 
-const GET_POSTS = gql`
+const GET_POSTS: TypedDocumentNode<
+  { postList: Post[] },
+  { categoryId: number | null }
+> = gql`
   query PostList($categoryId: Int) {
     postList(categoryId: $categoryId) {
       category {
@@ -93,7 +96,7 @@ export const PostList: FC<PostListProps> = ({ categoryId }) => {
   })
 
   const allPosts = categoryId === undefined
-  const { data } = useSuspenseQuery<{ postList: Post[] }>(GET_POSTS, {
+  const { data } = useSuspenseQuery(GET_POSTS, {
     variables: { categoryId: allPosts ? null : categoryId }
   })
 
