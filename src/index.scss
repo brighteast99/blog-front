@@ -1,3 +1,16 @@
 @use 'tailwindcss/base';
 @use 'tailwindcss/components';
 @use 'tailwindcss/utilities';
+
+
+select, input {
+  @apply bg-transparent border-b border-neutral-400;
+
+  &:not(:disabled) {
+    @apply hover:border-neutral-700 focus:border-primary focus:outline-none transition-colors;
+  }
+}
+
+select {
+  @apply pb-[0.1rem];
+}
