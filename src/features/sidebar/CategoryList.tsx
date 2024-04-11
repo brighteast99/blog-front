@@ -1,6 +1,6 @@
-import { FC, createContext } from 'react'
+import { FC } from 'react'
 import { gql, useSuspenseQuery } from '@apollo/client'
-import { Link, useLocation } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import clsx from 'clsx'
 import { Category } from 'types/data'
 
@@ -38,21 +38,19 @@ export const CategoryItem: FC<{ category: Category }> = ({ category }) => {
   )
 }
 
-const CategoryListContext = createContext({ pathname: '/' })
-
 export const CategoryList: FC = () => {
-  let { pathname } = useLocation()
-  const { data } = useSuspenseQuery<{ categoryList: string }>(GET_CATEGORIES)
+  const { data, error } = useSuspenseQuery<{ categoryList: string }>(
+    GET_CATEGORIES
+  )
 
+  if (error) return null
   return (
-    <CategoryListContext.Provider value={{ pathname }}>
-      <ul>
-        {(JSON.parse(JSON.parse(data?.categoryList)) as Category[]).map(
-          (category) => (
-            <CategoryItem key={category.id ?? null} category={category} />
-          )
-        )}
-      </ul>
-    </CategoryListContext.Provider>
+    <ul>
+      {(JSON.parse(JSON.parse(data.categoryList)) as Category[]).map(
+        (category) => (
+          <CategoryItem key={category.id ?? null} category={category} />
+        )
+      )}
+    </ul>
   )
 }
