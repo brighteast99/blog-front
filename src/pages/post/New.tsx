@@ -78,15 +78,8 @@ export const NewPostPage: FC = () => {
   const [searchParams, setSearchParams] = useSearchParams()
   const { loading: loadingCategories, data: categories } =
     useQuery(GET_CATEGORIES)
-  const [
-    createPost,
-    {
-      loading: creatingPost,
-      data: createPostResult,
-      error: createPostError,
-      reset: resetMutation
-    }
-  ] = useMutation(CREATE_POST)
+  const [createPost, { loading: creatingPost, reset: resetMutation }] =
+    useMutation(CREATE_POST)
 
   const { draft, setCategory, setTitle, setContent, setIsHidden } = useDraft({
     title: '',
@@ -156,7 +149,13 @@ export const NewPostPage: FC = () => {
               onCompleted: ({ createPost }) => {
                 navigate(`/post/${createPost.createdPost.id}`)
               },
-              onError: (error) => {
+              onError: ({ clientErrors, graphQLErrors, networkError }) => {
+                if (clientErrors.length || networkError)
+                  alert('게시글 업로드 중 오류가 발생했습니다.')
+                else if (graphQLErrors.length) {
+                  alert('존재하지 않는 분류입니다')
+                  setCategory(0)
+                }
                 resetMutation()
               }
             })
