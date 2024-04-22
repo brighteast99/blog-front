@@ -1,4 +1,4 @@
-import { FC, useLayoutEffect, useRef, useState } from 'react'
+import { FC, useCallback, useLayoutEffect, useRef, useState } from 'react'
 import { QueryReference, useReadQuery } from '@apollo/client'
 import { Link } from 'react-router-dom'
 import { getRelativeTimeFromNow, isSameTime } from 'utils/dayJS'
@@ -10,6 +10,12 @@ import { PostListQueryResult, PostListQueryVariables } from '.'
 
 export const PostItem: FC<{ post: Post }> = ({ post }) => {
   const isUpdated = !isSameTime(post.createdAt, post.updatedAt)
+
+  const extractText = useCallback((content: string) => {
+    const parser = new DOMParser()
+    const doc = parser.parseFromString(content, 'text/html')
+    return doc.body.textContent
+  }, [])
 
   return (
     <li className='flex h-50 items-center gap-2 py-2'>
@@ -41,7 +47,7 @@ export const PostItem: FC<{ post: Post }> = ({ post }) => {
         </p>
 
         <p className='line-clamp-3 font-thin text-neutral-800'>
-          {post.content}
+          {extractText(post.content)}
         </p>
       </div>
 

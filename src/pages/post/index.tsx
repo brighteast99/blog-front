@@ -5,6 +5,9 @@ import { Post } from 'types/data'
 import { SuspendedText } from 'components/SuspendedText'
 import { Error } from 'components/Error'
 import { getRelativeTimeFromNow, isSameTime } from 'utils/dayJS'
+import { Tiptap } from 'components/Tiptap'
+import Icon from '@mdi/react'
+import { mdiLock } from '@mdi/js'
 
 const GET_POST: TypedDocumentNode<{ post: Post }, { id: number }> = gql`
   query PostMeta($id: Int!) {
@@ -67,14 +70,23 @@ export const PostPage: FC = () => {
               length={6}
             />
           </Link>
-          <SuspendedText
-            className='w-3/5 text-4xl font-medium'
-            loading={loading}
-            text={data?.post?.title}
-            align='center'
-            length={100}
-            lines={2}
-          />
+          <div className='flex w-3/5 items-center justify-center'>
+            {data?.post?.isHidden && (
+              <Icon
+                path={mdiLock}
+                size={0.8}
+                className='mr-1 mt-1.5 inline align-text-top text-neutral-700'
+              />
+            )}
+            <SuspendedText
+              className='text-4xl font-medium'
+              loading={loading}
+              text={data?.post?.title}
+              align='center'
+              length={100}
+              lines={2}
+            />
+          </div>
           <SuspendedText
             className='font-thin'
             loading={loading}
@@ -98,7 +110,11 @@ export const PostPage: FC = () => {
             length={100}
           />
         ) : (
-          <p>{data?.post?.content}</p>
+          <Tiptap
+            className='bg-transparent'
+            editable={false}
+            content={data?.post?.content}
+          />
         )}
       </div>
     </div>
