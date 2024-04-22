@@ -4,7 +4,7 @@ import { TypedDocumentNode, gql, useQuery } from '@apollo/client'
 import { Post } from 'types/data'
 import { SuspendedText } from 'components/SuspendedText'
 import { Error } from 'components/Error'
-import { getRelativeTimeFromNow } from 'utils/timeFormatter'
+import { getRelativeTimeFromNow, isSameTime } from 'utils/dayJS'
 
 const GET_POST: TypedDocumentNode<{ post: Post }, { id: number }> = gql`
   query PostMeta($id: Int!) {
@@ -31,7 +31,7 @@ export const PostPage: FC = () => {
     skip: isNaN(Number(postId))
   })
 
-  const isUpdated = data?.post?.createdAt !== data?.post?.updatedAt
+  const isUpdated = !isSameTime(data?.post?.createdAt, data?.post?.updatedAt)
 
   if (error)
     return (

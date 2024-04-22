@@ -1,7 +1,7 @@
 import { FC, useLayoutEffect, useRef, useState } from 'react'
 import { QueryReference, useReadQuery } from '@apollo/client'
 import { Link } from 'react-router-dom'
-import { getRelativeTimeFromNow } from 'utils/timeFormatter'
+import { getRelativeTimeFromNow, isSameTime } from 'utils/dayJS'
 import { Post } from 'types/data'
 import Icon from '@mdi/react'
 import { mdiLock } from '@mdi/js'
@@ -9,7 +9,7 @@ import clsx from 'clsx'
 import { PostListQueryResult, PostListQueryVariables } from '.'
 
 export const PostItem: FC<{ post: Post }> = ({ post }) => {
-  const isUpdated = post.createdAt !== post.updatedAt
+  const isUpdated = !isSameTime(post.createdAt, post.updatedAt)
 
   return (
     <li className='flex h-50 items-center gap-2 py-2'>
