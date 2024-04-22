@@ -18,7 +18,7 @@ export interface EditorProps {
   content?: string
   editable?: boolean
   autofocus?: boolean
-  onchange?: (editor: Editor) => void
+  onChange?: (editor: Editor) => void
 }
 
 export const Tiptap: FC<EditorProps> = ({
@@ -26,7 +26,7 @@ export const Tiptap: FC<EditorProps> = ({
   content = '',
   editable = true,
   autofocus = false,
-  onchange = () => {}
+  onChange = () => {}
 }) => {
   const [editor, setEditor] = useState<Editor>()
 
@@ -64,7 +64,7 @@ export const Tiptap: FC<EditorProps> = ({
         content={content}
         autofocus={autofocus}
         onCreate={({ editor }) => setEditor(editor as Editor)}
-        onUpdate={({ editor }) => onchange(editor as Editor)}
+        onUpdate={({ editor }) => onChange(editor as Editor)}
         children
       />
     </div>
