@@ -164,7 +164,6 @@ export const Toolbar: FC<{ className?: string }> = ({ className }) => {
                 variant='hover-text-toggle'
                 active={editorStyles.bold}
                 onClick={() => {
-                  console.log('click')
                   editor?.chain().focus().toggleBold().run()
                 }}
               />
