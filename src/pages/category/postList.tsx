@@ -27,7 +27,7 @@ export const PostItem: FC<{ post: Post }> = ({ post }) => {
               <Icon
                 path={mdiLock}
                 size={0.8}
-                className='mr-1 mt-0.5 inline align-text-top text-neutral-700'
+                className='mr-1 mt-1.5 inline align-text-top text-neutral-700'
               />
             )}
             {post.title}
