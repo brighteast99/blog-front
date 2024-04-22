@@ -35,7 +35,7 @@ export const Tiptap: FC<EditorProps> = ({
   }, [editor, editable])
 
   return (
-    <div className={cn(className, styles.wrapper)}>
+    <div className={cn(className, styles.wrapper, !editable && styles.viewer)}>
       <EditorProvider
         extensions={[
           StarterKit,
