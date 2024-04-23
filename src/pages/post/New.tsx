@@ -139,7 +139,7 @@ export const NewPostPage: FC = () => {
         />
 
         <ThemedButton
-          className='w-full py-0.5 text-lg'
+          className='h-10 w-full py-0.5 text-lg text-foreground'
           variant='flat'
           color='primary'
           disabled={!draft.title || creatingPost}
