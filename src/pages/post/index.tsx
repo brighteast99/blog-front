@@ -34,7 +34,8 @@ export const PostPage: FC = () => {
     skip: isNaN(Number(postId))
   })
 
-  const isUpdated = !isSameTime(data?.post?.createdAt, data?.post?.updatedAt)
+  const isUpdated =
+    !data?.post || !isSameTime(data.post.createdAt, data.post.updatedAt)
 
   if (error)
     return (

@@ -11,8 +11,6 @@ export function getRelativeTimeFromNow(date: Date): string {
   return dayjs().to(dayjs(date).format('YYYY-MM-DD HH:mm:ss'))
 }
 
-export function isSameTime(date1?: Date, date2?: Date): Boolean {
-  if (date1 === undefined && date2 === undefined) return true
-  if (date1 === undefined || date2 === undefined) return false
+export function isSameTime(date1: Date, date2: Date): Boolean {
   return dayjs(date1).isSame(dayjs(date2), 'milliseconds')
 }
