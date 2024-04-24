@@ -1,4 +1,4 @@
-import { FC, useLayoutEffect, Suspense } from 'react'
+import { FC, useLayoutEffect, Suspense, useCallback } from 'react'
 import clsx from 'clsx'
 import { useAppDispatch, useAppSelector } from 'app/hooks'
 import { expand, selectSidebarIsFolded } from './sidebarSlice'
@@ -8,6 +8,11 @@ import { Spinner } from 'components/Spinner'
 import { CategoryList } from './CategoryList'
 import { Error } from 'components/Error'
 import { TypedDocumentNode, gql, useLoadableQuery } from '@apollo/client'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { IconButton } from 'components/Buttons/IconButton'
+import { resetToken, selectIsAuthenticated } from 'features/auth/authSlice'
+import { mdiLogin, mdiLogout } from '@mdi/js'
+import { Tooltip, TooltipContent, TooltipTrigger } from 'components/Tooltip'
 
 export type CategoryListQueryResult = { categoryList: string }
 
@@ -27,13 +32,22 @@ export interface SidebarProps {
 
 export const Sidebar: FC<SidebarProps> = ({ foldable = false }) => {
   const dispatch = useAppDispatch()
+  const navigate = useNavigate()
+  const location = useLocation()
   const isFolded = useAppSelector(selectSidebarIsFolded)
+  const isLoggedIn = useAppSelector(selectIsAuthenticated)
   const [loadCategories, queryRef, { refetch }] =
     useLoadableQuery(GET_CATEGORIES)
 
+  const loginControl = useCallback(() => {
+    if (isLoggedIn) {
+      if (window.confirm('로그아웃하시겠습니까?')) dispatch(resetToken())
+    } else navigate(`/login?next=${location.pathname}`)
+  }, [dispatch, isLoggedIn, location.pathname, navigate])
+
   useLayoutEffect(() => {
-    dispatch(expand())
-  }, [dispatch, foldable])
+    if (isFolded) dispatch(expand())
+  }, [dispatch, foldable, isFolded])
 
   useLayoutEffect(() => {
     if (!queryRef) loadCategories()
@@ -48,7 +62,9 @@ export const Sidebar: FC<SidebarProps> = ({ foldable = false }) => {
     >
       <div className='mx-4 flex size-full w-64 flex-col py-8'>
         <Avatar className='mx-auto mb-2 shrink-0' size='2xl' />
-        <p className='text-center text-lg font-semibold'>기록장</p>
+        <Link className='text-center text-lg font-semibold' to='/'>
+          기록장
+        </Link>
         <p className='text-center'>블로그 소개</p>
 
         <hr className='mb-4 mt-2' />
@@ -78,6 +94,18 @@ export const Sidebar: FC<SidebarProps> = ({ foldable = false }) => {
             </Suspense>
           </ErrorBoundary>
         </div>
+        <Tooltip placement='right'>
+          <TooltipTrigger asChild>
+            <IconButton
+              className='w-fit'
+              path={isLoggedIn ? mdiLogout : mdiLogin}
+              color={isLoggedIn ? 'error' : 'primary'}
+              variant='hover-text'
+              onClick={loginControl}
+            />
+          </TooltipTrigger>
+          <TooltipContent>{isLoggedIn ? '로그아웃' : '로그인'}</TooltipContent>
+        </Tooltip>
       </div>
     </div>
   )

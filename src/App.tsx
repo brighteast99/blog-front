@@ -1,8 +1,7 @@
 import { useLayoutEffect } from 'react'
 import { Route, Routes } from 'react-router-dom'
 import { throttle } from 'throttle-debounce'
-import { useSelector } from 'react-redux'
-import { useAppDispatch } from 'app/hooks'
+import { useAppDispatch, useAppSelector } from 'app/hooks'
 import { selectBreakpoint, updateSize } from 'features/window/windowSlice'
 import { Sidebar } from 'features/sidebar/Sidebar'
 import { SidebarHandle } from 'features/sidebar/SidebarHandle'
@@ -11,10 +10,11 @@ import { MainPage } from 'pages/main'
 import { Error } from 'components/Error'
 import { PostPage } from 'pages/post'
 import { NewPostPage } from 'pages/post/New'
+import { LoginPage } from 'pages/login'
 
 function App() {
   const dispatch = useAppDispatch()
-  const breakpoint = useSelector(selectBreakpoint)
+  const breakpoint = useAppSelector(selectBreakpoint)
 
   useLayoutEffect(() => {
     const dispatchSizeUpdate = throttle(250, () => {
@@ -39,6 +39,7 @@ function App() {
       <div className='relative h-full min-w-120 shrink grow'>
         <Routes>
           <Route path='/' element={<MainPage />} />
+          <Route path='/login' element={<LoginPage />} />
           <Route path='/category/:categoryId?' element={<CategoryPage />} />
           <Route path='/post/new' element={<NewPostPage />} />
           <Route path='/post/:postId?' element={<PostPage />} />
