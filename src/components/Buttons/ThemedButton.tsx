@@ -128,7 +128,7 @@ export const ThemedButton = forwardRef<
       <button
         ref={ref}
         className={cn(
-          'btn rounded',
+          'rounded transition-colors',
           colorClassName,
           variantClassName,
           className
