@@ -1,5 +1,5 @@
 import { FC } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useLocation, useParams } from 'react-router-dom'
 import { TypedDocumentNode, gql, useQuery } from '@apollo/client'
 import { Post } from 'types/data'
 import { SuspendedText } from 'components/SuspendedText'
@@ -16,6 +16,7 @@ const GET_POST: TypedDocumentNode<{ post: Post }, { id: number }> = gql`
       title
       category {
         name
+        isHidden
       }
       isHidden
       thumbnail
@@ -27,6 +28,7 @@ const GET_POST: TypedDocumentNode<{ post: Post }, { id: number }> = gql`
 `
 
 export const PostPage: FC = () => {
+  const location = useLocation()
   const { postId } = useParams()
   const { data, loading, error, refetch } = useQuery(GET_POST, {
     variables: { id: Number(postId) },
@@ -37,7 +39,7 @@ export const PostPage: FC = () => {
   const isUpdated =
     !data?.post || !isSameTime(data.post.createdAt, data.post.updatedAt)
 
-  if (error)
+  if (error?.networkError)
     return (
       <Error
         message='게시글 정보를 불러오지 못했습니다.'
@@ -45,6 +47,27 @@ export const PostPage: FC = () => {
           {
             label: '다시 시도',
             handler: () => refetch()
+          }
+        ]}
+      />
+    )
+
+  if (error?.graphQLErrors.length)
+    return (
+      <Error
+        code={403}
+        message='접근할 수 없는 게시글입니다.'
+        actions={[
+          {
+            label: '로그인',
+            href: {
+              to: `/login?next=${location.pathname}`,
+              option: { replace: true }
+            }
+          },
+          {
+            label: '전체 게시글 보기',
+            href: { to: '/category/all' }
           }
         ]}
       />
@@ -62,23 +85,25 @@ export const PostPage: FC = () => {
         }}
       >
         <div className='flex size-full flex-col items-center justify-center gap-1 py-5 backdrop-blur backdrop-brightness-50'>
-          <Link to={`/category/${data?.post?.category?.id || 0}`}>
-            <SuspendedText
-              className='text-lg'
-              loading={loading}
-              text={data?.post?.category.name}
-              align='center'
-              length={6}
-            />
-          </Link>
-          <div className='flex w-3/5 items-center justify-center'>
-            {data?.post?.isHidden && (
+          <div className='flex items-center justify-center'>
+            <Link to={`/category/${data?.post?.category?.id || 0}`}>
+              <SuspendedText
+                className='text-lg'
+                loading={loading}
+                text={data?.post?.category.name}
+                align='center'
+                length={6}
+              />
+            </Link>
+            {data?.post?.category.isHidden && (
               <Icon
                 path={mdiLock}
-                size={0.8}
-                className='mr-1 mt-1.5 inline align-text-top text-neutral-700'
+                size={0.6}
+                className='ml-0.5 mt-1 inline align-text-bottom text-neutral-700'
               />
             )}
+          </div>
+          <div className='flex w-3/5 items-center justify-center'>
             <SuspendedText
               className='text-4xl font-medium'
               loading={loading}
@@ -87,6 +112,13 @@ export const PostPage: FC = () => {
               length={100}
               lines={2}
             />
+            {data?.post?.isHidden && (
+              <Icon
+                path={mdiLock}
+                size={0.7}
+                className='mb-1 ml-1 inline self-end text-neutral-700'
+              />
+            )}
           </div>
           <SuspendedText
             className='font-thin'

@@ -1,5 +1,5 @@
-import { FC, Suspense, useLayoutEffect } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { FC, Suspense, useEffect, useLayoutEffect } from 'react'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import {
   TypedDocumentNode,
   gql,
@@ -13,6 +13,8 @@ import { Spinner } from 'components/Spinner'
 import { SuspendedText } from 'components/SuspendedText'
 import { ErrorBoundary } from 'react-error-boundary'
 import { Error } from 'components/Error'
+import Icon from '@mdi/react'
+import { mdiLock } from '@mdi/js'
 
 export type PostListQueryResult = { postList: Post[] }
 export type PostListQueryVariables = { categoryId: number | null }
@@ -25,6 +27,7 @@ const GET_CATEGORY_INFO: TypedDocumentNode<
     categoryInfo(id: $id) {
       id
       name
+      isHidden
       description
       postCount
       coverImage
@@ -40,6 +43,7 @@ const GET_POSTS: TypedDocumentNode<
       category {
         id
         name
+        isHidden
       }
       id
       title
@@ -69,18 +73,19 @@ export const CategoryPage: FC = () => {
   })
   const [getPosts, queryRef, { refetch: refetchPostList }] =
     useLoadableQuery(GET_POSTS)
-
   const navigate = useNavigate()
+  const location = useLocation()
 
   useLayoutEffect(() => {
     if (categoryId === undefined) navigate('/category/all', { replace: true })
   }, [categoryId, navigate])
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     getPosts({ categoryId: categoryId ? Number(categoryId) : null })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [categoryId])
 
-  if (error)
+  if (error?.networkError)
     return (
       <Error
         message='게시판 정보를 불러오지 못했습니다.'
@@ -88,6 +93,27 @@ export const CategoryPage: FC = () => {
           {
             label: '다시 시도',
             handler: () => refetchCategoryInfo()
+          }
+        ]}
+      />
+    )
+
+  if (error?.graphQLErrors.some((error) => error.message === 'Login required'))
+    return (
+      <Error
+        code={403}
+        message='접근할 수 없는 게시판입니다'
+        actions={[
+          {
+            label: '로그인',
+            href: {
+              to: `/login?next=${location.pathname}`,
+              option: { replace: true }
+            }
+          },
+          {
+            label: '전체 게시글 보기',
+            href: { to: '/category/all' }
           }
         ]}
       />
@@ -125,12 +151,21 @@ export const CategoryPage: FC = () => {
         )}
       >
         <div className='mb-2'>
-          <SuspendedText
-            className='text-5xl'
-            text={data?.categoryInfo?.name}
-            length={4}
-            loading={loading}
-          />
+          <div className='mb-1 flex items-center'>
+            <SuspendedText
+              className='text-5xl'
+              text={data?.categoryInfo?.name}
+              length={4}
+              loading={loading}
+            />
+            {data?.categoryInfo?.isHidden && (
+              <Icon
+                path={mdiLock}
+                size={1.2}
+                className='ml-1 self-end text-neutral-700'
+              />
+            )}
+          </div>
           <SuspendedText
             className='ml-2 text-lg font-light text-neutral-600'
             text={

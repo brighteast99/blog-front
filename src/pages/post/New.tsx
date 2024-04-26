@@ -1,10 +1,12 @@
 import { FC, useLayoutEffect, useState } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { TypedDocumentNode, gql, useMutation, useQuery } from '@apollo/client'
 import { Category, Post } from 'types/data'
 import { Tiptap } from 'components/Tiptap'
 import { ThemedButton } from 'components/Buttons/ThemedButton'
 import { Spinner } from 'components/Spinner'
+import { useAppSelector } from 'app/hooks'
+import { selectIsAuthenticated } from 'features/auth/authSlice'
 
 const GET_CATEGORIES: TypedDocumentNode<{ categories: Category[] }> = gql`
   query PostableCategories {
@@ -74,6 +76,8 @@ export const useDraft = (initialValue: Draft) => {
 }
 
 export const NewPostPage: FC = () => {
+  const isLoggedIn = useAppSelector(selectIsAuthenticated)
+  const location = useLocation()
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
   const { loading: loadingCategories, data: categories } =
@@ -86,6 +90,11 @@ export const NewPostPage: FC = () => {
     category: Number(searchParams.get('category') ?? 0),
     isHidden: false,
     content: ''
+  })
+
+  useLayoutEffect(() => {
+    if (!isLoggedIn)
+      navigate(`/login?next=${location.pathname}`, {replace: true})
   })
 
   useLayoutEffect(() => {

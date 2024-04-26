@@ -4,6 +4,8 @@ import { Link } from 'react-router-dom'
 import clsx from 'clsx'
 import { Category } from 'types/data'
 import { CategoryListQueryResult } from './Sidebar'
+import Icon from '@mdi/react'
+import { mdiLock } from '@mdi/js'
 
 export const CategoryItem: FC<{ category: Category }> = ({ category }) => {
   const hasId = category.id !== undefined
@@ -17,7 +19,16 @@ export const CategoryItem: FC<{ category: Category }> = ({ category }) => {
         )}
         to={`/category/${category.id ?? 'all'}`}
       >
-        {category.name}
+        <p>
+          {category.name}
+          {category.isHidden && (
+            <Icon
+              className='ml-0.5 inline text-neutral-700'
+              path={mdiLock}
+              size={0.45}
+            />
+          )}
+        </p>
         <span className={clsx(hasId && 'text-neutral-700')}>
           ({category.postCount})
         </span>

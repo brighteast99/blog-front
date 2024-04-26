@@ -25,18 +25,25 @@ export const PostItem: FC<{ post: Post }> = ({ post }) => {
           className='text-sm font-light text-neutral-700'
         >
           {post.category?.name || '분류 미지정'}
+          {post.category.isHidden && (
+            <Icon
+              className='ml-0.5 inline text-neutral-700'
+              path={mdiLock}
+              size={0.5}
+            />
+          )}
         </Link>
 
         <Link to={`/post/${post.id}`}>
           <p className='truncate text-2xl font-medium'>
+            {post.title}
             {post.isHidden && (
               <Icon
                 path={mdiLock}
-                size={0.8}
-                className='mr-1 mt-1.5 inline align-text-top text-neutral-700'
+                size={0.6}
+                className='mb-0.5 ml-1 inline align-text-bottom text-neutral-700'
               />
             )}
-            {post.title}
           </p>
         </Link>
 
