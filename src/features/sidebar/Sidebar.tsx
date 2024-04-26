@@ -53,7 +53,7 @@ export const Sidebar: FC<SidebarProps> = ({ foldable = false }) => {
   }, [dispatch, isLoggedIn, location.pathname, navigate])
 
   useLayoutEffect(() => {
-    if (isFolded) dispatch(expand())
+    if (!foldable && isFolded) dispatch(expand())
   }, [dispatch, foldable, isFolded])
 
   useLayoutEffect(() => {
