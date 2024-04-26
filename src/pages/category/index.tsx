@@ -17,6 +17,8 @@ import Icon from '@mdi/react'
 import { mdiLock, mdiMagnify, mdiPlus } from '@mdi/js'
 import { IconButton } from 'components/Buttons/IconButton'
 import { Tooltip, TooltipContent, TooltipTrigger } from 'components/Tooltip'
+import { useAppSelector } from 'app/hooks'
+import { selectIsAuthenticated } from 'features/auth/authSlice'
 
 export type PostListQueryResult = { postList: Post[] }
 export type PostListQueryVariables = { categoryId: number | null }
@@ -59,6 +61,7 @@ export const GET_POSTS: TypedDocumentNode<
 `
 
 export const CategoryPage: FC = () => {
+  const isLoggedIn = useAppSelector(selectIsAuthenticated)
   const { categoryId } = useParams()
   const {
     data,
@@ -194,22 +197,25 @@ export const CategoryPage: FC = () => {
       <div className='sticky top-0 -mt-28 h-32 w-full bg-background' />
       <div className='mx-auto w-5/6'>
         <div className='mb-2 flex items-center'>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <IconButton
-                className='p-0'
-                path={mdiPlus}
-                variant='hover-text'
-                onClick={() => {
-                  let path = '/post/new'
-                  if (typeof Number(categoryId) === 'number')
-                    path += `?category=${categoryId}`
-                  navigate(path)
-                }}
-              />
-            </TooltipTrigger>
-            <TooltipContent>새 글 쓰기</TooltipContent>
-          </Tooltip>
+          {isLoggedIn && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <IconButton
+                  className='p-0'
+                  path={mdiPlus}
+                  variant='hover-text'
+                  onClick={() => {
+                    let path = '/post/new'
+                    if (typeof Number(categoryId) === 'number')
+                      path += `?category=${categoryId}`
+                    navigate(path)
+                  }}
+                />
+              </TooltipTrigger>
+              <TooltipContent>새 글 쓰기</TooltipContent>
+            </Tooltip>
+          )}
+
           <div className='grow' />
           <input type='text' />
           <IconButton
