@@ -11,11 +11,11 @@ export interface PopoverMenuItemProps {
   icon: string
   iconOnRight?: boolean
   title: string
-  description: string | number | boolean
-  tooltipPlacement: Placement
+  description?: string | number | boolean
+  tooltipPlacement?: Placement
   loading?: boolean
   disabled?: boolean
-  className: string
+  className?: string
   iconProps?: IconProps
   onClick?: () => {}
 }
