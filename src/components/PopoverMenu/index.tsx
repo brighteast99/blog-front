@@ -159,7 +159,7 @@ export const PopoverMenu: FC<PopoverMenuProps> = ({
       {isOpen && (
         <div
           ref={refs.setFloating}
-          className='z-10 rounded border border-neutral-100 bg-background text-foreground'
+          className='z-10 overflow-hidden rounded border border-neutral-100 bg-background text-foreground'
           style={{ ...floatingStyles }}
           {...getFloatingProps()}
         >
