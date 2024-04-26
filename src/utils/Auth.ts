@@ -3,11 +3,12 @@ import { client } from 'ApolloContext'
 import { AuthInfo, TokenPayload } from 'types/auth'
 
 export class AuthFailedError extends Error {}
-export class RefreshFailedError extends Error {}
+export class TokenExpiredError extends Error {}
+export class RefreshExpiredError extends Error {}
 export class InvalidTokenError extends Error {}
 export class NetworkError extends Error {}
 
-export async function getToken(
+export async function auth(
   username: string,
   password: string
 ): Promise<AuthInfo> {
@@ -17,6 +18,7 @@ export async function getToken(
         token
         payload
         refreshExpiresIn
+        refreshToken
       }
     }
   `
@@ -39,11 +41,9 @@ export async function getToken(
     throw new Error()
   }
 
-  if (!data.data?.tokenAuth) throw new AuthFailedError()
-
-  return data.data?.tokenAuth
+  return data.data?.tokenAuth as AuthInfo
 }
-export async function verifyToken(token?: string): Promise<TokenPayload> {
+export async function verify(token?: string): Promise<TokenPayload> {
   const VERIFY_TOKEN: TypedDocumentNode<{
     verifyToken: { payload: TokenPayload }
   }> = gql`
@@ -67,23 +67,31 @@ export async function verifyToken(token?: string): Promise<TokenPayload> {
   } catch (err) {
     const apolloError = err as ApolloError
 
-    if (apolloError.graphQLErrors.length) throw new InvalidTokenError()
+    if (apolloError.graphQLErrors.length) {
+      if (
+        apolloError.graphQLErrors.some(
+          (error) => error.message === 'Signature has expired'
+        )
+      )
+        throw new TokenExpiredError()
+
+      throw new InvalidTokenError()
+    }
     if (apolloError.networkError) throw new NetworkError()
 
     throw new Error()
   }
 
-  if (!data.data?.verifyToken?.payload) throw new InvalidTokenError()
-
-  return data.data?.verifyToken.payload
+  return data.data?.verifyToken.payload as TokenPayload
 }
-export async function refreshToken(token: string): Promise<AuthInfo> {
+export async function refresh(refreshToken: string): Promise<AuthInfo> {
   const REFRESH_TOKEN: TypedDocumentNode<{ refreshToken: AuthInfo }> = gql`
-    mutation refreshToken($token: String!) {
-      refreshToken(token: $token) {
+    mutation refreshToken($refreshToken: String!) {
+      refreshToken(refreshToken: $refreshToken) {
         token
         payload
         refreshExpiresIn
+        refreshToken
       }
     }
   `
@@ -92,57 +100,45 @@ export async function refreshToken(token: string): Promise<AuthInfo> {
     data = await client.mutate({
       mutation: REFRESH_TOKEN,
       variables: {
-        token: token
+        refreshToken
       }
     })
   } catch (err) {
     const apolloError = err as ApolloError
 
-    if (apolloError.graphQLErrors.length) throw new RefreshFailedError()
+    if (apolloError.graphQLErrors.length) {
+      if (
+        apolloError.graphQLErrors.some(
+          (error) => error.message === 'Refresh token is expired'
+        )
+      )
+        throw new RefreshExpiredError()
+
+      throw new InvalidTokenError()
+    }
     if (apolloError.networkError) throw new NetworkError()
 
     throw new Error()
   }
 
-  if (!data.data?.refreshToken) throw new RefreshFailedError()
-
-  return data.data?.refreshToken
+  return data.data?.refreshToken as AuthInfo
 }
 
-export async function isValidJWT(token: string): Promise<boolean> {
-  try {
-    verifyToken(token)
-  } catch (err) {
-    if (err instanceof NetworkError) throw err
-    return false
-  }
-
-  return true
-}
-
-export async function getPayload(token: string): Promise<TokenPayload> {
-  await verifyToken(token)
-
-  let base64Payload = token.split('.')[1]
-  let payload = atob(base64Payload)
-  return JSON.parse(payload)
-}
-
-export async function loadAuthInfoFromStorage(): Promise<AuthInfo | null> {
-  let token = localStorage.getItem('token')
+export async function authFromStorage(): Promise<AuthInfo | null> {
+  let token = localStorage.getItem('refreshToken')
   if (!token) return null
 
-  let payload
   try {
-    payload = await getPayload(token)
+    return await refresh(token)
   } catch (err) {
-    localStorage.removeItem('token')
-    return null
-  }
+    console.dir(err)
+    if (err instanceof TokenExpiredError || err instanceof InvalidTokenError) {
+      localStorage.removeItem('refreshToken')
+      return null
+    }
 
-  return {
-    token,
-    payload,
-    refreshExpiresIn: payload.origIat + 3600 * 24 * 7
+    if (err instanceof NetworkError) throw err
+
+    return null
   }
 }

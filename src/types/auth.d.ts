@@ -13,4 +13,5 @@ export interface AuthInfo {
   token: string
   payload: TokenPayload
   refreshExpiresIn: number
+  refreshToken: string
 }

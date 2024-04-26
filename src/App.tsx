@@ -1,4 +1,4 @@
-import { useLayoutEffect } from 'react'
+import { useLayoutEffect, useState } from 'react'
 import { Route, Routes } from 'react-router-dom'
 import { throttle } from 'throttle-debounce'
 import { useAppDispatch, useAppSelector } from 'app/hooks'
@@ -11,9 +11,13 @@ import { Error } from 'components/Error'
 import { PostPage } from 'pages/post'
 import { NewPostPage } from 'pages/post/New'
 import { LoginPage } from 'pages/login'
+import { refreshToken, selectIsAuthenticated } from 'features/auth/authSlice'
 
 function App() {
   const dispatch = useAppDispatch()
+  const isLoggedIn = useAppSelector(selectIsAuthenticated)
+  const [refreshLoginTimer, setRefreshLoginTimer] =
+    useState<ReturnType<typeof setInterval>>()
   const breakpoint = useAppSelector(selectBreakpoint)
 
   useLayoutEffect(() => {
@@ -31,6 +35,21 @@ function App() {
       window.removeEventListener('resize', dispatchSizeUpdate)
     }
   }, [dispatch])
+
+  useLayoutEffect(() => {
+    if (!isLoggedIn) {
+      if (refreshLoginTimer) clearInterval(refreshLoginTimer)
+      setRefreshLoginTimer(undefined)
+      return
+    }
+
+    if (!refreshLoginTimer)
+      setRefreshLoginTimer(
+        setInterval(() => {
+          dispatch(refreshToken(null))
+        }, 1000 * 240)
+      )
+  }, [dispatch, isLoggedIn, refreshLoginTimer])
 
   return (
     <div className='flex size-full min-h-[720px] bg-background text-foreground'>

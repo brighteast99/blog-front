@@ -12,7 +12,7 @@ import { UserInfo } from 'types/auth'
 import { useDispatch } from 'react-redux'
 import { selectIsAuthenticated, setToken } from 'features/auth/authSlice'
 import { useNavigate, useParams } from 'react-router-dom'
-import { AuthFailedError, NetworkError, getToken } from 'utils/Auth'
+import { AuthFailedError, NetworkError, auth } from 'utils/Auth'
 import { useAppSelector } from 'app/hooks'
 
 export const useUserInfo = (initialValue: UserInfo) => {
@@ -41,6 +41,7 @@ export const LoginPage: FC = () => {
   })
   const [keepLogin, setKeepLogin] = useState<boolean>(false)
   const [loading, setLoading] = useState<boolean>(false)
+  const [error, setError] = useState<string>()
 
   useEffect(() => {
     if (loggedIn) navigate(next ?? '/', { replace: true })
@@ -50,16 +51,19 @@ export const LoginPage: FC = () => {
     (e: FormEvent) => {
       e.preventDefault()
       setLoading(true)
-      getToken(info.username, info.password)
+      setError(undefined)
+      auth(info.username, info.password)
         .then((token) => {
-          if (keepLogin) localStorage.setItem('token', token.token)
+          if (keepLogin)
+            localStorage.setItem('refreshToken', token.refreshToken)
           dispatch(setToken(token))
           navigate(next ?? '/', { replace: true })
         })
         .catch((err) => {
-          if (err instanceof NetworkError) return alert('오류가 발생했습니다.')
+          if (err instanceof NetworkError)
+            return setError('오류가 발생했습니다.')
           if (err instanceof AuthFailedError)
-            return alert('계정 정보가 올바르지 않습니다')
+            return setError('계정 정보가 올바르지 않습니다')
         })
         .finally(() => setLoading(false))
     },
@@ -89,17 +93,8 @@ export const LoginPage: FC = () => {
           value={info.password}
           onChange={updateInfo}
         />
-        <label className='mb-3 block'>
-          <input
-            className='mr-1 accent-primary'
-            type='checkbox'
-            checked={keepLogin}
-            onChange={(e) => setKeepLogin(e.target.checked)}
-          />
-          7일간 로그인 유지
-        </label>
         <ThemedButton
-          className='h-11 w-full px-2 py-1 text-lg font-semibold text-foreground'
+          className='mb-3 h-11 w-full px-2 py-1 text-lg font-semibold text-foreground'
           type='submit'
           color='primary'
           variant='flat'
@@ -107,6 +102,18 @@ export const LoginPage: FC = () => {
         >
           {loading ? <Spinner size='xs' /> : '로그인'}
         </ThemedButton>
+        <label className='block'>
+          <input
+            className='mr-1 accent-primary'
+            type='checkbox'
+            checked={keepLogin}
+            onChange={(e) => setKeepLogin(e.target.checked)}
+          />
+          로그인 유지
+        </label>
+        {error && (
+          <p className='mt-2 text-center font-light text-error'>{error}</p>
+        )}
       </form>
     </div>
   )

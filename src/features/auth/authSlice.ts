@@ -1,8 +1,8 @@
 import { PayloadAction, createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import { RootState } from 'app/store'
 import { AuthInfo } from 'types/auth'
-import { isFuture, isPast } from 'utils/dayJS'
-import { refreshToken as _refreshToken } from 'utils/Auth'
+import { isPast } from 'utils/dayJS'
+import { refresh } from 'utils/Auth'
 
 interface AuthState {
   token?: AuthInfo
@@ -25,7 +25,7 @@ export const refreshToken = createAsyncThunk<
     let token = thunkAPI.getState().auth.token as AuthInfo
 
     try {
-      return await _refreshToken(token.token)
+      return await refresh(token.refreshToken)
     } catch (err) {
       return thunkAPI.rejectWithValue(err)
     }
@@ -44,15 +44,11 @@ export const createAuthSlice = (initialState: AuthState) =>
     initialState,
     reducers: {
       setToken: (state, action: PayloadAction<AuthInfo>) => {
-        const token = action.payload
-
-        if (isPast(token.payload.exp * 1000)) return
-
         state.token = action.payload
       },
       resetToken: (state) => {
         state.token = undefined
-        localStorage.removeItem('token')
+        localStorage.removeItem('refreshToken')
       }
     },
     extraReducers: (builder) => {
@@ -60,8 +56,7 @@ export const createAuthSlice = (initialState: AuthState) =>
         refreshToken.fulfilled,
         (state, action: PayloadAction<AuthInfo>) => {
           if (!state.token) return
-          state.token.token = action.payload.token
-          state.token.payload.exp = action.payload.payload.exp
+          state.token = action.payload
         }
       )
     }
@@ -77,18 +72,6 @@ export const selectIsAuthenticated = (state: RootState) => {
   if (isPast(state.auth.token.payload.exp * 1000)) return false
 
   return true
-}
-
-export const selectIsExpired = (state: RootState) => {
-  if (!state.auth.token) return true
-  if (isPast(state.auth.token.payload.exp * 1000)) return true
-
-  return false
-}
-
-export const selectCanRefresh = (state: RootState) => {
-  if (!state.auth.token) return false
-  return isFuture(state.auth.token.refreshExpiresIn * 1000)
 }
 
 export default authSlice.reducer
