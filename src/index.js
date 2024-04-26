@@ -26,7 +26,6 @@ do {
     }
   }
   catch (err) {
-    console.dir(err)
     retry = window.confirm('로그인 중 오류가 발생했습니다.\n다시 시도할까요?')
   }
 } while(retry)

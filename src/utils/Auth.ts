@@ -159,7 +159,6 @@ export async function authFromStorage(): Promise<AuthInfo | null> {
   try {
     return await refresh(token)
   } catch (err) {
-    console.dir(err)
     if (err instanceof TokenExpiredError || err instanceof InvalidTokenError) {
       localStorage.removeItem('refreshToken')
       return null
