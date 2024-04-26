@@ -31,7 +31,7 @@ export interface LinkConfigurerProps {
   title?: string
   description?: string
   children?: ReactNode
-  onChange: (data: LinkInfo) => void
+  onChange: (data: LinkInfo) => any
   onDelete: () => any
 }
 

@@ -17,7 +17,7 @@ export interface PopoverMenuItemProps {
   disabled?: boolean
   className?: string
   iconProps?: IconProps
-  onClick?: () => {}
+  onClick?: () => any
 }
 
 export const PopoverMenuItem: FC<PopoverMenuItemProps> = ({

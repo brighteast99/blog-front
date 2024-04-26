@@ -18,7 +18,7 @@ export interface EditorProps {
   content?: string
   editable?: boolean
   autofocus?: boolean
-  onChange?: (editor: Editor) => void
+  onChange?: (editor: Editor) => any
 }
 
 export const Tiptap: FC<EditorProps> = ({
