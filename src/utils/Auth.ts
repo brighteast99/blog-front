@@ -41,6 +41,7 @@ export async function auth(
     throw new Error()
   }
 
+  client.resetStore()
   return data.data?.tokenAuth as AuthInfo
 }
 export async function verify(token?: string): Promise<TokenPayload> {
