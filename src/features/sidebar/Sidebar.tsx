@@ -10,7 +10,7 @@ import { Error } from 'components/Error'
 import { TypedDocumentNode, gql, useLoadableQuery } from '@apollo/client'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { IconButton } from 'components/Buttons/IconButton'
-import { resetToken, selectIsAuthenticated } from 'features/auth/authSlice'
+import { revokeToken, selectIsAuthenticated } from 'features/auth/authSlice'
 import { mdiLogin, mdiLogout } from '@mdi/js'
 import { Tooltip, TooltipContent, TooltipTrigger } from 'components/Tooltip'
 
@@ -41,7 +41,11 @@ export const Sidebar: FC<SidebarProps> = ({ foldable = false }) => {
 
   const loginControl = useCallback(() => {
     if (isLoggedIn) {
-      if (window.confirm('로그아웃하시겠습니까?')) dispatch(resetToken())
+      if (window.confirm('로그아웃하시겠습니까?')) {
+        dispatch(revokeToken(null))
+        localStorage.removeItem('refreshToken')
+        sessionStorage.removeItem('refreshToken')
+      }
     } else navigate(`/login?next=${location.pathname}`)
   }, [dispatch, isLoggedIn, location.pathname, navigate])
 

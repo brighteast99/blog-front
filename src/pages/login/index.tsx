@@ -56,6 +56,7 @@ export const LoginPage: FC = () => {
         .then((token) => {
           if (keepLogin)
             localStorage.setItem('refreshToken', token.refreshToken)
+          else sessionStorage.setItem('refreshToken', token.refreshToken)
           dispatch(setToken(token))
           navigate(next ?? '/', { replace: true })
         })

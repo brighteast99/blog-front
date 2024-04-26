@@ -19,7 +19,10 @@ do {
     let token = await authFromStorage()
     if (token) {
       store.dispatch(setToken(token))
-      localStorage.setItem('refreshToken', token.refreshToken)
+      if (localStorage.getItem('refreshToken'))
+        localStorage.setItem('refreshToken', token.refreshToken)
+      else if (sessionStorage.getItem('refreshToken'))
+        sessionStorage.setItem('refreshToken', token.refreshToken)
     }
   }
   catch (err) {

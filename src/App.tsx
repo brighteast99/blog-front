@@ -12,6 +12,7 @@ import { PostPage } from 'pages/post'
 import { NewPostPage } from 'pages/post/New'
 import { LoginPage } from 'pages/login'
 import { refreshToken, selectIsAuthenticated } from 'features/auth/authSlice'
+import { AuthInfo } from 'types/auth'
 
 function App() {
   const dispatch = useAppDispatch()
@@ -46,7 +47,13 @@ function App() {
     if (!refreshLoginTimer)
       setRefreshLoginTimer(
         setInterval(() => {
-          dispatch(refreshToken(null))
+          dispatch(refreshToken(null)).then(({ payload }) => {
+            let authInfo = payload as AuthInfo
+            if (localStorage.getItem('refreshToken'))
+              localStorage.setItem('refreshToken', authInfo.refreshToken)
+            if (sessionStorage.getItem('refreshToken'))
+              sessionStorage.setItem('refreshToken', authInfo.refreshToken)
+          })
         }, 1000 * 240)
       )
   }, [dispatch, isLoggedIn, refreshLoginTimer])

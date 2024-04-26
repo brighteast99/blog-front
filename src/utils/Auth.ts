@@ -47,7 +47,7 @@ export async function verify(token?: string): Promise<TokenPayload> {
   const VERIFY_TOKEN: TypedDocumentNode<{
     verifyToken: { payload: TokenPayload }
   }> = gql`
-    mutation verifyToken($token: String!) {
+    mutation verify($token: String!) {
       verifyToken(token: $token) {
         payload
       }
@@ -86,7 +86,7 @@ export async function verify(token?: string): Promise<TokenPayload> {
 }
 export async function refresh(refreshToken: string): Promise<AuthInfo> {
   const REFRESH_TOKEN: TypedDocumentNode<{ refreshToken: AuthInfo }> = gql`
-    mutation refreshToken($refreshToken: String!) {
+    mutation refresh($refreshToken: String!) {
       refreshToken(refreshToken: $refreshToken) {
         token
         payload
@@ -124,8 +124,35 @@ export async function refresh(refreshToken: string): Promise<AuthInfo> {
   return data.data?.refreshToken as AuthInfo
 }
 
+export async function revoke(refreshToken: string): Promise<boolean> {
+  const REVOKE_TOKEN: TypedDocumentNode<{ refreshToken: AuthInfo }> = gql`
+    mutation revoke($refreshToken: String!) {
+      revokeToken(refreshToken: $refreshToken) {
+        revoked
+      }
+    }
+  `
+  try {
+    await client.mutate({
+      mutation: REVOKE_TOKEN,
+      variables: {
+        refreshToken
+      }
+    })
+    return true
+  } catch (err) {
+    const apolloError = err as ApolloError
+
+    if (apolloError.networkError) throw new NetworkError()
+
+    return false
+  }
+}
+
 export async function authFromStorage(): Promise<AuthInfo | null> {
-  let token = localStorage.getItem('refreshToken')
+  let token =
+    sessionStorage.getItem('refreshToken') ??
+    localStorage.getItem('refreshToken')
   if (!token) return null
 
   try {
