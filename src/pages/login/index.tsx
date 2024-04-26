@@ -4,6 +4,7 @@ import {
   FormEvent,
   useCallback,
   useEffect,
+  useMemo,
   useState
 } from 'react'
 import { ThemedButton } from 'components/Buttons/ThemedButton'
@@ -11,7 +12,7 @@ import { Spinner } from 'components/Spinner'
 import { UserInfo } from 'types/auth'
 import { useDispatch } from 'react-redux'
 import { selectIsAuthenticated, setToken } from 'features/auth/authSlice'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { AuthFailedError, NetworkError, auth } from 'utils/Auth'
 import { useAppSelector } from 'app/hooks'
 
@@ -34,7 +35,7 @@ export const LoginPage: FC = () => {
   const dispatch = useDispatch()
   const navigate = useNavigate()
   const loggedIn = useAppSelector(selectIsAuthenticated)
-  const { next } = useParams()
+  const [searchParams] = useSearchParams()
   const { info, updateInfo } = useUserInfo({
     username: '',
     password: ''
@@ -44,8 +45,8 @@ export const LoginPage: FC = () => {
   const [error, setError] = useState<string>()
 
   useEffect(() => {
-    if (loggedIn) navigate(next ?? '/', { replace: true })
-  }, [navigate, loggedIn, next])
+    if (loggedIn) navigate(searchParams.get('next') ?? '/', { replace: true })
+  }, [navigate, loggedIn, searchParams])
 
   const onSubmit = useCallback(
     (e: FormEvent) => {
@@ -58,7 +59,7 @@ export const LoginPage: FC = () => {
             localStorage.setItem('refreshToken', token.refreshToken)
           else sessionStorage.setItem('refreshToken', token.refreshToken)
           dispatch(setToken(token))
-          navigate(next ?? '/', { replace: true })
+          navigate(searchParams.get('next') ?? '/', { replace: true })
         })
         .catch((err) => {
           if (err instanceof NetworkError)
@@ -68,7 +69,7 @@ export const LoginPage: FC = () => {
         })
         .finally(() => setLoading(false))
     },
-    [dispatch, info, keepLogin, navigate, next]
+    [dispatch, info, keepLogin, navigate, searchParams]
   )
 
   return (
