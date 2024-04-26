@@ -9,7 +9,7 @@ import { CategoryPage } from 'pages/category'
 import { MainPage } from 'pages/main'
 import { Error } from 'components/Error'
 import { PostPage } from 'pages/post'
-import { NewPostPage } from 'pages/post/New'
+import { EditPostPage } from 'pages/post/Edit'
 import { LoginPage } from 'pages/login'
 import { refreshToken, selectIsAuthenticated } from 'features/auth/authSlice'
 import { AuthInfo } from 'types/auth'
@@ -67,7 +67,8 @@ function App() {
           <Route path='/' element={<MainPage />} />
           <Route path='/login' element={<LoginPage />} />
           <Route path='/category/:categoryId?' element={<CategoryPage />} />
-          <Route path='/post/new' element={<NewPostPage />} />
+          <Route path='/post/new' element={<EditPostPage newPost />} />
+          <Route path='/post/edit/:postId' element={<EditPostPage />} />
           <Route path='/post/:postId?' element={<PostPage />} />
           <Route
             path='/*'

@@ -1,5 +1,5 @@
 import { FC } from 'react'
-import { Link, useLocation, useParams } from 'react-router-dom'
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { TypedDocumentNode, gql, useQuery } from '@apollo/client'
 import { Post } from 'types/data'
 import { SuspendedText } from 'components/SuspendedText'
@@ -7,10 +7,14 @@ import { Error } from 'components/Error'
 import { getRelativeTimeFromNow, isSameTime } from 'utils/dayJS'
 import { Tiptap } from 'components/Tiptap'
 import Icon from '@mdi/react'
-import { mdiLock } from '@mdi/js'
+import { mdiDelete, mdiLock, mdiPencil } from '@mdi/js'
+import { useAppSelector } from 'app/hooks'
+import { selectIsAuthenticated } from 'features/auth/authSlice'
+import { PopoverMenu } from 'components/PopoverMenu'
+import { PopoverMenuItem } from 'components/PopoverMenu/PopoverMenuItem'
 
 export const GET_POST: TypedDocumentNode<{ post: Post }, { id: number }> = gql`
-  query PostMeta($id: Int!) {
+  query PostData($id: Int!) {
     post(id: $id) {
       id
       title
@@ -29,7 +33,9 @@ export const GET_POST: TypedDocumentNode<{ post: Post }, { id: number }> = gql`
 `
 
 export const PostPage: FC = () => {
+  const isLoggedIn = useAppSelector(selectIsAuthenticated)
   const location = useLocation()
+  const navigate = useNavigate()
   const { postId } = useParams()
   const { data, loading, error, refetch } = useQuery(GET_POST, {
     variables: { id: Number(postId) },
@@ -43,7 +49,7 @@ export const PostPage: FC = () => {
   if (error?.networkError)
     return (
       <Error
-        message='게시글 정보를 불러오지 못했습니다.'
+        message='게시글 정보를 불러오지 못했습니다'
         actions={[
           {
             label: '다시 시도',
@@ -62,7 +68,7 @@ export const PostPage: FC = () => {
     return (
       <Error
         code={403}
-        message='접근할 수 없는 게시글입니다.'
+        message='접근할 수 없는 게시글입니다'
         actions={[
           {
             label: '로그인',
@@ -80,16 +86,42 @@ export const PostPage: FC = () => {
     )
 
   if (!loading && !data?.post)
-    return <Error code={404} message='존재하지 않는 게시글입니다.' />
+    return (
+      <Error
+        code={404}
+        message='존재하지 않는 게시글입니다'
+        actions={[
+          {
+            label: '전체 게시글 보기',
+            href: { to: '/category/all' }
+          }
+        ]}
+      />
+    )
 
   return (
     <div className='size-full overflow-y-auto'>
       <div
-        className='h-56 border-b border-neutral-300 bg-neutral-500 bg-cover bg-center bg-no-repeat'
+        className='relative h-56 border-b border-neutral-300 bg-neutral-500 bg-cover bg-center bg-no-repeat'
         style={{
           backgroundImage: `url(${data?.post?.thumbnail})`
         }}
       >
+        {isLoggedIn && (
+          <PopoverMenu className='absolute right-1 top-1 z-10' size={0.9}>
+            <PopoverMenuItem
+              icon={mdiPencil}
+              title='수정'
+              onClick={() => navigate(`/post/edit/${postId}`)}
+            />
+            <PopoverMenuItem
+              icon={mdiDelete}
+              title='삭제'
+              className='bg-error text-error'
+              onClick={() => {}}
+            />
+          </PopoverMenu>
+        )}
         <div className='flex size-full flex-col items-center justify-center gap-1 py-5 backdrop-blur backdrop-brightness-50'>
           <div className='flex items-center justify-center'>
             <Link to={`/category/${data?.post?.category?.id || 0}`}>

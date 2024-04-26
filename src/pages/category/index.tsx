@@ -93,7 +93,7 @@ export const CategoryPage: FC = () => {
   if (error?.networkError)
     return (
       <Error
-        message='게시판 정보를 불러오지 못했습니다.'
+        message='게시판 정보를 불러오지 못했습니다'
         actions={[
           {
             label: '다시 시도',
@@ -133,7 +133,7 @@ export const CategoryPage: FC = () => {
     return (
       <Error
         code={404}
-        message='존재하지 않는 게시판입니다.'
+        message='존재하지 않는 게시판입니다'
         actions={[
           {
             label: '전체 게시글 보기',
@@ -211,7 +211,8 @@ export const CategoryPage: FC = () => {
                   variant='hover-text'
                   onClick={() => {
                     let path = '/post/new'
-                    if (typeof Number(categoryId) === 'number')
+                    const id = Number(categoryId)
+                    if (typeof id === 'number' && id > 0)
                       path += `?category=${categoryId}`
                     navigate(path)
                   }}
@@ -232,7 +233,7 @@ export const CategoryPage: FC = () => {
         <ErrorBoundary
           FallbackComponent={({ resetErrorBoundary }) => (
             <Error
-              message='게시글 목록을 불러오지 못했습니다.'
+              message='게시글 목록을 불러오지 못했습니다'
               actions={[
                 {
                   label: '다시 시도',
