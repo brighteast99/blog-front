@@ -15,6 +15,7 @@ const GET_POST: TypedDocumentNode<{ post: Post }, { id: number }> = gql`
       id
       title
       category {
+        id
         name
         isHidden
       }
@@ -112,7 +113,7 @@ export const PostPage: FC = () => {
               length={100}
               lines={2}
             />
-            {data?.post?.isHidden && (
+            {!data?.post?.category.isHidden && data?.post?.isHidden && (
               <Icon
                 path={mdiLock}
                 size={0.7}

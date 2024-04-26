@@ -7,16 +7,20 @@ import { ThemedButton } from 'components/Buttons/ThemedButton'
 import { Spinner } from 'components/Spinner'
 import { useAppSelector } from 'app/hooks'
 import { selectIsAuthenticated } from 'features/auth/authSlice'
+import { Tooltip, TooltipContent, TooltipTrigger } from 'components/Tooltip'
+import { GET_CATEGORY_INFO, GET_POSTS } from 'pages/category'
+import { GET_CATEGORIES } from 'features/sidebar/Sidebar'
 
-const GET_CATEGORIES: TypedDocumentNode<{ categories: Category[] }> = gql`
-  query PostableCategories {
-    categories {
-      id
-      name
-      isHidden
+const GET_POSTABLE_CATEGORIES: TypedDocumentNode<{ categories: Category[] }> =
+  gql`
+    query PostableCategories {
+      categories {
+        id
+        name
+        isHidden
+      }
     }
-  }
-`
+  `
 
 const CREATE_POST: TypedDocumentNode<
   { createPost: { createdPost: Post } },
@@ -79,30 +83,40 @@ export const NewPostPage: FC = () => {
   const isLoggedIn = useAppSelector(selectIsAuthenticated)
   const location = useLocation()
   const navigate = useNavigate()
-  const [searchParams, setSearchParams] = useSearchParams()
-  const { loading: loadingCategories, data: categories } =
-    useQuery(GET_CATEGORIES)
-  const [createPost, { loading: creatingPost, reset: resetMutation }] =
+  const [searchParams] = useSearchParams()
+  const { loading: loadingCategories, data: categories } = useQuery(
+    GET_POSTABLE_CATEGORIES
+  )
+  const [_createPost, { loading: creatingPost, reset: resetMutation }] =
     useMutation(CREATE_POST)
 
   const { draft, setCategory, setTitle, setContent, setIsHidden } = useDraft({
     title: '',
-    category: Number(searchParams.get('category') ?? 0),
+    category: Number(searchParams.get('category')) || 0,
     isHidden: false,
     content: ''
+  })
+  const [selectedCategory, setSelectedCategory] = useState<{
+    id?: number
+    isHidden: boolean
+  }>({
+    isHidden: false
   })
 
   useLayoutEffect(() => {
     if (!isLoggedIn)
-      navigate(`/login?next=${location.pathname}`, {replace: true})
-  })
+      navigate(`/login?next=${location.pathname}`, { replace: true })
+  }, [isLoggedIn, location.pathname, navigate])
 
   useLayoutEffect(() => {
-    if (searchParams.get('category')) {
-      searchParams.delete('category')
-      setSearchParams(searchParams)
-    }
-  }, [searchParams, setSearchParams])
+    const selectedCategory = categories?.categories.find(
+      (category) => category.id === draft.category
+    )
+    setSelectedCategory({
+      id: selectedCategory?.id,
+      isHidden: Boolean(selectedCategory?.isHidden)
+    })
+  }, [categories?.categories, draft.category])
 
   return (
     <div className='size-full p-10'>
@@ -118,6 +132,7 @@ export const NewPostPage: FC = () => {
             {categories?.categories.map((category) => (
               <option key={category.id} value={category.id}>
                 {category.name}
+                {category.isHidden && ' (비공개)'}
               </option>
             ))}
           </select>
@@ -130,15 +145,25 @@ export const NewPostPage: FC = () => {
             onBlur={(e) => setTitle(e.target.value.trim())}
             required
           />
-          <label className='h-fit'>
-            <input
-              className='mr-2 accent-primary'
-              type='checkbox'
-              checked={draft.isHidden}
-              onChange={(e) => setIsHidden(e.target.checked)}
-            />
-            비밀글
-          </label>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <label className='h-fit'>
+                <input
+                  className='mr-2 accent-primary'
+                  type='checkbox'
+                  disabled={selectedCategory?.isHidden}
+                  checked={draft.isHidden || selectedCategory?.isHidden}
+                  onChange={(e) => setIsHidden(e.target.checked)}
+                />
+                비밀글
+              </label>
+            </TooltipTrigger>
+            {selectedCategory.isHidden && (
+              <TooltipContent>
+                비공개 게시판에 작성될 게시글입니다
+              </TooltipContent>
+            )}
+          </Tooltip>
         </div>
 
         <Tiptap
@@ -153,8 +178,21 @@ export const NewPostPage: FC = () => {
           color='primary'
           disabled={!draft.title || creatingPost}
           onClick={() =>
-            createPost({
-              variables: { data: draft },
+            _createPost({
+              variables: {
+                data: {
+                  ...draft,
+                  isHidden: draft.isHidden || selectedCategory.isHidden
+                }
+              },
+              refetchQueries: [
+                { query: GET_POSTS, variables: { categoryId: draft.category } },
+                {
+                  query: GET_CATEGORY_INFO,
+                  variables: { id: draft.category }
+                },
+                { query: GET_CATEGORIES }
+              ],
               onCompleted: ({ createPost }) => {
                 navigate(`/post/${createPost.createdPost.id}`)
               },

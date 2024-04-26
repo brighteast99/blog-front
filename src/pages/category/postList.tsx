@@ -37,7 +37,7 @@ export const PostItem: FC<{ post: Post }> = ({ post }) => {
         <Link to={`/post/${post.id}`}>
           <p className='truncate text-2xl font-medium'>
             {post.title}
-            {post.isHidden && (
+            {!post.category.isHidden && post.isHidden && (
               <Icon
                 path={mdiLock}
                 size={0.6}

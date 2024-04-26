@@ -17,7 +17,7 @@ import { client } from 'ApolloContext'
 
 export type CategoryListQueryResult = { categoryList: string }
 
-const GET_CATEGORIES: TypedDocumentNode<CategoryListQueryResult> = gql`
+export const GET_CATEGORIES: TypedDocumentNode<CategoryListQueryResult> = gql`
   query CategoryList {
     categoryList
   }

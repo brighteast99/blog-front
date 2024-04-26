@@ -14,12 +14,14 @@ import { SuspendedText } from 'components/SuspendedText'
 import { ErrorBoundary } from 'react-error-boundary'
 import { Error } from 'components/Error'
 import Icon from '@mdi/react'
-import { mdiLock } from '@mdi/js'
+import { mdiLock, mdiMagnify, mdiPlus } from '@mdi/js'
+import { IconButton } from 'components/Buttons/IconButton'
+import { Tooltip, TooltipContent, TooltipTrigger } from 'components/Tooltip'
 
 export type PostListQueryResult = { postList: Post[] }
 export type PostListQueryVariables = { categoryId: number | null }
 
-const GET_CATEGORY_INFO: TypedDocumentNode<
+export const GET_CATEGORY_INFO: TypedDocumentNode<
   { categoryInfo: Category },
   { id: number }
 > = gql`
@@ -34,7 +36,7 @@ const GET_CATEGORY_INFO: TypedDocumentNode<
     }
   }
 `
-const GET_POSTS: TypedDocumentNode<
+export const GET_POSTS: TypedDocumentNode<
   PostListQueryResult,
   PostListQueryVariables
 > = gql`
@@ -191,6 +193,31 @@ export const CategoryPage: FC = () => {
 
       <div className='sticky top-0 -mt-28 h-32 w-full bg-background' />
       <div className='mx-auto w-5/6'>
+        <div className='mb-2 flex items-center'>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <IconButton
+                className='p-0'
+                path={mdiPlus}
+                variant='hover-text'
+                onClick={() => {
+                  let path = '/post/new'
+                  if (typeof Number(categoryId) === 'number')
+                    path += `?category=${categoryId}`
+                  navigate(path)
+                }}
+              />
+            </TooltipTrigger>
+            <TooltipContent>새 글 쓰기</TooltipContent>
+          </Tooltip>
+          <div className='grow' />
+          <input type='text' />
+          <IconButton
+            className='ml-1 p-0'
+            path={mdiMagnify}
+            variant='hover-text'
+          />
+        </div>
         <ErrorBoundary
           FallbackComponent={({ resetErrorBoundary }) => (
             <Error
