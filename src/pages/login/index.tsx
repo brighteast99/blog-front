@@ -4,17 +4,15 @@ import {
   FormEvent,
   useCallback,
   useEffect,
-  useMemo,
   useState
 } from 'react'
 import { ThemedButton } from 'components/Buttons/ThemedButton'
 import { Spinner } from 'components/Spinner'
 import { UserInfo } from 'types/auth'
-import { useDispatch } from 'react-redux'
 import { selectIsAuthenticated, setToken } from 'features/auth/authSlice'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { AuthFailedError, NetworkError, auth } from 'utils/Auth'
-import { useAppSelector } from 'app/hooks'
+import { useAppDispatch, useAppSelector } from 'app/hooks'
 
 export const useUserInfo = (initialValue: UserInfo) => {
   const [info, setInfo] = useState<UserInfo>(initialValue)
@@ -32,7 +30,7 @@ export const useUserInfo = (initialValue: UserInfo) => {
 }
 
 export const LoginPage: FC = () => {
-  const dispatch = useDispatch()
+  const dispatch = useAppDispatch()
   const navigate = useNavigate()
   const loggedIn = useAppSelector(selectIsAuthenticated)
   const [searchParams] = useSearchParams()
