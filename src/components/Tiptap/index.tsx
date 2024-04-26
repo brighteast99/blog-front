@@ -1,4 +1,4 @@
-import { FC, useLayoutEffect, useState } from 'react'
+import { FC, useEffect, useLayoutEffect, useState } from 'react'
 import { cn } from 'utils/handleClassName'
 import { EditorProvider, Editor } from '@tiptap/react'
 import { StarterKit } from '@tiptap/starter-kit'
@@ -23,7 +23,7 @@ export interface EditorProps {
 
 export const Tiptap: FC<EditorProps> = ({
   className,
-  content = '',
+  content = '<p></p>',
   editable = true,
   autofocus = false,
   onChange = () => {}
@@ -33,6 +33,12 @@ export const Tiptap: FC<EditorProps> = ({
   useLayoutEffect(() => {
     editor?.setEditable(editable)
   }, [editor, editable])
+
+  useEffect(() => {
+    if (!editor) return
+
+    if (editor.getHTML() !== content) editor.commands.setContent(content)
+  }, [editor, content])
 
   return (
     <div className={cn(className, styles.wrapper, !editable && styles.viewer)}>
@@ -61,10 +67,14 @@ export const Tiptap: FC<EditorProps> = ({
           })
         ]}
         slotBefore={editable && <Toolbar className='rounded-t' />}
-        content={content}
         autofocus={autofocus}
-        onCreate={({ editor }) => setEditor(editor as Editor)}
-        onUpdate={({ editor }) => onChange(editor as Editor)}
+        onCreate={({ editor }) => {
+          editor.commands.setContent(content)
+          setEditor(editor as Editor)
+        }}
+        onUpdate={({ editor }) => {
+          if (editor.getHTML() !== content) onChange(editor as Editor)
+        }}
         children
       />
     </div>
