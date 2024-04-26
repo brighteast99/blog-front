@@ -155,7 +155,7 @@ export const CategoryPage: FC = () => {
       )}
       <div
         className={clsx(
-          'sticky top-0 z-10 px-6 py-2',
+          'sticky top-0 z-20 px-6 py-2',
           data?.categoryInfo?.coverImage && '-mt-8 mb-8',
           loading && 'animate-pulse'
         )}
@@ -199,7 +199,7 @@ export const CategoryPage: FC = () => {
         />
       </div>
 
-      <div className='sticky top-0 -mt-28 h-32 w-full bg-background' />
+      <div className='sticky top-0 z-10 -mt-28 h-32 w-full bg-background' />
       <div className='mx-auto w-5/6'>
         <div className='mb-2 flex items-center'>
           {isLoggedIn && (
