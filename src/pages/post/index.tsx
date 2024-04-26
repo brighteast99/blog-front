@@ -9,7 +9,7 @@ import { Tiptap } from 'components/Tiptap'
 import Icon from '@mdi/react'
 import { mdiLock } from '@mdi/js'
 
-const GET_POST: TypedDocumentNode<{ post: Post }, { id: number }> = gql`
+export const GET_POST: TypedDocumentNode<{ post: Post }, { id: number }> = gql`
   query PostMeta($id: Int!) {
     post(id: $id) {
       id
@@ -53,7 +53,12 @@ export const PostPage: FC = () => {
       />
     )
 
-  if (error?.graphQLErrors.length)
+  if (
+    error?.graphQLErrors.some(
+      (error) =>
+        error.message === 'You do not have permission to perform this action'
+    )
+  )
     return (
       <Error
         code={403}

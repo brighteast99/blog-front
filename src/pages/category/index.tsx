@@ -103,7 +103,12 @@ export const CategoryPage: FC = () => {
       />
     )
 
-  if (error?.graphQLErrors.some((error) => error.message === 'Login required'))
+  if (
+    error?.graphQLErrors.some(
+      (error) =>
+        error.message === 'You do not have permission to perform this action'
+    )
+  )
     return (
       <Error
         code={403}
