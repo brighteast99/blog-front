@@ -38,7 +38,7 @@ export const PopoverMenuItem: FC<PopoverMenuItemProps> = ({
         <li>
           <button
             className={clsx(
-              'btn flex size-full select-none items-center text-nowrap !bg-opacity-0 px-2 py-1 text-left',
+              'flex size-full select-none items-center text-nowrap !bg-opacity-0 px-2 py-1 text-left',
               disabled || loading
                 ? 'opacity-50'
                 : 'hover:!bg-opacity-25 active:!bg-opacity-10',

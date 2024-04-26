@@ -37,7 +37,7 @@ export const IconButton = forwardRef<
   ) => {
     return (
       <ThemedButton
-        className={clsx('btn min-w-fit p-1', className)}
+        className={clsx('min-w-fit p-1', className)}
         ref={ref}
         color={color}
         variant={variant}
