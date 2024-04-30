@@ -8,7 +8,7 @@ import {
 } from '@apollo/client'
 import clsx from 'clsx'
 import { Category, Post } from 'types/data'
-import { PostList } from './PostList'
+import { PostList } from './postList'
 import { Spinner } from 'components/Spinner'
 import { SuspendedText } from 'components/SuspendedText'
 import { ErrorBoundary } from 'react-error-boundary'
