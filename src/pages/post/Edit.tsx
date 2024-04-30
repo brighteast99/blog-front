@@ -1,4 +1,4 @@
-import { FC, useLayoutEffect, useState } from 'react'
+import { FC, useCallback, useLayoutEffect, useState } from 'react'
 import {
   useLocation,
   useNavigate,
@@ -143,10 +143,100 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
   const { loading: loadingCategories, data: categories } = useQuery(
     GET_POSTABLE_CATEGORIES
   )
-  const [createPost, { loading: creating, reset: resetCreateMutation }] =
+  const [_createPost, { loading: creating, reset: resetCreateMutation }] =
     useMutation(CREATE_POST)
-  const [updatePost, { loading: updating, reset: resetUpdateMutation }] =
+  const [_updatePost, { loading: updating, reset: resetUpdateMutation }] =
     useMutation(UPDATE_POST)
+
+  const createPost = useCallback(() => {
+    _createPost({
+      variables: {
+        data: {
+          ...draft,
+          isHidden: draft.isHidden || selectedCategory.isHidden
+        }
+      },
+      refetchQueries: [
+        {
+          query: GET_POSTS,
+          variables: { categoryId: draft.category }
+        },
+        {
+          query: GET_CATEGORY_INFO,
+          variables: { id: draft.category }
+        },
+        { query: GET_CATEGORIES }
+      ],
+      onCompleted: ({ createPost }) => {
+        navigate(`/post/${createPost.createdPost.id}`)
+      },
+      onError: ({ graphQLErrors, networkError }) => {
+        if (networkError) alert('게시글 업로드 중 오류가 발생했습니다.')
+        else if (graphQLErrors?.length) {
+          alert('존재하지 않는 분류입니다')
+          setCategory(undefined)
+        }
+        resetCreateMutation()
+      }
+    })
+  }, [
+    _createPost,
+    draft,
+    navigate,
+    resetCreateMutation,
+    selectedCategory.isHidden,
+    setCategory
+  ])
+
+  const updatePost = useCallback(() => {
+    _updatePost({
+      variables: {
+        id: Number(postId) as number,
+        data: {
+          ...draft,
+          isHidden: draft.isHidden || selectedCategory.isHidden
+        }
+      },
+      refetchQueries: [
+        {
+          query: GET_POSTS,
+          variables: { categoryId: draft.category }
+        },
+        {
+          query: GET_POSTS,
+          variables: { categoryId: post?.post.category.id }
+        },
+        {
+          query: GET_CATEGORY_INFO,
+          variables: { id: draft.category }
+        },
+        {
+          query: GET_CATEGORY_INFO,
+          variables: { id: post?.post.category.id }
+        },
+        { query: GET_CATEGORIES }
+      ],
+      onCompleted: ({ updatePost: { success } }) => {
+        if (!success) {
+          resetUpdateMutation()
+          return alert('게시글 수정 중 오류가 발생했습니다.')
+        }
+        navigate(`/post/${Number(postId)}`)
+      },
+      onError: ({ networkError }) => {
+        if (networkError) alert('게시글 수정 중 오류가 발생했습니다.')
+        resetUpdateMutation()
+      }
+    })
+  }, [
+    _updatePost,
+    draft,
+    navigate,
+    post?.post.category.id,
+    postId,
+    resetUpdateMutation,
+    selectedCategory.isHidden
+  ])
 
   useLayoutEffect(() => {
     if (!isLoggedIn)
@@ -249,83 +339,16 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
           className='h-10 w-full py-0.5 text-lg text-foreground'
           variant='flat'
           color='primary'
-          disabled={!draft.title || creating}
-          onClick={() => {
-            if (newPost)
-              createPost({
-                variables: {
-                  data: {
-                    ...draft,
-                    isHidden: draft.isHidden || selectedCategory.isHidden
-                  }
-                },
-                refetchQueries: [
-                  {
-                    query: GET_POSTS,
-                    variables: { categoryId: draft.category }
-                  },
-                  {
-                    query: GET_CATEGORY_INFO,
-                    variables: { id: draft.category }
-                  },
-                  { query: GET_CATEGORIES }
-                ],
-                onCompleted: ({ createPost }) => {
-                  navigate(`/post/${createPost.createdPost.id}`)
-                },
-                onError: ({ graphQLErrors, networkError }) => {
-                  if (networkError)
-                    alert('게시글 업로드 중 오류가 발생했습니다.')
-                  else if (graphQLErrors?.length) {
-                    alert('존재하지 않는 분류입니다')
-                    setCategory(undefined)
-                  }
-                  resetCreateMutation()
-                }
-              })
-            else
-              updatePost({
-                variables: {
-                  id: Number(postId) as number,
-                  data: {
-                    ...draft,
-                    isHidden: draft.isHidden || selectedCategory.isHidden
-                  }
-                },
-                refetchQueries: [
-                  {
-                    query: GET_POSTS,
-                    variables: { categoryId: draft.category }
-                  },
-                  {
-                    query: GET_POSTS,
-                    variables: { categoryId: post?.post.category.id }
-                  },
-                  {
-                    query: GET_CATEGORY_INFO,
-                    variables: { id: draft.category }
-                  },
-                  {
-                    query: GET_CATEGORY_INFO,
-                    variables: { id: post?.post.category.id }
-                  },
-                  { query: GET_CATEGORIES }
-                ],
-                onCompleted: ({ updatePost: { success } }) => {
-                  if (!success) {
-                    resetUpdateMutation()
-                    return alert('게시글 수정 중 오류가 발생했습니다.')
-                  }
-                  navigate(`/post/${Number(postId)}`)
-                },
-                onError: ({ networkError }) => {
-                  if (networkError) alert('게시글 수정 중 오류가 발생했습니다.')
-                  resetUpdateMutation()
-                }
-              })
-          }}
+          disabled={!draft.title || creating || updating}
+          onClick={newPost ? createPost : updatePost}
         >
-          {creating ? <Spinner size='xs' /> : newPost ? '게시' : '수정'}
+          {creating || updating ? (
+            <Spinner size='xs' />
+          ) : newPost ? (
+            '게시'
+          ) : (
+            '수정'
+          )}
         </ThemedButton>
       </div>
     </div>
