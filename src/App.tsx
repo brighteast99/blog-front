@@ -48,13 +48,14 @@ function App() {
       setRefreshLoginTimer(
         setInterval(() => {
           dispatch(refreshToken(null)).then(({ payload }) => {
-            let authInfo = payload as AuthInfo
+            let authInfo = payload as AuthInfo | undefined
+            if (!authInfo) return
             if (localStorage.getItem('refreshToken'))
               localStorage.setItem('refreshToken', authInfo.refreshToken)
-            if (sessionStorage.getItem('refreshToken'))
+            else if (sessionStorage.getItem('refreshToken'))
               sessionStorage.setItem('refreshToken', authInfo.refreshToken)
           })
-        }, 1000 * 240)
+        }, 1000 * 270)
       )
   }, [dispatch, isLoggedIn, refreshLoginTimer])
 

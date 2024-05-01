@@ -7,17 +7,19 @@ import {
   InMemoryCache
 } from '@apollo/client'
 import { store } from 'app/store'
+import { isFuture } from 'utils/dayJS'
 
 const httpLink = new HttpLink({ uri: process.env.REACT_APP_API_ENDPOINT })
 
 const authMiddleware = new ApolloLink((operation, forward) => {
-  const token = store.getState().auth.token?.token
+  const info = store.getState().auth.info
 
-  operation.setContext({
-    headers: {
-      Authorization: token ? `JWT ${token}` : ''
-    }
-  })
+  if (info && isFuture(info.payload.exp * 1000))
+    operation.setContext({
+      headers: {
+        Authorization: `JWT ${info.token}`
+      }
+    })
 
   return forward(operation)
 })

@@ -5,11 +5,11 @@ import { isPast } from 'utils/dayJS'
 import { refresh, revoke } from 'utils/Auth'
 
 interface AuthState {
-  token?: AuthInfo
+  info?: AuthInfo
 }
 
 const initialState: AuthState = {
-  token: undefined
+  info: undefined
 }
 
 export const refreshToken = createAsyncThunk<
@@ -21,19 +21,18 @@ export const refreshToken = createAsyncThunk<
 >(
   'auth/refreshToken',
   async (_payload, thunkAPI) => {
-    // token이 undefined인 경우 condition에서 return false
-    let token = thunkAPI.getState().auth.token as AuthInfo
+    // info가 undefined인 경우 condition에서 return false
+    let info = thunkAPI.getState().auth.info as AuthInfo
 
     try {
-      return await refresh(token.refreshToken)
+      return await refresh(info.refreshToken)
     } catch (err) {
       return thunkAPI.rejectWithValue(err)
     }
   },
   {
     condition: (_payload, { getState }: { getState: () => RootState }) => {
-      const { token } = getState().auth
-      if (!token) return false
+      if (!getState().auth.info) return false
     }
   }
 )
@@ -48,18 +47,17 @@ export const revokeToken = createAsyncThunk<
   'auth/revokeToken',
   async (_payload, thunkAPI) => {
     // token이 undefined인 경우 condition에서 return false
-    let token = thunkAPI.getState().auth.token as AuthInfo
+    let info = thunkAPI.getState().auth.info as AuthInfo
 
     try {
-      return await revoke(token.refreshToken)
+      return await revoke(info.refreshToken)
     } catch (err) {
       return thunkAPI.rejectWithValue(err)
     }
   },
   {
     condition: (_payload, { getState }: { getState: () => RootState }) => {
-      const { token } = getState().auth
-      if (!token) return false
+      if (!getState().auth.info) return false
     }
   }
 )
@@ -70,7 +68,7 @@ export const createAuthSlice = (initialState: AuthState) =>
     initialState,
     reducers: {
       setToken: (state, action: PayloadAction<AuthInfo>) => {
-        state.token = action.payload
+        state.info = action.payload
       }
     },
     extraReducers: (builder) => {
@@ -78,11 +76,11 @@ export const createAuthSlice = (initialState: AuthState) =>
         .addCase(
           refreshToken.fulfilled,
           (state, action: PayloadAction<AuthInfo>) => {
-            state.token = action.payload
+            state.info = action.payload
           }
         )
         .addCase(revokeToken.fulfilled, (state, _action) => {
-          state.token = undefined
+          state.info = undefined
         })
     }
   })
@@ -92,9 +90,9 @@ export const authSlice = createAuthSlice(initialState)
 export const { setToken } = authSlice.actions
 
 export const selectIsAuthenticated = (state: RootState) => {
-  if (!state.auth.token) return false
+  if (!state.auth.info) return false
 
-  if (isPast(state.auth.token.payload.exp * 1000)) return false
+  if (isPast(state.auth.info.payload.exp * 1000)) return false
 
   return true
 }
