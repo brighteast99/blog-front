@@ -33,12 +33,16 @@ export const AvatarVariants = cva(`aspect-square overflow-clip rounded-full`, {
 export const Avatar: FC<AvatarProps> = ({
   className = '',
   size = 'md',
-  imgSrc = 'https://kr.cafe24obs.com/blog.brighteast/profile-image/default-profile.png',
+  imgSrc = 'https://kr.cafe24obs.com/blog.brighteast/staticfiles/default-profile.png',
   ...props
 }) => {
   return (
     <div className={cn(AvatarVariants({ size }), className)} {...props}>
-      <img src={imgSrc} alt='Profile' className='block size-full' />
+      <img
+        src={imgSrc}
+        alt='Profile'
+        className='block size-full object-cover object-center'
+      />
     </div>
   )
 }
