@@ -53,12 +53,9 @@ const UPDATE_POST: TypedDocumentNode<
   }
 `
 
-export interface Draft {
-  title: string
+export interface Draft
+  extends Omit<Post, 'id' | 'category' | 'createdAt' | 'updatedAt'> {
   category?: number
-  isHidden: boolean
-  thumbnail?: string
-  content: string
 }
 
 export const useDraft = (initialValue: Draft) => {
