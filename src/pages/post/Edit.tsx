@@ -333,7 +333,7 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
         />
 
         <ThemedButton
-          className='h-10 w-full py-0.5 text-lg text-foreground'
+          className='text-reground h-10 w-full py-0.5 text-lg'
           variant='flat'
           color='primary'
           disabled={!draft.title || creating || updating}

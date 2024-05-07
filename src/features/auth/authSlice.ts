@@ -77,6 +77,13 @@ export const createAuthSlice = (initialState: AuthState) =>
           refreshToken.fulfilled,
           (state, action: PayloadAction<AuthInfo>) => {
             state.info = action.payload
+            if (localStorage.getItem('refreshToken'))
+              localStorage.setItem('refreshToken', action.payload.refreshToken)
+            else if (sessionStorage.getItem('refreshToken'))
+              sessionStorage.setItem(
+                'refreshToken',
+                action.payload.refreshToken
+              )
           }
         )
         .addCase(revokeToken.fulfilled, (state, _action) => {

@@ -13,6 +13,9 @@ import { EditPostPage } from 'pages/post/Edit'
 import { LoginPage } from 'pages/login'
 import { refreshToken, selectIsAuthenticated } from 'features/auth/authSlice'
 import { AuthInfo } from 'types/auth'
+import { ManagePage } from 'pages/manage'
+import { ManageInfoPage } from 'pages/manage/info'
+import { ManageCategoryPage } from 'pages/manage/categories'
 
 function App() {
   const dispatch = useAppDispatch()
@@ -55,7 +58,7 @@ function App() {
             else if (sessionStorage.getItem('refreshToken'))
               sessionStorage.setItem('refreshToken', authInfo.refreshToken)
           })
-        }, 1000 * 270)
+        }, 1000 * 290)
       )
   }, [dispatch, isLoggedIn, refreshLoginTimer])
 
@@ -67,6 +70,10 @@ function App() {
         <Routes>
           <Route path='/' element={<MainPage />} />
           <Route path='/login' element={<LoginPage />} />
+          <Route path='/manage' element={<ManagePage />}>
+            <Route path='info' element={<ManageInfoPage />} />
+            <Route path='categories' element={<ManageCategoryPage />} />
+          </Route>
           <Route path='/category/:categoryId?' element={<CategoryPage />} />
           <Route path='/post/new' element={<EditPostPage newPost />} />
           <Route path='/post/edit/:postId' element={<EditPostPage />} />

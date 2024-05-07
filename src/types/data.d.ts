@@ -21,3 +21,9 @@ export interface Post {
   createdAt: Date
   updatedAt: Date
 }
+
+export interface BlogInfo {
+  title: string
+  description: string
+  avatar?: string
+}
