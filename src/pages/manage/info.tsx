@@ -1,6 +1,5 @@
 import { TypedDocumentNode, gql, useMutation, useQuery } from '@apollo/client'
 import { mdiClose, mdiRefresh } from '@mdi/js'
-import clsx from 'clsx'
 import { Avatar } from 'components/Avatar'
 import { IconButton } from 'components/Buttons/IconButton'
 import { ThemedButton } from 'components/Buttons/ThemedButton'
@@ -165,13 +164,11 @@ export const ManageInfoPage: FC = () => {
             <Tooltip>
               <TooltipTrigger asChild>
                 <IconButton
-                  className={clsx(
-                    'absolute right-0 top-0 !bg-transparent p-1',
-                    profileChanged ? 'text-foreground' : 'text-error'
-                  )}
+                  className='absolute right-0 top-0 !bg-transparent p-1'
                   path={profileChanged ? mdiRefresh : mdiClose}
                   variant='text'
                   type='button'
+                  color={profileChanged ? 'unset' : 'error'}
                   onClick={(e) => {
                     e.stopPropagation()
                     setAvatar(profileChanged ? undefined : null)
