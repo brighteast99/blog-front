@@ -214,7 +214,7 @@ export const ManageInfoPage: FC = () => {
         />
 
         <ThemedButton
-          className='h-10 w-full py-0.5 text-lg text-foreground'
+          className='h-10 w-full py-0.5 text-lg'
           color='primary'
           disabled={
             !title.length ||

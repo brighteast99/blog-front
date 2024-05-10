@@ -23,13 +23,16 @@ export const ManagePage: FC = () => {
       <p className='mb-12 text-center text-4xl'>블로그 관리</p>
       <div className='flex border-b border-primary *:cursor-pointer *:rounded-t-sm *:px-3 *:py-1 *:text-xl'>
         <div
-          className={clsx(location.pathname === '/manage/info' && 'bg-primary')}
+          className={clsx(
+            location.pathname === '/manage/info' && 'bg-primary text-background'
+          )}
         >
           <Link to='info'>블로그 정보</Link>
         </div>
         <div
           className={clsx(
-            location.pathname === '/manage/categories' && 'bg-primary'
+            location.pathname === '/manage/categories' &&
+              'bg-primary text-background'
           )}
         >
           <Link to='categories'>게시글 분류</Link>

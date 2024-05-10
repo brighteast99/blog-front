@@ -94,7 +94,7 @@ export const LoginPage: FC = () => {
           onChange={updateInfo}
         />
         <ThemedButton
-          className='mb-3 h-11 w-full px-2 py-1 text-lg font-semibold text-foreground'
+          className='mb-3 h-11 w-full px-2 py-1 text-lg font-semibold'
           type='submit'
           color='primary'
           variant='flat'
