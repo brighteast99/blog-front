@@ -135,7 +135,7 @@ export const CategoryForm: FC<{
   } = useReadQuery(queryRef)
   const { data: categoriesData } = useQuery(GET_VALID_SUPERCATEGORIES, {
     variables: { id: categoryInfo.id as number },
-    fetchPolicy: 'network-only'
+    fetchPolicy: 'cache-and-network'
   })
   const [_updateCategory, { loading: updating, reset: resetUpdateMutation }] =
     useMutation(UPDATE_CATEGORY)
