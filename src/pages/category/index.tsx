@@ -92,9 +92,10 @@ export const CategoryPage: FC = () => {
   }, [categoryId, navigate])
 
   useEffect(() => {
-    getPosts({ categoryId: categoryId ? Number(categoryId) : null })
+    if (!loading && !error)
+      getPosts({ categoryId: categoryId ? Number(categoryId) : null })
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [categoryId])
+  }, [categoryId, loading, error])
 
   if (error?.networkError)
     return (
