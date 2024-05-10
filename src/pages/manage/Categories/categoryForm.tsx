@@ -51,11 +51,11 @@ export const useCategoryInfo = (initialValue: CategoryInput) => {
   const [info, setInfo] = useState<CategoryInput>(initialValue)
   const [coverPreview, setCoverPreview] = useState<string | null>()
 
-  function setName(title: string) {
+  function setName(name: string) {
     setInfo((prev) => {
       return {
         ...prev,
-        title
+        name
       }
     })
   }
