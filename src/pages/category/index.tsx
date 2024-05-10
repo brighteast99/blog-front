@@ -185,11 +185,7 @@ export const CategoryPage: FC = () => {
           </div>
           <SuspendedText
             className='ml-2 text-lg font-light text-neutral-600'
-            text={
-              !data?.categoryInfo?.postCount
-                ? ''
-                : `${data?.categoryInfo.postCount}개 게시물`
-            }
+            text={`${data?.categoryInfo.postCount}개 게시물`}
             length={6}
             loading={loading}
           />
@@ -197,7 +193,7 @@ export const CategoryPage: FC = () => {
         <SuspendedText
           className='pl-2 text-lg font-light'
           text={
-            data?.categoryInfo?.description ??
+            data?.categoryInfo?.description ||
             `${data?.categoryInfo?.name}의 모든 게시물`
           }
           lines={2}
