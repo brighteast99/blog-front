@@ -161,32 +161,59 @@ export const ManageInfoPage: FC = () => {
             }}
           >
             <span className='block text-xl text-foreground'>변경</span>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <IconButton
-                  className='absolute right-0 top-0 !bg-transparent p-1'
-                  path={profileChanged ? mdiRefresh : mdiClose}
-                  variant='text'
-                  type='button'
-                  color={profileChanged ? 'unset' : 'error'}
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    setAvatar(profileChanged ? undefined : null)
-                    if (ImageInput.current) ImageInput.current.value = ''
-                  }}
-                />
-              </TooltipTrigger>
-              <TooltipContent>
-                {profileChanged ? '되돌리기' : '기본 이미지로 변경'}
-              </TooltipContent>
-            </Tooltip>
+            {(data?.blogInfo.avatar || avatar) && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <IconButton
+                    className='absolute right-0 top-0 !bg-transparent p-1'
+                    path={
+                      profileChanged && data?.blogInfo.avatar
+                        ? mdiRefresh
+                        : mdiClose
+                    }
+                    variant='text'
+                    type='button'
+                    color={
+                      profileChanged && data?.blogInfo.avatar
+                        ? 'unset'
+                        : 'error'
+                    }
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setAvatar(
+                        profileChanged && data?.blogInfo.avatar
+                          ? undefined
+                          : null
+                      )
+                      if (ImageInput.current) ImageInput.current.value = ''
+                    }}
+                  />
+                </TooltipTrigger>
+                <TooltipContent>
+                  {profileChanged && data?.blogInfo.avatar
+                    ? '되돌리기'
+                    : '기본 이미지로 변경'}
+                </TooltipContent>
+              </Tooltip>
+            )}
           </div>
           <input
             ref={ImageInput}
             type='file'
             className='invisible absolute'
             accept='image/*'
-            onChange={(e) => setAvatar(e.target.files?.[0] || null)}
+            onChange={(e) => {
+              const file = e.target.files?.[0]
+              if (!file) return setAvatar(null)
+
+              // Maximum file size 1MB
+              if (file.size > 1024 * 1024 * 1)
+                return alert(
+                  `파일 크기는 1MB를 넘을 수 없습니다.\n선택한 파일 크기: ${Math.round((file.size / 1024 / 1024) * 10) / 10}MB`
+                )
+
+              setAvatar(file)
+            }}
           />
           <Avatar
             size='2xl'
