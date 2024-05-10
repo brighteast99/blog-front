@@ -297,7 +297,6 @@ export const CategoryForm: FC<{
         <span className='text-neutral-700'>분류 설명</span>
         <textarea
           className='min-h-20 grow p-2'
-          required
           value={description}
           placeholder={categoryInfo.description}
           onChange={(e) => setDescription(e.target.value)}

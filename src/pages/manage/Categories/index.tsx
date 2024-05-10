@@ -113,7 +113,7 @@ export const ManageCategoryPage: FC = () => {
       variables: {
         data: {
           name: '새 분류',
-          description: '새 분류입니다',
+          description: '',
           isHidden: false
         }
       },
