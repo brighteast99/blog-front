@@ -13,7 +13,6 @@ import { Spinner } from 'components/Spinner'
 import { useAppSelector } from 'app/hooks'
 import { selectIsAuthenticated } from 'features/auth/authSlice'
 import { Tooltip, TooltipContent, TooltipTrigger } from 'components/Tooltip'
-import { GET_CATEGORY_INFO, GET_POSTS } from 'pages/category'
 import { GET_CATEGORIES } from 'features/sidebar/Sidebar'
 import { GET_POST } from '.'
 import { Error } from 'components/Error'
@@ -153,17 +152,7 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
           isHidden: draft.isHidden || selectedCategory.isHidden
         }
       },
-      refetchQueries: [
-        {
-          query: GET_POSTS,
-          variables: { categoryId: draft.category }
-        },
-        {
-          query: GET_CATEGORY_INFO,
-          variables: { id: draft.category }
-        },
-        { query: GET_CATEGORIES }
-      ],
+      refetchQueries: [{ query: GET_CATEGORIES }],
       onCompleted: ({ createPost }) => {
         navigate(`/post/${createPost.createdPost.id}`)
       },
@@ -188,30 +177,15 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
   const updatePost = useCallback(() => {
     _updatePost({
       variables: {
-        id: Number(postId) as number,
+        id: Number(postId),
         data: {
           ...draft,
           isHidden: draft.isHidden || selectedCategory.isHidden
         }
       },
       refetchQueries: [
-        {
-          query: GET_POSTS,
-          variables: { categoryId: draft.category }
-        },
-        {
-          query: GET_POSTS,
-          variables: { categoryId: post?.post.category.id }
-        },
-        {
-          query: GET_CATEGORY_INFO,
-          variables: { id: draft.category }
-        },
-        {
-          query: GET_CATEGORY_INFO,
-          variables: { id: post?.post.category.id }
-        },
-        { query: GET_CATEGORIES }
+        { query: GET_CATEGORIES },
+        { query: GET_POST, variables: { id: Number(postId) } }
       ],
       onCompleted: ({ updatePost: { success } }) => {
         if (!success) {
@@ -229,7 +203,6 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
     _updatePost,
     draft,
     navigate,
-    post?.post.category.id,
     postId,
     resetUpdateMutation,
     selectedCategory.isHidden

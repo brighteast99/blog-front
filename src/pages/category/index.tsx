@@ -35,6 +35,9 @@ export const GET_CATEGORY_INFO: TypedDocumentNode<
       description
       postCount
       coverImage
+      subcategoryOf {
+        id
+      }
     }
   }
 `
@@ -70,14 +73,17 @@ export const CategoryPage: FC = () => {
     refetch: refetchCategoryInfo
   } = useQuery(GET_CATEGORY_INFO, {
     variables: { id: Number(categoryId) },
+    fetchPolicy: 'cache-and-network',
     notifyOnNetworkStatusChange: true,
     skip:
       isNaN(Number(categoryId)) &&
       categoryId !== undefined &&
       categoryId !== 'all'
   })
-  const [getPosts, queryRef, { refetch: refetchPostList }] =
-    useLoadableQuery(GET_POSTS)
+  const [getPosts, queryRef, { refetch: refetchPostList }] = useLoadableQuery(
+    GET_POSTS,
+    { fetchPolicy: 'cache-and-network' }
+  )
   const navigate = useNavigate()
   const location = useLocation()
 

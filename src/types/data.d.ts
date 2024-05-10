@@ -1,10 +1,9 @@
 export interface Category {
   id?: number
   name: string
-  description?: string
+  description: string
   isHidden: boolean
   coverImage?: string
-  hasSub: boolean
   subcategoryOf?: Category
   subcategories: Category[]
   posts: Post[]

@@ -15,7 +15,7 @@ import { refreshToken, selectIsAuthenticated } from 'features/auth/authSlice'
 import { AuthInfo } from 'types/auth'
 import { ManagePage } from 'pages/manage'
 import { ManageInfoPage } from 'pages/manage/info'
-import { ManageCategoryPage } from 'pages/manage/categories'
+import { ManageCategoryPage } from 'pages/manage/Categories'
 
 function App() {
   const dispatch = useAppDispatch()
