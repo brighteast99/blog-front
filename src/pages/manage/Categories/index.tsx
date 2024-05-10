@@ -92,6 +92,10 @@ export const ManageCategoryPage: FC = () => {
   const [_deleteCategory, { loading: deleting, reset: resetDeleteMutation }] =
     useMutation(DELETE_CATEGORY)
 
+  const categories = JSON.parse(
+    JSON.parse(data?.categoryList ?? '"[]"')
+  ) as Category[]
+
   const selectCategory = useCallback(
     (id?: number) => {
       if (!id) {
@@ -114,7 +118,11 @@ export const ManageCategoryPage: FC = () => {
         data: {
           name: '새 분류',
           description: '',
-          isHidden: false
+          isHidden: Boolean(
+            categories.find((category) => category.id === selectedCategory)
+              ?.isHidden
+          ),
+          subcategoryOf: selectedCategory
         }
       },
       refetchQueries: [
@@ -127,7 +135,7 @@ export const ManageCategoryPage: FC = () => {
         resetCreateMutation()
       }
     })
-  }, [_createCategory, resetCreateMutation])
+  }, [_createCategory, categories, resetCreateMutation, selectedCategory])
 
   const deleteCategory = useCallback(() => {
     if (!selectedCategory) return
@@ -153,15 +161,20 @@ export const ManageCategoryPage: FC = () => {
   return (
     <div className='flex h-[31rem] gap-2 p-5'>
       <div className='w-1/3'>
-        <div className='relative h-full overflow-y-auto rounded border border-neutral-200 bg-neutral-50'>
+        <div
+          className='relative h-full overflow-y-auto rounded border border-neutral-200 bg-neutral-50'
+          onClick={(e) => {
+            if (e.target !== e.currentTarget) return
+            setSelectedCategory(undefined)
+            reset()
+          }}
+        >
           {loading && <Spinner className='absolute inset-0' size='sm' />}
           {data && (
             <ListStateContext.Provider value={selectedCategory}>
               <ListActionContext.Provider value={selectCategory}>
                 <ul>
-                  {(
-                    JSON.parse(JSON.parse(data.categoryList)) as Category[]
-                  ).map((category) => {
+                  {categories.map((category) => {
                     if (!category.id) return null
                     return (
                       <CategoryListItem key={category.id} category={category} />
