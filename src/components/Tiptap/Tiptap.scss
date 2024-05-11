@@ -71,7 +71,7 @@
           }
 
           > div {
-            @apply shrink grow basis-auto;
+            @apply flex-auto;
           }
         }
       }
