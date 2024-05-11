@@ -8,12 +8,12 @@ import { Color } from '@tiptap/extension-color'
 import { Highlight } from '@tiptap/extension-highlight'
 import { TextAlign } from '@tiptap/extension-text-align'
 import { Link } from '@tiptap/extension-link'
-import { Toolbar } from './Toolbar'
+import Image from '@tiptap/extension-image'
 import { FontSize } from './extensions/fontSize'
+import { Toolbar } from './Toolbar'
+import { ImageCatalogue } from './ImageCatalogue'
 
 import './Tiptap.scss'
-import Image from '@tiptap/extension-image'
-import { ImageCatalogue } from './ImageCatalogue'
 
 export interface EditorProps {
   className?: string

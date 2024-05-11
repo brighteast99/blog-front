@@ -335,7 +335,7 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
       <div className='w-full'>
         <div className='mb-3 flex w-full items-center gap-2'>
           <select
-            className='w-36'
+            className='w-1/6 min-w-40 max-w-52'
             disabled={loadingCategories}
             value={draft.category}
             onChange={(e) => setCategory(Number(e.target.value) || undefined)}
@@ -371,9 +371,7 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
               </label>
             </TooltipTrigger>
             {selectedCategory.isHidden && (
-              <TooltipContent>
-                비공개 게시판에 작성될 게시글입니다
-              </TooltipContent>
+              <TooltipContent>비공개 분류에 속하는 게시글입니다</TooltipContent>
             )}
           </Tooltip>
         </div>
