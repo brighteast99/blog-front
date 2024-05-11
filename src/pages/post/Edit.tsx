@@ -333,21 +333,21 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
         </div>
       )}
       <div className='w-full'>
-        <div className='mb-3 flex w-full items-center gap-2'>
-          <select
-            className='w-1/6 min-w-40 max-w-52'
-            disabled={loadingCategories}
-            value={draft.category}
-            onChange={(e) => setCategory(Number(e.target.value) || undefined)}
-          >
-            <option>분류 미지정</option>
-            {categories?.categories.map((category) => (
-              <option key={category.id} value={category.id}>
-                {category.name}
-                {category.isHidden && ' (비공개)'}
-              </option>
-            ))}
-          </select>
+        <select
+          className='mb-3 w-full py-1'
+          disabled={loadingCategories}
+          value={draft.category}
+          onChange={(e) => setCategory(Number(e.target.value) || undefined)}
+        >
+          <option>분류 미지정</option>
+          {categories?.categories.map((category) => (
+            <option key={category.id} value={category.id}>
+              {category.name}
+              {category.isHidden && ' (비공개)'}
+            </option>
+          ))}
+        </select>
+        <div className='mb-3 flex w-full flex-wrap items-center gap-2'>
           <input
             className='min-w-0 grow text-2xl'
             type='text'
@@ -393,10 +393,10 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
           className='h-10 w-full py-0.5 text-lg'
           variant='flat'
           color='primary'
-          disabled={!draft.title || creating || updating}
+          disabled={!draft.title || creating || updating || deleteingImages}
           onClick={newPost ? createPost : updatePost}
         >
-          {creating || updating ? (
+          {creating || updating || deleteingImages ? (
             <Spinner size='xs' />
           ) : newPost ? (
             '게시'

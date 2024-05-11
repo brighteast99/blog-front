@@ -1,7 +1,7 @@
 import { FC, useLayoutEffect, Suspense, useCallback } from 'react'
 import clsx from 'clsx'
 import { useAppDispatch, useAppSelector } from 'app/hooks'
-import { expand, selectSidebarIsFolded } from './sidebarSlice'
+import { expand, fold, selectSidebarIsFolded } from './sidebarSlice'
 import { ErrorBoundary } from 'react-error-boundary'
 import { Avatar } from 'components/Avatar'
 import { Spinner } from 'components/Spinner'
@@ -48,9 +48,13 @@ export interface SidebarProps {
    * Mobile, Tablet: true / Desktop: False
    */
   foldable?: boolean
+  float?: boolean
 }
 
-export const Sidebar: FC<SidebarProps> = ({ foldable = false }) => {
+export const Sidebar: FC<SidebarProps> = ({
+  foldable = false,
+  float = false
+}) => {
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
   const location = useLocation()
@@ -84,97 +88,113 @@ export const Sidebar: FC<SidebarProps> = ({ foldable = false }) => {
     if (!queryRef) loadCategories()
   }, [queryRef, loadCategories])
 
+  useLayoutEffect(() => {
+    if (float) dispatch(fold())
+  }, [location, float, dispatch])
+
   return (
-    <div
-      className={clsx(
-        'h-full w-72 overflow-hidden bg-neutral-200 transition-[max-width,min-width]',
-        isFolded ? 'min-w-0 max-w-0' : 'min-w-72 max-w-72'
-      )}
-    >
-      <div className='mx-4 flex size-full w-64 flex-col py-8'>
-        <Avatar
+    <>
+      {float && (
+        <div
           className={clsx(
-            'mb-2 shrink-0 self-center',
-            loadingInfo && 'animate-pulse'
+            'absolute z-40 h-dvh w-dvw bg-neutral-50 opacity-75 transition-opacity',
+            isFolded && 'pointer-events-none !opacity-0'
           )}
-          size='2xl'
-          imgSrc={data?.blogInfo.avatar}
+          onClick={() => dispatch(fold())}
         />
-        <Link className='self-center' to='/'>
-          <SuspendedText
-            className='mb-1 text-lg font-semibold'
-            loading={loadingInfo}
-            text={data?.blogInfo.title}
-            align='center'
-            length={10}
-          />
-        </Link>
-        <SuspendedText
-          className='self-center'
-          loading={loadingInfo}
-          text={data?.blogInfo.description}
-          align='center'
-          length={70}
-          lines={2}
-        />
-
-        <hr className='mb-4 mt-2' />
-
-        <div className='relative min-h-0 grow overflow-y-auto'>
-          <ErrorBoundary
-            FallbackComponent={({ resetErrorBoundary }) => (
-              <Error
-                message='오류가 발생했습니다'
-                hideDefaultAction
-                actions={[
-                  {
-                    label: '다시 시도',
-                    handler: () => {
-                      refetchCategories()
-                      resetErrorBoundary()
-                    }
-                  }
-                ]}
-              />
-            )}
-          >
-            <Suspense
-              fallback={<Spinner size='sm' className='absolute inset-0' />}
-            >
-              {queryRef && <CategoryList queryRef={queryRef} />}
-            </Suspense>
-          </ErrorBoundary>
-        </div>
-
-        {isLoggedIn ? (
-          <PopoverMenu className='w-fit self-end' icon={mdiMenu}>
-            <PopoverMenuItem
-              icon={mdiCog}
-              title='블로그 관리'
-              onClick={() => navigate('/manage/info')}
-            />
-            <PopoverMenuItem
-              className='bg-error text-error'
-              icon={mdiLogout}
-              title='로그아웃'
-              onClick={logOut}
-            />
-          </PopoverMenu>
-        ) : (
-          <Tooltip placement='right'>
-            <TooltipTrigger asChild>
-              <IconButton
-                className='w-fit'
-                path={mdiLogin}
-                color='primary'
-                variant='hover-text'
-                onClick={logIn}
-              />
-            </TooltipTrigger>
-            <TooltipContent>로그인</TooltipContent>
-          </Tooltip>
+      )}
+      <div
+        className={clsx(
+          'h-full w-72 overflow-hidden bg-neutral-200 transition-[max-width,min-width]',
+          isFolded ? 'min-w-0 max-w-0' : 'min-w-72 max-w-72',
+          float && 'fixed z-50'
         )}
+      >
+        <div className='mx-4 flex size-full w-64 flex-col py-8'>
+          <Avatar
+            className={clsx(
+              'mb-2 shrink-0 self-center',
+              loadingInfo && 'animate-pulse'
+            )}
+            size='2xl'
+            imgSrc={data?.blogInfo.avatar}
+          />
+          <Link className='self-center' to='/'>
+            <SuspendedText
+              className='mb-1 text-lg font-semibold'
+              loading={loadingInfo}
+              text={data?.blogInfo.title}
+              align='center'
+              length={10}
+            />
+          </Link>
+          <SuspendedText
+            className='self-center'
+            loading={loadingInfo}
+            text={data?.blogInfo.description}
+            align='center'
+            length={70}
+            lines={2}
+          />
+
+          <hr className='mb-4 mt-2' />
+
+          <div className='relative min-h-0 grow overflow-y-auto'>
+            <ErrorBoundary
+              FallbackComponent={({ resetErrorBoundary }) => (
+                <Error
+                  message='오류가 발생했습니다'
+                  hideDefaultAction
+                  actions={[
+                    {
+                      label: '다시 시도',
+                      handler: () => {
+                        refetchCategories()
+                        resetErrorBoundary()
+                      }
+                    }
+                  ]}
+                />
+              )}
+            >
+              <Suspense
+                fallback={<Spinner size='sm' className='absolute inset-0' />}
+              >
+                {queryRef && <CategoryList queryRef={queryRef} />}
+              </Suspense>
+            </ErrorBoundary>
+          </div>
+
+          {isLoggedIn ? (
+            <PopoverMenu className='w-fit self-end' icon={mdiMenu}>
+              <PopoverMenuItem
+                icon={mdiCog}
+                title='블로그 관리'
+                onClick={() => navigate('/manage/info')}
+              />
+              <PopoverMenuItem
+                className='bg-error text-error'
+                icon={mdiLogout}
+                title='로그아웃'
+                onClick={logOut}
+              />
+            </PopoverMenu>
+          ) : (
+            <Tooltip placement='right'>
+              <TooltipTrigger asChild>
+                <IconButton
+                  className='w-fit'
+                  path={mdiLogin}
+                  color='primary'
+                  variant='hover-text'
+                  onClick={logIn}
+                />
+              </TooltipTrigger>
+              <TooltipContent>로그인</TooltipContent>
+            </Tooltip>
+          )}
+        </div>
       </div>
-    </div>
+    </>
   )
 }
