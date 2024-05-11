@@ -1,0 +1,15 @@
+@import 'tailwindcss/components';
+
+@layer components {
+  .color-preview {
+    @apply h-6 w-6 rounded-full overflow-hidden border border-neutral-300;
+
+    &::-webkit-color-swatch-wrapper {
+      @apply p-0;
+    }
+
+    &::-webkit-color-swatch {
+      @apply border-none;
+    }
+  }
+}

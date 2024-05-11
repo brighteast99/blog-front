@@ -1,0 +1,163 @@
+@import 'tailwindcss/components';
+
+@layer components {
+  .Tiptap-wrapper {
+    &.Tiptap-viewer {
+      div.ProseMirror {
+        @apply focus-visible:outline-none;
+      }
+    }
+
+    &:not(.Tiptap-viewer) {
+      @apply rounded transition-colors;
+
+      > div:first-child {
+        @apply border border-b-0 border-neutral-100 bg-neutral-100 p-1;
+      }
+
+      > div:not(:last-child):not(:first-child) {
+        @apply h-120 min-h-120 resize-y overflow-y-scroll rounded-b border border-t-0 border-neutral-100 bg-neutral-50;
+      }
+    }
+
+    > div:not(:last-child):not(:first-child) {
+      @apply w-full;
+    }
+
+    div.ProseMirror {
+      @apply size-full overflow-auto p-5 focus:outline-0;
+
+      > * + * {
+        @apply mt-1;
+      }
+
+      > div.ProseMirror-gapcursor::after {
+        @apply border-t-foreground;
+      }
+
+      a {
+        @apply font-semibold text-primary decoration-1 underline-offset-4 transition-colors visited:text-secondary hover:underline;
+      }
+
+      ul {
+        @apply list-disc;
+      }
+
+      ol {
+        @apply list-decimal;
+      }
+
+      ul,
+      ol {
+        padding-inline-start: 20px;
+
+        li:not(:first-child) {
+          @apply mt-2;
+        }
+      }
+
+      ul[data-type='taskList'] {
+        padding-inline-start: 0;
+
+        > li {
+          @apply flex;
+
+          > label {
+            @apply mr-2 shrink-0 grow-0 basis-0 select-none;
+
+            > input {
+              @apply accent-primary;
+            }
+          }
+
+          > div {
+            @apply shrink grow basis-auto;
+          }
+        }
+      }
+
+      ul li,
+      ol li {
+        @apply list-item;
+      }
+
+      img {
+        @apply inline-block h-auto max-w-full;
+
+        &.ProseMirror-selectednode {
+          @apply outline outline-2 outline-primary;
+        }
+      }
+
+      blockquote {
+        @apply ml-2 border-l-2 border-neutral-400 pl-4;
+      }
+
+      pre {
+        @apply rounded bg-black px-4 py-3 text-white;
+        font-family: 'JetBrainsMono', monospace;
+
+        code {
+          @apply bg-none p-0 text-sm text-inherit;
+        }
+
+        .hljs-comment,
+        .hljs-quote {
+          @apply text-[#616161];
+        }
+
+        .hljs-variable,
+        .hljs-template-variable,
+        .hljs-attribute,
+        .hljs-tag,
+        .hljs-name,
+        .hljs-regexp,
+        .hljs-link,
+        .hljs-name,
+        .hljs-selector-id,
+        .hljs-selector-class {
+          @apply text-[#f98181];
+        }
+
+        .hljs-number,
+        .hljs-meta,
+        .hljs-built_in,
+        .hljs-builtin-name,
+        .hljs-literal,
+        .hljs-type,
+        .hljs-params {
+          @apply text-[#fbbc88];
+        }
+
+        .hljs-string,
+        .hljs-symbol,
+        .hljs-bullet {
+          @apply text-[#b9f18d];
+        }
+
+        .hljs-title,
+        .hljs-section {
+          @apply text-[#faf594];
+        }
+
+        .hljs-keyword,
+        .hljs-selector-tag {
+          @apply text-[#70cff8];
+        }
+
+        .hljs-emphasis {
+          @apply italic;
+        }
+
+        .hljs-strong {
+          @apply font-bold;
+        }
+      }
+
+      p[data-placeholder]:first-child::before {
+        @apply pointer-events-none float-left h-0 text-neutral-400;
+        content: attr(data-placeholder);
+      }
+    }
+  }
+}

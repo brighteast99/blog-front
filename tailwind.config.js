@@ -33,8 +33,8 @@ module.exports = {
       {
         light: {
           ...colors,
-          primary: '#5755d9',
-          secondary: '#63c2df',
+          primary: '#43a047',
+          secondary: '#6d4c41',
           info: '#4397c7',
           success: '#367c3c',
           warning: '#ee8e34',
@@ -85,7 +85,7 @@ module.exports = {
             950: '#f5f5f6'
           },
           neutral: {
-            50: '#0a0a0a',
+            50: '#202020',
             100: '#3d3d3d',
             200: '#454545',
             300: '#4f4f4f',
@@ -331,8 +331,8 @@ module.exports = {
             900: '#ffe4ec',
             950: '#fff1f5'
           },
-          primary: '#8a98ef',
-          secondary: '#b1e2f0',
+          primary: '#9ccc65',
+          secondary: '#bcaaa4',
           info: '#5da9d3',
           success: '#499e50',
           warning: '#f1a046',
