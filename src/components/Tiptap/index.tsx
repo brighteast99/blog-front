@@ -64,7 +64,9 @@ export const Tiptap: FC<EditorProps> = ({
     >
       <EditorProvider
         extensions={[
-          StarterKit,
+          StarterKit.configure({
+            codeBlock: false
+          }),
           FontSize,
           Underline,
           TextStyle,
