@@ -16,10 +16,12 @@ import { AuthInfo } from 'types/auth'
 import { ManagePage } from 'pages/manage'
 import { ManageInfoPage } from 'pages/manage/info'
 import { ManageCategoryPage } from 'pages/manage/Categories'
+import { fold, selectSidebarIsFolded } from 'features/sidebar/sidebarSlice'
 
 function App() {
   const dispatch = useAppDispatch()
   const isLoggedIn = useAppSelector(selectIsAuthenticated)
+  const isFolded = useAppSelector(selectSidebarIsFolded)
   const [refreshLoginTimer, setRefreshLoginTimer] =
     useState<ReturnType<typeof setInterval>>()
   const breakpoint = useAppSelector(selectBreakpoint)
@@ -64,9 +66,12 @@ function App() {
 
   return (
     <div className='flex size-full min-h-[720px] bg-background text-foreground'>
-      <Sidebar foldable={breakpoint !== 'desktop'} />
+      <Sidebar
+        foldable={breakpoint !== 'desktop'}
+        float={breakpoint === 'mobile'}
+      />
 
-      <div className='relative h-full min-w-120 shrink grow'>
+      <div className='relative size-full shrink grow'>
         <Routes>
           <Route path='/' element={<MainPage />} />
           <Route path='/login' element={<LoginPage />} />

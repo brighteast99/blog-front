@@ -103,7 +103,7 @@
 
         .hljs-comment,
         .hljs-quote {
-          @apply text-[#616161];
+          color: #616161;
         }
 
         .hljs-variable,
@@ -116,7 +116,7 @@
         .hljs-name,
         .hljs-selector-id,
         .hljs-selector-class {
-          @apply text-[#f98181];
+          color: #f98181;
         }
 
         .hljs-number,
@@ -126,23 +126,23 @@
         .hljs-literal,
         .hljs-type,
         .hljs-params {
-          @apply text-[#fbbc88];
+          color: #fbbc88;
         }
 
         .hljs-string,
         .hljs-symbol,
         .hljs-bullet {
-          @apply text-[#b9f18d];
+          color: #b9f18d;
         }
 
         .hljs-title,
         .hljs-section {
-          @apply text-[#faf594];
+          color: #faf594;
         }
 
         .hljs-keyword,
         .hljs-selector-tag {
-          @apply text-[#70cff8];
+          color: #70cff8;
         }
 
         .hljs-emphasis {
