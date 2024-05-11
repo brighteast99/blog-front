@@ -12,8 +12,12 @@ import Image from '@tiptap/extension-image'
 import { FontSize } from './extensions/fontSize'
 import { Toolbar } from './Toolbar'
 import { ImageCatalogue } from './ImageCatalogue'
+import { common, createLowlight } from 'lowlight'
 
 import './Tiptap.scss'
+import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight'
+import TaskList from '@tiptap/extension-task-list'
+import TaskItem from '@tiptap/extension-task-item'
 
 export interface EditorProps {
   className?: string
@@ -27,6 +31,8 @@ export interface EditorProps {
   onDeleteImage?: (image: string) => any
   onChangeThumbnail?: (image: string | null) => any
 }
+
+const lowlight = createLowlight(common)
 
 export const Tiptap: FC<EditorProps> = ({
   className,
@@ -81,6 +87,13 @@ export const Tiptap: FC<EditorProps> = ({
           }),
           Image.configure({
             inline: true
+          }),
+          CodeBlockLowlight.configure({
+            lowlight
+          }),
+          TaskList,
+          TaskItem.configure({
+            nested: true
           })
         ]}
         slotBefore={editable && <Toolbar className='rounded-t' />}

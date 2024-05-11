@@ -5,6 +5,7 @@ import { cn } from 'utils/handleClassName'
 
 import Icon from '@mdi/react'
 import {
+  mdiCodeBraces,
   mdiFormatAlignCenter,
   mdiFormatAlignJustify,
   mdiFormatAlignLeft,
@@ -14,7 +15,9 @@ import {
   mdiFormatColorText,
   mdiFormatItalic,
   mdiFormatListBulleted,
+  mdiFormatListCheckbox,
   mdiFormatListNumbered,
+  mdiFormatQuoteClose,
   mdiFormatStrikethroughVariant,
   mdiFormatUnderline,
   mdiLinkVariant
@@ -24,6 +27,7 @@ import { ThemedButton } from 'components/Buttons/ThemedButton'
 import { IconButton } from 'components/Buttons/IconButton'
 import { ColorSelector } from 'components/PopoverMenu/ColorSelector'
 import { LinkConfigurer } from './LinkConfigurer'
+import { PopoverMenu } from 'components/PopoverMenu'
 
 const FontSizes = [
   11, 13, 15, 16, 19, 24, 28, 30, 34, 38, 42, 50, 60, 75, 90, 100
@@ -57,12 +61,15 @@ export const Toolbar: FC<{ className?: string }> = ({ className }) => {
     strike: editor?.isActive('strike'),
     bulletList: editor?.isActive('bulletList'),
     orderedList: editor?.isActive('orderedList'),
+    taskList: editor?.isActive('taskList'),
     textAlign: {
       left: editor?.isActive({ textAlign: 'left' }),
       center: editor?.isActive({ textAlign: 'center' }),
       right: editor?.isActive({ textAlign: 'right' }),
       justify: editor?.isActive({ textAlign: 'justify' })
     },
+    blockquote: editor?.isActive('blockquote'),
+    codeBlock: editor?.isActive('codeBlock'),
     link: {
       active: Boolean(editor?.getAttributes('link').href),
       href: editor?.getAttributes('link').href,
@@ -153,6 +160,83 @@ export const Toolbar: FC<{ className?: string }> = ({ className }) => {
         </div>
 
         <div className='flex gap-1 px-2'>
+          <PopoverMenu
+            description='문단 정렬'
+            tooltipPlacement='bottom'
+            menuBtn={
+              <IconButton
+                path={
+                  editorStyles.textAlign.left
+                    ? mdiFormatAlignLeft
+                    : editorStyles.textAlign.center
+                      ? mdiFormatAlignCenter
+                      : editorStyles.textAlign.right
+                        ? mdiFormatAlignRight
+                        : mdiFormatAlignJustify
+                }
+                variant='hover-text-toggle'
+                active={!editorStyles.textAlign.justify}
+              />
+            }
+            placement='bottom'
+          >
+            <Tooltip placement='right' offset={3}>
+              <TooltipTrigger asChild>
+                <IconButton
+                  className='block'
+                  path={mdiFormatAlignLeft}
+                  color='primary'
+                  variant='hover-text-toggle'
+                  active={editorStyles.textAlign.left}
+                  onClick={() => editor?.commands.setTextAlign('left')}
+                />
+              </TooltipTrigger>
+              <TooltipContent>왼쪽 맞춤</TooltipContent>
+            </Tooltip>
+
+            <Tooltip placement='right' offset={3}>
+              <TooltipTrigger asChild>
+                <IconButton
+                  className='block'
+                  path={mdiFormatAlignCenter}
+                  color='primary'
+                  variant='hover-text-toggle'
+                  active={editorStyles.textAlign.center}
+                  onClick={() => editor?.commands.setTextAlign('center')}
+                />
+              </TooltipTrigger>
+              <TooltipContent>가운데 맞춤</TooltipContent>
+            </Tooltip>
+
+            <Tooltip placement='right' offset={3}>
+              <TooltipTrigger asChild>
+                <IconButton
+                  className='block'
+                  path={mdiFormatAlignRight}
+                  color='primary'
+                  variant='hover-text-toggle'
+                  active={editorStyles.textAlign.right}
+                  onClick={() => editor?.commands.setTextAlign('right')}
+                />
+              </TooltipTrigger>
+              <TooltipContent>오른쪽 맞춤</TooltipContent>
+            </Tooltip>
+
+            <Tooltip placement='right' offset={3}>
+              <TooltipTrigger asChild>
+                <IconButton
+                  className='block'
+                  path={mdiFormatAlignJustify}
+                  color='primary'
+                  variant='hover-text-toggle'
+                  active={editorStyles.textAlign.justify}
+                  onClick={() => editor?.commands.setTextAlign('justify')}
+                />
+              </TooltipTrigger>
+              <TooltipContent>양쪽 맞춤</TooltipContent>
+            </Tooltip>
+          </PopoverMenu>
+
           <Tooltip placement='bottom' offset={3}>
             <TooltipTrigger asChild>
               <IconButton
@@ -209,86 +293,104 @@ export const Toolbar: FC<{ className?: string }> = ({ className }) => {
         </div>
 
         <div className='flex gap-1 px-2'>
-          <Tooltip placement='bottom' offset={3}>
-            <TooltipTrigger asChild>
+          <PopoverMenu
+            description='목록 형태로 전환'
+            tooltipPlacement='bottom'
+            menuBtn={
               <IconButton
-                path={mdiFormatAlignLeft}
-                color='primary'
-                variant='hover-text-toggle'
-                active={editorStyles.textAlign.left}
-                onClick={() => editor?.commands.setTextAlign('left')}
-              />
-            </TooltipTrigger>
-            <TooltipContent>왼쪽 맞춤</TooltipContent>
-          </Tooltip>
-
-          <Tooltip placement='bottom' offset={3}>
-            <TooltipTrigger asChild>
-              <IconButton
-                path={mdiFormatAlignCenter}
-                color='primary'
-                variant='hover-text-toggle'
-                active={editorStyles.textAlign.center}
-                onClick={() => editor?.commands.setTextAlign('center')}
-              />
-            </TooltipTrigger>
-            <TooltipContent>가운데 맞춤</TooltipContent>
-          </Tooltip>
-
-          <Tooltip placement='bottom' offset={3}>
-            <TooltipTrigger asChild>
-              <IconButton
-                path={mdiFormatAlignRight}
-                color='primary'
-                variant='hover-text-toggle'
-                active={editorStyles.textAlign.right}
-                onClick={() => editor?.commands.setTextAlign('right')}
-              />
-            </TooltipTrigger>
-            <TooltipContent>오른쪽 맞춤</TooltipContent>
-          </Tooltip>
-
-          <Tooltip placement='bottom' offset={3}>
-            <TooltipTrigger asChild>
-              <IconButton
-                path={mdiFormatAlignJustify}
-                color='primary'
-                variant='hover-text-toggle'
-                active={editorStyles.textAlign.justify}
-                onClick={() => editor?.commands.setTextAlign('justify')}
-              />
-            </TooltipTrigger>
-            <TooltipContent>자동</TooltipContent>
-          </Tooltip>
-        </div>
-
-        <div className='flex gap-2 px-2'>
-          <Tooltip placement='bottom' offset={3}>
-            <TooltipTrigger asChild>
-              <IconButton
-                path={mdiFormatListBulleted}
-                color='primary'
-                variant='hover-text-toggle'
-                active={editorStyles.bulletList}
-                onClick={() => editor?.chain().focus().toggleBulletList().run()}
-              />
-            </TooltipTrigger>
-            <TooltipContent>순서 없는 목록</TooltipContent>
-          </Tooltip>
-
-          <Tooltip placement='bottom' offset={3}>
-            <TooltipTrigger asChild>
-              <IconButton
-                path={mdiFormatListNumbered}
-                color='primary'
-                variant='hover-text-toggle'
-                active={editorStyles.orderedList}
-                onClick={() =>
-                  editor?.chain().focus().toggleOrderedList().run()
+                path={
+                  editorStyles.orderedList
+                    ? mdiFormatListNumbered
+                    : mdiFormatListBulleted
                 }
+                active={
+                  editorStyles.bulletList ||
+                  editorStyles.orderedList ||
+                  editorStyles.taskList
+                }
+                variant='hover-text-toggle'
+              />
+            }
+            placement='bottom'
+          >
+            <Tooltip placement='right' offset={3}>
+              <TooltipTrigger asChild>
+                <IconButton
+                  className='block'
+                  path={mdiFormatListBulleted}
+                  color='primary'
+                  variant='hover-text-toggle'
+                  active={editorStyles.bulletList}
+                  onClick={() =>
+                    editor?.chain().focus().toggleBulletList().run()
+                  }
+                />
+              </TooltipTrigger>
+              <TooltipContent>순서 없는 목록</TooltipContent>
+            </Tooltip>
+
+            <Tooltip placement='right' offset={3}>
+              <TooltipTrigger asChild>
+                <IconButton
+                  className='block'
+                  path={mdiFormatListNumbered}
+                  color='primary'
+                  variant='hover-text-toggle'
+                  active={editorStyles.orderedList}
+                  onClick={() =>
+                    editor?.chain().focus().toggleOrderedList().run()
+                  }
+                />
+              </TooltipTrigger>
+              <TooltipContent>순서 있는 목록</TooltipContent>
+            </Tooltip>
+
+            <Tooltip placement='right' offset={3}>
+              <TooltipTrigger asChild>
+                <IconButton
+                  className='block'
+                  path={mdiFormatListCheckbox}
+                  color='primary'
+                  variant='hover-text-toggle'
+                  active={editorStyles.taskList}
+                  onClick={() => editor?.chain().focus().toggleTaskList().run()}
+                />
+              </TooltipTrigger>
+              <TooltipContent>체크리스트</TooltipContent>
+            </Tooltip>
+          </PopoverMenu>
+
+          <Tooltip placement='bottom' offset={3}>
+            <TooltipTrigger asChild>
+              <IconButton
+                path={mdiFormatQuoteClose}
+                color='primary'
+                variant='hover-text-toggle'
+                active={editorStyles.blockquote}
+                onClick={() => editor?.chain().focus().toggleBlockquote().run()}
               />
             </TooltipTrigger>
-            <TooltipContent>순서 있는 목록</TooltipContent>
+            <TooltipContent>인용문</TooltipContent>
+          </Tooltip>
+
+          <Tooltip placement='bottom' offset={3}>
+            <TooltipTrigger asChild>
+              <IconButton
+                path={mdiCodeBraces}
+                color='primary'
+                variant='hover-text-toggle'
+                active={editorStyles.codeBlock}
+                onClick={() => {
+                  if (editorStyles.codeBlock)
+                    return editor?.chain().focus().toggleCodeBlock().run()
+
+                  const language = window.prompt('언어 선택')
+                  if (language === null) return
+                  editor?.chain().focus().setCodeBlock({ language }).run()
+                }}
+              />
+            </TooltipTrigger>
+            <TooltipContent>코드 블록</TooltipContent>
           </Tooltip>
         </div>
 
