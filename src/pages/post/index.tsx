@@ -7,7 +7,7 @@ import { Error } from 'components/Error'
 import { getRelativeTimeFromNow, isSameTime } from 'utils/dayJS'
 import { Tiptap } from 'components/Tiptap'
 import Icon from '@mdi/react'
-import { mdiDelete, mdiLock, mdiPencil } from '@mdi/js'
+import { mdiDelete, mdiLoading, mdiLock, mdiPencil } from '@mdi/js'
 import { useAppSelector } from 'app/hooks'
 import { selectIsAuthenticated } from 'features/auth/authSlice'
 import { PopoverMenu } from 'components/PopoverMenu'
@@ -26,6 +26,7 @@ export const GET_POST: TypedDocumentNode<{ post: Post }, { id: number }> = gql`
       }
       isHidden
       thumbnail
+      images
       createdAt
       updatedAt
       content
@@ -155,7 +156,8 @@ export const PostPage: FC = () => {
               onClick={() => navigate(`/post/edit/${postId}`)}
             />
             <PopoverMenuItem
-              icon={mdiDelete}
+              icon={deleting ? mdiLoading : mdiDelete}
+              disabled={deleting}
               title='삭제'
               className='bg-error text-error'
               onClick={deletePost}

@@ -16,6 +16,7 @@ export interface Post {
   category: Category
   isHidden: boolean
   thumbnail?: string
+  images: string[]
   content: string
   createdAt: Date
   updatedAt: Date

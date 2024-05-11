@@ -52,6 +52,17 @@ const UPDATE_POST: TypedDocumentNode<
   }
 `
 
+const DELETE_IMAGE: TypedDocumentNode<
+  { deleteImage: { success: boolean } },
+  { url: String }
+> = gql`
+  mutation DeleteImage($url: String!) {
+    deleteImage(url: $url) {
+      success
+    }
+  }
+`
+
 export interface Draft
   extends Omit<Post, 'id' | 'category' | 'createdAt' | 'updatedAt'> {
   category?: number
@@ -59,6 +70,7 @@ export interface Draft
 
 export const useDraft = (initialValue: Draft) => {
   const [draft, setDraft] = useState<Draft>(initialValue)
+  const [imagesToDelete, setImagesToDelete] = useState<string[]>([])
 
   function modifyDraft(key: string, value: any) {
     setDraft((prev) => {
@@ -81,15 +93,61 @@ export const useDraft = (initialValue: Draft) => {
     modifyDraft('isHidden', isHidden)
   }
 
-  function setThumbnail(thumbnail?: string) {
-    modifyDraft('thumbnail', thumbnail)
+  function setThumbnail(thumbnail: string | null) {
+    if (thumbnail) modifyDraft('thumbnail', thumbnail)
+    else
+      setDraft((prev) => {
+        let copy = { ...prev }
+        delete copy.thumbnail
+
+        return copy
+      })
   }
 
   function setContent(content: string) {
     modifyDraft('content', content)
   }
 
-  return { draft, setTitle, setCategory, setIsHidden, setThumbnail, setContent }
+  function setImages(images: string[]) {
+    modifyDraft('images', images)
+  }
+
+  function addImage(image: string) {
+    setDraft((prev) => {
+      return {
+        ...prev,
+        images: [...prev.images, image]
+      }
+    })
+  }
+
+  function removeImage(image: string) {
+    setDraft((prev) => {
+      const idx = prev.images.findIndex((_image) => _image === image)
+      if (idx === -1) return prev
+
+      prev.images = prev.images.toSpliced(idx, 1)
+
+      let copy = { ...prev }
+      if (copy.thumbnail === image) delete copy.thumbnail
+
+      return copy
+    })
+    setImagesToDelete((prev) => [...prev, image])
+  }
+
+  return {
+    draft,
+    imagesToDelete,
+    setTitle,
+    setCategory,
+    setIsHidden,
+    setThumbnail,
+    setContent,
+    setImages,
+    addImage,
+    removeImage
+  }
 }
 
 export const EditPostPage: FC<{ newPost?: boolean }> = ({
@@ -106,12 +164,17 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
     setTitle,
     setContent,
     setIsHidden,
-    setThumbnail
+    setThumbnail,
+    setImages,
+    addImage,
+    removeImage,
+    imagesToDelete
   } = useDraft({
     title: '',
     category: Number(searchParams.get('category')) || undefined,
     isHidden: false,
-    content: '<p></p>'
+    content: '<p></p>',
+    images: []
   })
   const [selectedCategory, setSelectedCategory] = useState<{
     id?: number
@@ -133,7 +196,8 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
       setCategory(post.category.id)
       setContent(post.content)
       setIsHidden(post.isHidden)
-      setThumbnail(post.thumbnail)
+      setThumbnail(post.thumbnail ?? null)
+      setImages(post.images)
     }
   })
   const { loading: loadingCategories, data: categories } = useQuery(
@@ -143,6 +207,7 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
     useMutation(CREATE_POST)
   const [_updatePost, { loading: updating, reset: resetUpdateMutation }] =
     useMutation(UPDATE_POST)
+  const [deleteImage, { loading: deleteingImages }] = useMutation(DELETE_IMAGE)
 
   const createPost = useCallback(() => {
     _createPost({
@@ -192,7 +257,19 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
           resetUpdateMutation()
           return alert('게시글 수정 중 오류가 발생했습니다.')
         }
-        navigate(`/post/${Number(postId)}`)
+        Promise.all(
+          imagesToDelete.map((image) => {
+            return new Promise((resolve) => {
+              deleteImage({
+                variables: {
+                  url: image
+                },
+                onCompleted: () => resolve(null),
+                onError: () => resolve(null)
+              })
+            })
+          })
+        ).then(() => navigate(`/post/${Number(postId)}`))
       },
       onError: ({ networkError }) => {
         if (networkError) alert('게시글 수정 중 오류가 발생했습니다.')
@@ -201,7 +278,9 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
     })
   }, [
     _updatePost,
+    deleteImage,
     draft,
+    imagesToDelete,
     navigate,
     postId,
     resetUpdateMutation,
@@ -238,7 +317,7 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
     )
 
   return (
-    <div className='size-full p-10'>
+    <div className='size-full overflow-y-auto p-10'>
       {(loadingPost || error) && (
         <div className='absolute inset-0 z-10 flex size-full items-center justify-center bg-neutral-50 bg-opacity-75'>
           {error && (
@@ -253,8 +332,8 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
           {loadingPost && <Spinner />}
         </div>
       )}
-      <div className='flex size-full flex-col gap-3'>
-        <div className='flex items-center gap-2'>
+      <div className='w-full'>
+        <div className='mb-3 flex w-full items-center gap-2'>
           <select
             className='w-36'
             disabled={loadingCategories}
@@ -299,11 +378,18 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
           </Tooltip>
         </div>
 
-        <Tiptap
-          className='min-h-40 grow'
-          content={draft.content}
-          onChange={(editor) => setContent(editor.getHTML())}
-        />
+        {!loadingPost && (
+          <Tiptap
+            className='mb-5 min-h-40 grow'
+            content={draft.content}
+            onChange={(editor) => setContent(editor.getHTML())}
+            thumbnail={draft.thumbnail}
+            images={draft.images}
+            onAddImage={addImage}
+            onDeleteImage={removeImage}
+            onChangeThumbnail={setThumbnail}
+          />
+        )}
 
         <ThemedButton
           className='h-10 w-full py-0.5 text-lg'

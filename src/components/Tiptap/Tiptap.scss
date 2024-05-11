@@ -1,0 +1,69 @@
+@import 'tailwindcss/components';
+
+@layer components {
+  .Tiptap-wrapper {
+    &:not(.Tiptap-viewer) {
+      @apply rounded transition-colors;
+
+      > div:first-child {
+          @apply border border-b-0 border-neutral-100 p-1 bg-neutral-100;
+        }
+
+      > div:not(:last-child):not(:first-child) {
+        @apply min-h-120 h-120 bg-neutral-50 rounded-b border-t-0 overflow-y-scroll border border-neutral-100 resize-y;
+      }
+
+      &:focus-within {
+        > div:not(:last-child) {
+          @apply border-primary;
+        }
+      }
+    }
+
+    > div:not(:last-child):not(:first-child) {
+      @apply w-full p-1;
+
+      > div {
+        @apply size-full overflow-auto focus:outline-0 p-3;
+
+        // Gapcursor
+        >div.ProseMirror-gapcursor::after {
+          @apply border-t-foreground;
+        }
+
+        a {
+          @apply transition-colors hover:underline decoration-1 underline-offset-4 visited:text-secondary text-primary font-semibold;
+        }
+
+        ul {
+          list-style: disc;
+        }
+
+        ol {
+          list-style: decimal;
+        }
+
+        ul, ol {
+          padding-inline-start: 20px;
+
+          li:not(:first-child) {
+            margin-top: 8px;
+          }
+        }
+
+        img {
+          @apply h-auto max-w-full;
+
+          &.ProseMirror-selectednode {
+            @apply outline outline-2 outline-primary;
+          }
+        }
+
+        p[data-placeholder]:first-child::before {
+          @apply pointer-events-none float-left h-0 text-neutral-400;
+          content: attr(data-placeholder);
+        }
+      }
+    }
+  }
+}

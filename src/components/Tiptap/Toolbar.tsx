@@ -76,10 +76,7 @@ export const Toolbar: FC<{ className?: string }> = ({ className }) => {
 
   return (
     <div
-      className={cn(
-        'flex items-center divide-x divide-neutral-400 bg-neutral-100 p-1',
-        className
-      )}
+      className={cn('flex items-center divide-x divide-neutral-400', className)}
     >
       <FloatingDelayGroup delay={{ open: 250, close: 100 }}>
         <Tooltip placement='bottom' offset={3}>

@@ -11,22 +11,34 @@ import { Link } from '@tiptap/extension-link'
 import { Toolbar } from './Toolbar'
 import { FontSize } from './extensions/fontSize'
 
-import styles from './Tiptap.module.scss'
+import './Tiptap.scss'
+import Image from '@tiptap/extension-image'
+import { ImageCatalogue } from './ImageCatalogue'
 
 export interface EditorProps {
   className?: string
   content?: string
+  thumbnail?: string
+  images?: string[]
   editable?: boolean
   autofocus?: boolean
   onChange?: (editor: Editor) => any
+  onAddImage?: (image: string) => any
+  onDeleteImage?: (image: string) => any
+  onChangeThumbnail?: (image: string | null) => any
 }
 
 export const Tiptap: FC<EditorProps> = ({
   className,
   content = '<p></p>',
+  thumbnail,
+  images = [],
   editable = true,
   autofocus = false,
-  onChange = () => {}
+  onChange = () => {},
+  onAddImage,
+  onDeleteImage,
+  onChangeThumbnail
 }) => {
   const [editor, setEditor] = useState<Editor>()
 
@@ -41,7 +53,9 @@ export const Tiptap: FC<EditorProps> = ({
   }, [editor, content])
 
   return (
-    <div className={cn(className, styles.wrapper, !editable && styles.viewer)}>
+    <div
+      className={cn(className, 'Tiptap-wrapper', !editable && 'Tiptap-viewer')}
+    >
       <EditorProvider
         extensions={[
           StarterKit,
@@ -64,9 +78,23 @@ export const Tiptap: FC<EditorProps> = ({
               target: '_blank'
             },
             validate: (href) => /^https?:\/\//.test(href)
+          }),
+          Image.configure({
+            inline: true
           })
         ]}
         slotBefore={editable && <Toolbar className='rounded-t' />}
+        slotAfter={
+          editable && (
+            <ImageCatalogue
+              thumbnail={thumbnail}
+              images={images}
+              addImage={onAddImage}
+              deleteImage={onDeleteImage}
+              changeThumbnail={onChangeThumbnail}
+            />
+          )
+        }
         autofocus={autofocus}
         onCreate={({ editor }) => {
           editor.commands.setContent(content)
