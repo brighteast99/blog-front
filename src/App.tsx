@@ -74,7 +74,7 @@ function App() {
         float={breakpoint === 'mobile'}
       />
 
-      <div className='relative size-full flex-1 bg-background'>
+      <div className='relative size-full min-w-0 flex-1 bg-background'>
         <Routes>
           <Route path='/' element={<MainPage />} />
           <Route path='/login' element={<LoginPage />} />
