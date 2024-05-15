@@ -16,7 +16,7 @@ export interface SuspendedTextProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 export const SuspendedTextVariants = cva(
-  `inline-flex max-w-full flex-col gap-2`,
+  `inline-flex max-w-full min-w-0 flex-col gap-2 w-full`,
   {
     variants: {
       align: {
@@ -48,7 +48,7 @@ export const SuspendedText: FC<SuspendedTextProps> = ({
         {Array.from({ length: lines }, (_val, i) => (
           <span
             key={i}
-            className='pointer-none w-fit min-w-0 max-w-full animate-pulse cursor-wait rounded-full bg-neutral-800 text-transparent opacity-25'
+            className='pointer-none w-fit min-w-0 max-w-full animate-pulse cursor-wait overflow-hidden rounded-full bg-neutral-800 text-transparent opacity-25'
             {...props}
           >
             {'◼︎'.repeat(lines === 1 || i < lines - 1 ? length : length / 5)}
@@ -59,13 +59,7 @@ export const SuspendedText: FC<SuspendedTextProps> = ({
   return (
     <span
       className={cn(className, SuspendedTextVariants({ align }))}
-      style={{
-        ...props?.style,
-        overflow: 'hidden',
-        display: '-webkit-box',
-        WebkitBoxOrient: 'vertical',
-        WebkitLineClamp: lines
-      }}
+      style={props?.style}
       {...props}
     >
       {text}

@@ -213,7 +213,7 @@ export const PostPage: FC = () => {
           />
         </div>
       </div>
-      <div className='mx-auto w-5/6 p-5'>
+      <div className='mx-auto w-full max-w-[1280px] p-5'>
         {loading ? (
           <SuspendedText
             className='font-thin'

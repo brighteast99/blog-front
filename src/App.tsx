@@ -16,12 +16,10 @@ import { AuthInfo } from 'types/auth'
 import { ManagePage } from 'pages/manage'
 import { ManageInfoPage } from 'pages/manage/info'
 import { ManageCategoryPage } from 'pages/manage/Categories'
-import { fold, selectSidebarIsFolded } from 'features/sidebar/sidebarSlice'
 
 function App() {
   const dispatch = useAppDispatch()
   const isLoggedIn = useAppSelector(selectIsAuthenticated)
-  const isFolded = useAppSelector(selectSidebarIsFolded)
   const [refreshLoginTimer, setRefreshLoginTimer] =
     useState<ReturnType<typeof setInterval>>()
   const breakpoint = useAppSelector(selectBreakpoint)
@@ -41,6 +39,11 @@ function App() {
       window.removeEventListener('resize', dispatchSizeUpdate)
     }
   }, [dispatch])
+
+  useLayoutEffect(() => {
+    document.documentElement.style.fontSize =
+      breakpoint === 'mobile' ? '12px' : '16px'
+  }, [breakpoint])
 
   useLayoutEffect(() => {
     if (!isLoggedIn) {
