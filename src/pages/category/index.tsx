@@ -58,7 +58,6 @@ export const GET_POSTS: TypedDocumentNode<
       thumbnail
       isHidden
       createdAt
-      updatedAt
     }
   }
 `

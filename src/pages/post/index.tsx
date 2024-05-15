@@ -4,7 +4,7 @@ import { TypedDocumentNode, gql, useMutation, useQuery } from '@apollo/client'
 import { Post } from 'types/data'
 import { SuspendedText } from 'components/SuspendedText'
 import { Error } from 'components/Error'
-import { getRelativeTimeFromNow, isSameTime } from 'utils/dayJS'
+import { getRelativeTimeFromNow } from 'utils/dayJS'
 import { Tiptap } from 'components/Tiptap'
 import Icon from '@mdi/react'
 import { mdiDelete, mdiLoading, mdiLock, mdiPencil } from '@mdi/js'
@@ -28,7 +28,6 @@ export const GET_POST: TypedDocumentNode<{ post: Post }, { id: number }> = gql`
       thumbnail
       images
       createdAt
-      updatedAt
       content
     }
   }
@@ -59,9 +58,6 @@ export const PostPage: FC = () => {
   })
   const [_deletePost, { loading: deleting, reset: resetDeleteMutation }] =
     useMutation(DELETE_POST)
-
-  const isUpdated =
-    !data?.post || !isSameTime(data.post.createdAt, data.post.updatedAt)
 
   const deletePost = useCallback(() => {
     if (!window.confirm('게시글을 삭제합니다.')) return
@@ -203,11 +199,7 @@ export const PostPage: FC = () => {
           <SuspendedText
             className='font-thin'
             loading={loading}
-            text={
-              isUpdated
-                ? `${getRelativeTimeFromNow(data?.post?.updatedAt || new Date())} (수정됨)`
-                : getRelativeTimeFromNow(data?.post?.createdAt || new Date())
-            }
+            text={getRelativeTimeFromNow(data?.post?.createdAt || new Date())}
             align='center'
             length={8}
           />

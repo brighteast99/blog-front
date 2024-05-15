@@ -1,7 +1,7 @@
 import { FC, useCallback, useLayoutEffect, useRef, useState } from 'react'
 import { QueryReference, useReadQuery } from '@apollo/client'
 import { Link } from 'react-router-dom'
-import { getRelativeTimeFromNow, isSameTime } from 'utils/dayJS'
+import { getRelativeTimeFromNow } from 'utils/dayJS'
 import { Post } from 'types/data'
 import Icon from '@mdi/react'
 import { mdiLock } from '@mdi/js'
@@ -9,8 +9,6 @@ import clsx from 'clsx'
 import { PostListQueryResult, PostListQueryVariables } from '.'
 
 export const PostItem: FC<{ post: Post }> = ({ post }) => {
-  const isUpdated = !isSameTime(post.createdAt, post.updatedAt)
-
   const extractText = useCallback((content: string) => {
     const parser = new DOMParser()
     const doc = parser.parseFromString(content, 'text/html')
@@ -48,9 +46,7 @@ export const PostItem: FC<{ post: Post }> = ({ post }) => {
         </Link>
 
         <p className='mb-1 text-sm text-neutral-700'>
-          {isUpdated
-            ? `${getRelativeTimeFromNow(post.updatedAt)} (수정됨)`
-            : getRelativeTimeFromNow(post.createdAt)}
+          {getRelativeTimeFromNow(post.createdAt)}
         </p>
 
         <p className='line-clamp-3 font-thin text-neutral-800'>
