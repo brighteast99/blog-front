@@ -152,9 +152,14 @@ export const CategoryPage: FC = () => {
 
   return (
     <div className='size-full overflow-y-auto'>
-      {data?.categoryInfo?.coverImage && (
+      {(loading || data?.categoryInfo?.coverImage) && (
         <div
-          className='h-50 bg-cover bg-center'
+          className={clsx(
+            'h-50 bg-cover bg-center blur-[2px] brightness-50',
+            !data?.categoryInfo?.coverImage &&
+              loading &&
+              'animate-pulse !bg-neutral-700'
+          )}
           style={{
             backgroundImage: `url(${data?.categoryInfo?.coverImage})`
           }}
@@ -163,7 +168,7 @@ export const CategoryPage: FC = () => {
       <div
         className={clsx(
           'sticky top-0 z-20 px-6 py-2',
-          data?.categoryInfo?.coverImage && '-mt-8 mb-8',
+          (loading || data?.categoryInfo?.coverImage) && '-mt-8 mb-8',
           loading && 'animate-pulse'
         )}
       >
