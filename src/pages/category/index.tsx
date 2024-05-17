@@ -51,6 +51,10 @@ export const GET_POSTS: TypedDocumentNode<
         id
         name
         isHidden
+        ancestors {
+          id
+          name
+        }
       }
       id
       title
@@ -207,36 +211,36 @@ export const CategoryPage: FC = () => {
       </div>
 
       <div className='sticky top-0 z-10 -mt-28 h-32 w-full bg-background' />
-      <div className='mx-auto w-5/6'>
-        <div className='mb-2 flex items-center'>
-          {isLoggedIn && (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <IconButton
-                  className='p-0'
-                  path={mdiPlus}
-                  variant='hover-text'
-                  onClick={() => {
-                    let path = '/post/new'
-                    const id = Number(categoryId)
-                    if (typeof id === 'number' && id > 0)
-                      path += `?category=${categoryId}`
-                    navigate(path)
-                  }}
-                />
-              </TooltipTrigger>
-              <TooltipContent>새 글 쓰기</TooltipContent>
-            </Tooltip>
-          )}
+      <div className='sticky top-32 z-50 mx-auto -mb-0.5 flex w-5/6 items-center border-b-2 border-neutral-600 bg-background py-2'>
+        {isLoggedIn && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <IconButton
+                className='p-0'
+                path={mdiPlus}
+                variant='hover-text'
+                onClick={() => {
+                  let path = '/post/new'
+                  const id = Number(categoryId)
+                  if (typeof id === 'number' && id > 0)
+                    path += `?category=${categoryId}`
+                  navigate(path)
+                }}
+              />
+            </TooltipTrigger>
+            <TooltipContent>새 글 쓰기</TooltipContent>
+          </Tooltip>
+        )}
 
-          <div className='grow' />
-          <input type='text' />
-          <IconButton
-            className='ml-1 p-0'
-            path={mdiMagnify}
-            variant='hover-text'
-          />
-        </div>
+        <div className='grow' />
+        <input type='text' />
+        <IconButton
+          className='ml-1 p-0'
+          path={mdiMagnify}
+          variant='hover-text'
+        />
+      </div>
+      <div className='mx-auto w-5/6'>
         <ErrorBoundary
           FallbackComponent={({ resetErrorBoundary }) => (
             <Error

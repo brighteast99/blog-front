@@ -1,6 +1,12 @@
-import { FC, useCallback } from 'react'
+import { FC, Suspense, useCallback, useEffect } from 'react'
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
-import { TypedDocumentNode, gql, useMutation, useQuery } from '@apollo/client'
+import {
+  TypedDocumentNode,
+  gql,
+  useLoadableQuery,
+  useMutation,
+  useQuery
+} from '@apollo/client'
 import { Post } from 'types/data'
 import { SuspendedText } from 'components/SuspendedText'
 import { Error } from 'components/Error'
@@ -13,6 +19,10 @@ import { selectIsAuthenticated } from 'features/auth/authSlice'
 import { PopoverMenu } from 'components/PopoverMenu'
 import { PopoverMenuItem } from 'components/PopoverMenu/PopoverMenuItem'
 import { GET_CATEGORIES } from 'features/sidebar/Sidebar'
+import { ErrorBoundary } from 'react-error-boundary'
+import { Spinner } from 'components/Spinner'
+import { PostList } from 'pages/category/postList'
+import { GET_POSTS } from 'pages/category'
 
 export const GET_POST: TypedDocumentNode<{ post: Post }, { id: number }> = gql`
   query PostData($id: Int!) {
@@ -23,6 +33,10 @@ export const GET_POST: TypedDocumentNode<{ post: Post }, { id: number }> = gql`
         id
         name
         isHidden
+        ancestors {
+          id
+          name
+        }
       }
       isHidden
       thumbnail
@@ -58,6 +72,10 @@ export const PostPage: FC = () => {
   })
   const [_deletePost, { loading: deleting, reset: resetDeleteMutation }] =
     useMutation(DELETE_POST)
+  const [getPosts, queryRef, { refetch: refetchPostList }] = useLoadableQuery(
+    GET_POSTS,
+    { fetchPolicy: 'cache-and-network' }
+  )
 
   const deletePost = useCallback(() => {
     if (!window.confirm('게시글을 삭제합니다.')) return
@@ -82,6 +100,11 @@ export const PostPage: FC = () => {
     postId,
     resetDeleteMutation
   ])
+
+  useEffect(() => {
+    const categoryId = data?.post.category.id
+    if (!queryRef && categoryId) getPosts({ categoryId: categoryId ?? null })
+  }, [data?.post.category.id, getPosts, queryRef])
 
   if (error?.networkError)
     return (
@@ -161,10 +184,20 @@ export const PostPage: FC = () => {
           </PopoverMenu>
         )}
         <div className='flex size-full flex-col items-center justify-center gap-1 py-5 backdrop-blur backdrop-brightness-50'>
-          <div className='flex items-center justify-center'>
+          <div className='flex items-center justify-center text-lg text-neutral-800'>
+            {data?.post.category?.ancestors &&
+              data.post.category.ancestors.map((ancestor) => {
+                return (
+                  <div key={ancestor.id} className='contents'>
+                    <Link to={`/category/${ancestor.id || 0}`}>
+                      {ancestor.name}
+                    </Link>
+                    <span className='mx-1.5'>/</span>
+                  </div>
+                )
+              })}
             <Link to={`/category/${data?.post?.category?.id || 0}`}>
               <SuspendedText
-                className='text-lg'
                 loading={loading}
                 text={data?.post?.category.name}
                 align='center'
@@ -175,10 +208,11 @@ export const PostPage: FC = () => {
               <Icon
                 path={mdiLock}
                 size={0.6}
-                className='ml-0.5 mt-1 inline align-text-bottom text-neutral-700'
+                className='ml-0.5 mt-1 inline align-text-bottom'
               />
             )}
           </div>
+
           <div className='flex w-3/5 items-center justify-center'>
             <SuspendedText
               className='text-4xl font-medium'
@@ -196,8 +230,9 @@ export const PostPage: FC = () => {
               />
             )}
           </div>
+
           <SuspendedText
-            className='font-thin'
+            className='font-thin text-neutral-700'
             loading={loading}
             text={getRelativeTimeFromNow(data?.post?.createdAt || new Date())}
             align='center'
@@ -205,7 +240,8 @@ export const PostPage: FC = () => {
           />
         </div>
       </div>
-      <div className='mx-auto w-full max-w-[1280px] p-5'>
+
+      <div className='mx-auto w-full max-w-[1280px] px-5 py-10'>
         {loading ? (
           <SuspendedText
             className='font-thin'
@@ -222,6 +258,45 @@ export const PostPage: FC = () => {
           />
         )}
       </div>
+
+      {data && (
+        <div className='border-t border-neutral-300 bg-neutral-50'>
+          <div className='mx-auto w-full max-w-[1280px] px-5 py-10'>
+            <ErrorBoundary
+              FallbackComponent={({ resetErrorBoundary }) => (
+                <Error
+                  message='게시글 목록을 불러오지 못했습니다'
+                  actions={[
+                    {
+                      label: '다시 시도',
+                      handler: () => {
+                        refetchPostList()
+                        resetErrorBoundary()
+                      }
+                    }
+                  ]}
+                />
+              )}
+            >
+              <Suspense fallback={<Spinner />}>
+                <p className='mb-2 text-2xl'>
+                  <Link to={`/category/${data?.post?.category?.id || 0}`}>
+                    {data?.post?.category.name}
+                  </Link>
+                  의 다른 게시물
+                </p>
+                {queryRef && (
+                  <PostList
+                    queryRef={queryRef}
+                    pageSize={5}
+                    useQueryString={false}
+                  />
+                )}
+              </Suspense>
+            </ErrorBoundary>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

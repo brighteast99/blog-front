@@ -5,6 +5,7 @@ export interface Category {
   isHidden: boolean
   coverImage?: string
   subcategoryOf?: Category
+  ancestors?: Category[]
   subcategories: Category[]
   posts: Post[]
   postCount: number
