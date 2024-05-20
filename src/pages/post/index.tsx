@@ -102,9 +102,10 @@ export const PostPage: FC = () => {
   ])
 
   useEffect(() => {
+    if (!data) return
     const categoryId = data?.post.category.id
-    if (!queryRef && categoryId) getPosts({ categoryId: categoryId ?? null })
-  }, [data?.post.category.id, getPosts, queryRef])
+    if (!queryRef) getPosts({ categoryId: categoryId ?? null })
+  }, [data, getPosts, queryRef])
 
   if (error?.networkError)
     return (

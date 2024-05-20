@@ -23,6 +23,14 @@ export interface Post {
   updatedAt: Date
 }
 
+export interface Template {
+  id: number
+  name: string
+  thumbnail?: string
+  images: string[]
+  content: string
+}
+
 export interface BlogInfo {
   title: string
   description: string

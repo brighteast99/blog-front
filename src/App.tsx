@@ -16,6 +16,7 @@ import { AuthInfo } from 'types/auth'
 import { ManagePage } from 'pages/manage'
 import { ManageInfoPage } from 'pages/manage/info'
 import { ManageCategoryPage } from 'pages/manage/Categories'
+import { ManageTemplatePage } from 'pages/manage/Templates'
 
 function App() {
   const dispatch = useAppDispatch()
@@ -81,6 +82,7 @@ function App() {
           <Route path='/manage' element={<ManagePage />}>
             <Route path='info' element={<ManageInfoPage />} />
             <Route path='categories' element={<ManageCategoryPage />} />
+            <Route path='templates' element={<ManageTemplatePage />} />
           </Route>
           <Route path='/category/:categoryId?' element={<CategoryPage />} />
           <Route path='/post/new' element={<EditPostPage newPost />} />
