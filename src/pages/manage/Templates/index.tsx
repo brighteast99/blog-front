@@ -7,7 +7,7 @@ import {
 } from '@apollo/client'
 import clsx from 'clsx'
 import { Spinner } from 'components/Spinner'
-import { FC, Suspense, useCallback, useEffect, useState } from 'react'
+import { FC, Suspense, useCallback, useState } from 'react'
 import { Template, BlogInfo as _BlogInfo } from 'types/data'
 import { TemplateForm } from './templateForm'
 import Icon from '@mdi/react'
@@ -92,7 +92,7 @@ export const ManageTemplatePage: FC = () => {
   }, [_createTemplate, loadTemplateInfo, resetCreateMutation])
 
   return (
-    <div className='flex gap-2 p-5 *:h-[58rem]'>
+    <div className='flex gap-2 p-5 *:h-[55rem]'>
       <div className='w-1/3'>
         {loading && <Spinner className='absolute inset-0' size='sm' />}
         {data && (
@@ -100,7 +100,6 @@ export const ManageTemplatePage: FC = () => {
             className='relative h-full overflow-y-auto rounded border border-neutral-200 bg-neutral-50'
             onClick={(e) => {
               if (e.target !== e.currentTarget) return
-              console.log('a')
               setSelectedTemplate(undefined)
               reset()
             }}

@@ -75,7 +75,13 @@ function App() {
         float={breakpoint === 'mobile'}
       />
 
-      <div className='relative size-full min-w-0 flex-1 bg-background'>
+      <div className='relative size-full min-w-0 flex-1 overflow-y-auto bg-background'>
+        <div className='fixed z-40 h-full'>
+          {breakpoint !== 'desktop' && (
+            <SidebarHandle className='absolute inset-y-0 left-4 my-auto' />
+          )}
+        </div>
+
         <Routes>
           <Route path='/' element={<MainPage />} />
           <Route path='/login' element={<LoginPage />} />
@@ -93,10 +99,6 @@ function App() {
             element={<Error code={404} message='유효하지 않은 페이지입니다' />}
           />
         </Routes>
-
-        {breakpoint !== 'desktop' && (
-          <SidebarHandle className='absolute inset-y-0 left-4 my-auto' />
-        )}
       </div>
     </div>
   )

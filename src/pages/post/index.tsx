@@ -161,7 +161,7 @@ export const PostPage: FC = () => {
     )
 
   return (
-    <div className='size-full overflow-y-auto'>
+    <>
       <div
         className='relative h-56 border-b border-neutral-300 bg-neutral-500 bg-cover bg-center bg-no-repeat'
         style={{
@@ -262,7 +262,7 @@ export const PostPage: FC = () => {
 
       {data && (
         <div className='border-t border-neutral-300 bg-neutral-50'>
-          <div className='mx-auto w-full max-w-[1280px] px-5 py-10'>
+          <div className='mx-auto w-full max-w-[1280px] p-10'>
             <ErrorBoundary
               FallbackComponent={({ resetErrorBoundary }) => (
                 <Error
@@ -298,6 +298,6 @@ export const PostPage: FC = () => {
           </div>
         </div>
       )}
-    </div>
+    </>
   )
 }

@@ -154,7 +154,7 @@ export const CategoryPage: FC = () => {
     )
 
   return (
-    <div className='size-full overflow-y-auto'>
+    <>
       {(loading || data?.categoryInfo?.coverImage) && (
         <div
           className={clsx(
@@ -211,7 +211,7 @@ export const CategoryPage: FC = () => {
       </div>
 
       <div className='sticky top-0 z-10 -mt-28 h-32 w-full bg-background' />
-      <div className='sticky top-32 z-50 mx-auto -mb-0.5 flex w-5/6 items-center border-b-2 border-neutral-600 bg-background py-2'>
+      <div className='sticky top-32 z-10 mx-auto -mb-0.5 flex w-5/6 items-center border-b-2 border-neutral-600 bg-background py-2'>
         {isLoggedIn && (
           <Tooltip>
             <TooltipTrigger asChild>
@@ -262,6 +262,6 @@ export const CategoryPage: FC = () => {
           </Suspense>
         </ErrorBoundary>
       </div>
-    </div>
+    </>
   )
 }

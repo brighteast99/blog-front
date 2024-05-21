@@ -29,7 +29,7 @@ export const CategoryItem: FC<{ category: Category }> = ({ category }) => {
             />
           )}
         </p>
-        <span className={clsx(hasId && 'text-neutral-700')}>
+        <span className={clsx(hasId && 'text-neutral-500')}>
           ({category.postCount})
         </span>
       </Link>

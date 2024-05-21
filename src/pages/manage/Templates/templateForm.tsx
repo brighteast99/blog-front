@@ -129,7 +129,7 @@ export const TemplateForm: FC<{
   }, [template, initialize])
 
   return (
-    <div className='flex size-full flex-col gap-3'>
+    <div className='flex size-full flex-col gap-2'>
       <input
         className='w-full px-1 text-2xl'
         type='text'
@@ -138,7 +138,6 @@ export const TemplateForm: FC<{
         onChange={(e) => setName(e.target.value)}
       />
       <Tiptap
-        className='my-3'
         content={content}
         thumbnail={thumbnail}
         images={images}
@@ -158,7 +157,7 @@ export const TemplateForm: FC<{
         {updating ? <Spinner size='xs' /> : '저장'}
       </ThemedButton>
       <ThemedButton
-        className='mt-2 h-12 w-full'
+        className='h-12 w-full'
         type='button'
         variant='text'
         color='error'
