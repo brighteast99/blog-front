@@ -5,6 +5,7 @@ export interface Category {
   isHidden: boolean
   coverImage?: string
   subcategoryOf?: Category
+  ancestors?: Category[]
   subcategories: Category[]
   posts: Post[]
   postCount: number
@@ -20,6 +21,14 @@ export interface Post {
   content: string
   createdAt: Date
   updatedAt: Date
+}
+
+export interface Template {
+  id: number
+  name: string
+  thumbnail?: string
+  images: string[]
+  content: string
 }
 
 export interface BlogInfo {

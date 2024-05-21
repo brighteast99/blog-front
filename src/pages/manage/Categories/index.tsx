@@ -50,7 +50,10 @@ export const DELETE_CATEGORY: TypedDocumentNode<
 const ListStateContext = createContext<number | undefined>(undefined)
 const ListActionContext = createContext((_id?: number) => {})
 
-const CategoryListItem: FC<{ category: Category }> = ({ category }) => {
+const CategoryListItem: FC<{ category: Category; depth?: number }> = ({
+  category,
+  depth = 0
+}) => {
   const listState = useContext(ListStateContext)
   const select = useContext(ListActionContext)
 
@@ -58,10 +61,12 @@ const CategoryListItem: FC<{ category: Category }> = ({ category }) => {
     <>
       <li
         className={clsx(
-          'cursor-pointer px-1.5 py-1 hover:bg-neutral-100',
-          listState === category.id &&
-            'hover:bg-brightness-100 !bg-primary text-background'
+          'cursor-pointer px-1.5 py-1',
+          listState === category.id
+            ? 'bg-primary bg-opacity-25 text-primary hover:brightness-125'
+            : 'hover:bg-neutral-100'
         )}
+        style={{ paddingLeft: `calc(0.375rem + 1rem * ${depth})` }}
         onClick={() => select(category.id)}
       >
         {category.name}
@@ -70,9 +75,13 @@ const CategoryListItem: FC<{ category: Category }> = ({ category }) => {
         )}
       </li>
       {category.subcategories.length > 0 && (
-        <ul className='pl-2'>
+        <ul>
           {category.subcategories.map((subcategory) => (
-            <CategoryListItem key={subcategory.id} category={subcategory} />
+            <CategoryListItem
+              key={subcategory.id}
+              category={subcategory}
+              depth={depth + 1}
+            />
           ))}
         </ul>
       )}
@@ -130,12 +139,20 @@ export const ManageCategoryPage: FC = () => {
           query: GET_CATEGORIES
         }
       ],
+      onCompleted: ({ createCategory: { createdCategory } }) =>
+        selectCategory(createdCategory.id),
       onError: () => {
         alert('분류 생성 중 오류가 발생했습니다.')
         resetCreateMutation()
       }
     })
-  }, [_createCategory, categories, resetCreateMutation, selectedCategory])
+  }, [
+    _createCategory,
+    categories,
+    resetCreateMutation,
+    selectCategory,
+    selectedCategory
+  ])
 
   const deleteCategory = useCallback(() => {
     if (!selectedCategory) return
@@ -150,16 +167,16 @@ export const ManageCategoryPage: FC = () => {
           query: GET_CATEGORIES
         }
       ],
-      onCompleted: () => setSelectedCategory(undefined),
+      onCompleted: () => selectCategory(undefined),
       onError: () => {
         alert('분류 삭제 중 문제가 발생했습니다.')
         resetDeleteMutation()
       }
     })
-  }, [_deleteCategory, resetDeleteMutation, selectedCategory])
+  }, [_deleteCategory, resetDeleteMutation, selectCategory, selectedCategory])
 
   return (
-    <div className='flex h-[31rem] gap-2 p-5'>
+    <div className='flex gap-2 p-5 *:h-120'>
       <div className='w-1/3'>
         <div
           className='relative h-full overflow-y-auto rounded border border-neutral-200 bg-neutral-50'
@@ -212,18 +229,16 @@ export const ManageCategoryPage: FC = () => {
         </div>
       </div>
 
-      <div className='w-2/3'>
-        <div className='relative size-full'>
-          <Suspense fallback={<Spinner className='absolute inset-0' />}>
-            {queryRef ? (
-              <CategoryForm queryRef={queryRef} />
-            ) : (
-              <span className='absolute inset-0 m-auto block size-fit text-xl text-neutral-400'>
-                편집할 분류를 선택하세요
-              </span>
-            )}
-          </Suspense>
-        </div>
+      <div className='relative w-2/3'>
+        <Suspense fallback={<Spinner className='absolute inset-0' />}>
+          {queryRef ? (
+            <CategoryForm queryRef={queryRef} />
+          ) : (
+            <span className='absolute inset-0 m-auto block size-fit text-xl text-neutral-400'>
+              편집할 분류를 선택하세요
+            </span>
+          )}
+        </Suspense>
       </div>
     </div>
   )

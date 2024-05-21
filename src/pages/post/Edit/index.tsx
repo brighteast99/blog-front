@@ -6,7 +6,7 @@ import {
   useSearchParams
 } from 'react-router-dom'
 import { TypedDocumentNode, gql, useMutation, useQuery } from '@apollo/client'
-import { Category, Post } from 'types/data'
+import { Category, Post, Template } from 'types/data'
 import { Tiptap } from 'components/Tiptap'
 import { ThemedButton } from 'components/Buttons/ThemedButton'
 import { Spinner } from 'components/Spinner'
@@ -14,8 +14,11 @@ import { useAppSelector } from 'app/hooks'
 import { selectIsAuthenticated } from 'features/auth/authSlice'
 import { Tooltip, TooltipContent, TooltipTrigger } from 'components/Tooltip'
 import { GET_CATEGORIES } from 'features/sidebar/Sidebar'
-import { GET_POST } from '.'
+import { GET_POST } from '..'
 import { Error } from 'components/Error'
+import { TemplateSelector } from './TemplateSelector'
+import { Draft, DraftManager, GET_DRAFTS } from './DraftManager'
+import { GET_POSTS } from 'pages/category'
 
 const GET_POSTABLE_CATEGORIES: TypedDocumentNode<{ categories: Category[] }> =
   gql`
@@ -28,9 +31,22 @@ const GET_POSTABLE_CATEGORIES: TypedDocumentNode<{ categories: Category[] }> =
     }
   `
 
+const CREATE_DRAFT: TypedDocumentNode<
+  { createDraft: { createdDraft: Post } },
+  { data: PostInput }
+> = gql`
+  mutation CreateDraft($data: PostInput!) {
+    createDraft(data: $data) {
+      createdDraft {
+        id
+      }
+    }
+  }
+`
+
 const CREATE_POST: TypedDocumentNode<
   { createPost: { createdPost: Post } },
-  { data: Draft }
+  { data: PostInput }
 > = gql`
   mutation CreatePost($data: PostInput!) {
     createPost(data: $data) {
@@ -43,7 +59,7 @@ const CREATE_POST: TypedDocumentNode<
 
 const UPDATE_POST: TypedDocumentNode<
   { updatePost: { success: boolean } },
-  { id?: number; data: Draft }
+  { id?: number; data: PostInput }
 > = gql`
   mutation CreatePost($id: Int!, $data: PostInput!) {
     updatePost(id: $id, data: $data) {
@@ -63,17 +79,17 @@ const DELETE_IMAGE: TypedDocumentNode<
   }
 `
 
-export interface Draft
+export interface PostInput
   extends Omit<Post, 'id' | 'category' | 'createdAt' | 'updatedAt'> {
   category?: number
 }
 
-export const useDraft = (initialValue: Draft) => {
-  const [draft, setDraft] = useState<Draft>(initialValue)
+export const usePostInput = (initialValue: PostInput) => {
+  const [input, setInput] = useState<PostInput>(initialValue)
   const [imagesToDelete, setImagesToDelete] = useState<string[]>([])
 
-  function modifyDraft(key: string, value: any) {
-    setDraft((prev) => {
+  function modifyInput(key: string, value: any) {
+    setInput((prev) => {
       return {
         ...prev,
         [key]: value
@@ -82,21 +98,21 @@ export const useDraft = (initialValue: Draft) => {
   }
 
   function setTitle(title: string) {
-    modifyDraft('title', title)
+    modifyInput('title', title)
   }
 
   function setCategory(category?: number) {
-    modifyDraft('category', category)
+    modifyInput('category', category)
   }
 
   function setIsHidden(isHidden: boolean) {
-    modifyDraft('isHidden', isHidden)
+    modifyInput('isHidden', isHidden)
   }
 
   function setThumbnail(thumbnail: string | null) {
-    if (thumbnail) modifyDraft('thumbnail', thumbnail)
+    if (thumbnail) modifyInput('thumbnail', thumbnail)
     else
-      setDraft((prev) => {
+      setInput((prev) => {
         let copy = { ...prev }
         delete copy.thumbnail
 
@@ -105,15 +121,15 @@ export const useDraft = (initialValue: Draft) => {
   }
 
   function setContent(content: string) {
-    modifyDraft('content', content)
+    modifyInput('content', content)
   }
 
   function setImages(images: string[]) {
-    modifyDraft('images', images)
+    modifyInput('images', images)
   }
 
   function addImage(image: string) {
-    setDraft((prev) => {
+    setInput((prev) => {
       return {
         ...prev,
         images: [...prev.images, image]
@@ -122,7 +138,7 @@ export const useDraft = (initialValue: Draft) => {
   }
 
   function removeImage(image: string) {
-    setDraft((prev) => {
+    setInput((prev) => {
       const idx = prev.images.findIndex((_image) => _image === image)
       if (idx === -1) return prev
 
@@ -137,8 +153,9 @@ export const useDraft = (initialValue: Draft) => {
   }
 
   return {
-    draft,
+    input,
     imagesToDelete,
+    initialize: setInput,
     setTitle,
     setCategory,
     setIsHidden,
@@ -159,17 +176,17 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
   const { postId } = useParams()
   const [searchParams] = useSearchParams()
   const {
-    draft,
+    input,
+    initialize,
     setCategory,
     setTitle,
     setContent,
     setIsHidden,
     setThumbnail,
-    setImages,
     addImage,
     removeImage,
     imagesToDelete
-  } = useDraft({
+  } = usePostInput({
     title: '',
     category: Number(searchParams.get('category')) || undefined,
     isHidden: false,
@@ -192,32 +209,120 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
     skip: newPost || !postId,
     notifyOnNetworkStatusChange: true,
     onCompleted: ({ post }) => {
-      setTitle(post.title)
-      setCategory(post.category.id)
-      setContent(post.content)
-      setIsHidden(post.isHidden)
-      setThumbnail(post.thumbnail ?? null)
-      setImages(post.images)
+      initialize({
+        title: post.title,
+        category: post.category.id,
+        content: post.content,
+        isHidden: post.isHidden,
+        thumbnail: post.thumbnail,
+        images: post.images
+      })
     }
   })
   const { loading: loadingCategories, data: categories } = useQuery(
     GET_POSTABLE_CATEGORIES
   )
-  const [_createPost, { loading: creating, reset: resetCreateMutation }] =
-    useMutation(CREATE_POST)
+  const [
+    _createDraft,
+    { loading: creatingDraft, reset: resetCreateDraftMutation }
+  ] = useMutation(CREATE_DRAFT)
+  const [
+    _createPost,
+    { loading: creatingPost, reset: resetCreatePostMutation }
+  ] = useMutation(CREATE_POST)
   const [_updatePost, { loading: updating, reset: resetUpdateMutation }] =
     useMutation(UPDATE_POST)
   const [deleteImage, { loading: deleteingImages }] = useMutation(DELETE_IMAGE)
+
+  const useDraft = useCallback(
+    (draft: Draft) => {
+      if (!draft) return
+      if (
+        !window.confirm(
+          '임시 저장본을 불러오면 기존에 작성한 내용은 모두 사라집니다'
+        )
+      )
+        return
+
+      initialize((prev) => {
+        return {
+          category: draft.category.id,
+          title: draft.title,
+          content: draft.content,
+          isHidden: prev.isHidden,
+          thumbnail: draft.thumbnail,
+          images: draft.images
+        }
+      })
+    },
+    [initialize]
+  )
+
+  const useTemplate = useCallback(
+    (template: Template) => {
+      if (!template) return
+      if (
+        !window.confirm(
+          '템플릿을 불러오면 기존에 작성한 내용은 모두 사라집니다'
+        )
+      )
+        return
+
+      initialize((prev) => {
+        return {
+          category: prev.category,
+          title: prev.title,
+          content: template.content,
+          isHidden: prev.isHidden,
+          thumbnail: template.thumbnail,
+          images: template.images
+        }
+      })
+    },
+    [initialize]
+  )
+
+  const createDraft = useCallback(() => {
+    _createDraft({
+      variables: {
+        data: {
+          ...input,
+          isHidden: input.isHidden || selectedCategory.isHidden
+        }
+      },
+      refetchQueries: [{ query: GET_DRAFTS }],
+      onCompleted: () => {
+        window.alert('임시 저장되었습니다.')
+      },
+      onError: ({ graphQLErrors, networkError }) => {
+        if (networkError) alert('임시 저장 중 오류가 발생했습니다.')
+        else if (graphQLErrors?.length) {
+          alert('존재하지 않는 분류입니다')
+          setCategory(undefined)
+        }
+        resetCreateDraftMutation()
+      }
+    })
+  }, [
+    _createDraft,
+    input,
+    resetCreateDraftMutation,
+    selectedCategory.isHidden,
+    setCategory
+  ])
 
   const createPost = useCallback(() => {
     _createPost({
       variables: {
         data: {
-          ...draft,
-          isHidden: draft.isHidden || selectedCategory.isHidden
+          ...input,
+          isHidden: input.isHidden || selectedCategory.isHidden
         }
       },
-      refetchQueries: [{ query: GET_CATEGORIES }],
+      refetchQueries: [
+        { query: GET_CATEGORIES },
+        { query: GET_POSTS, variables: { categoryId: input.category ?? null } }
+      ],
       onCompleted: ({ createPost }) => {
         navigate(`/post/${createPost.createdPost.id}`)
       },
@@ -227,14 +332,14 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
           alert('존재하지 않는 분류입니다')
           setCategory(undefined)
         }
-        resetCreateMutation()
+        resetCreatePostMutation()
       }
     })
   }, [
     _createPost,
-    draft,
+    input,
     navigate,
-    resetCreateMutation,
+    resetCreatePostMutation,
     selectedCategory.isHidden,
     setCategory
   ])
@@ -244,13 +349,18 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
       variables: {
         id: Number(postId),
         data: {
-          ...draft,
-          isHidden: draft.isHidden || selectedCategory.isHidden
+          ...input,
+          isHidden: input.isHidden || selectedCategory.isHidden
         }
       },
       refetchQueries: [
         { query: GET_CATEGORIES },
-        { query: GET_POST, variables: { id: Number(postId) } }
+        { query: GET_POST, variables: { id: Number(postId) } },
+        {
+          query: GET_POSTS,
+          variables: { categoryId: post?.post.category.id ?? null }
+        },
+        { query: GET_POSTS, variables: { categoryId: input.category ?? null } }
       ],
       onCompleted: ({ updatePost: { success } }) => {
         if (!success) {
@@ -278,13 +388,14 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
     })
   }, [
     _updatePost,
-    deleteImage,
-    draft,
-    imagesToDelete,
-    navigate,
     postId,
+    input,
+    selectedCategory.isHidden,
+    post?.post.category.id,
+    imagesToDelete,
     resetUpdateMutation,
-    selectedCategory.isHidden
+    deleteImage,
+    navigate
   ])
 
   useLayoutEffect(() => {
@@ -294,13 +405,33 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
 
   useLayoutEffect(() => {
     const selectedCategory = categories?.categories.find(
-      (category) => category.id === draft.category
+      (category) => category.id === input.category
     )
     setSelectedCategory({
       id: selectedCategory?.id,
       isHidden: Boolean(selectedCategory?.isHidden)
     })
-  }, [categories?.categories, draft.category])
+  }, [categories?.categories, input.category])
+
+  useLayoutEffect(() => {
+    const stashDraft = () => {
+      if (document.hidden)
+        return localStorage.setItem('draft', JSON.stringify(input))
+
+      try {
+        const draft = JSON.parse(
+          localStorage.getItem('draft') ?? '{}'
+        ) as PostInput
+        localStorage.removeItem('draft')
+        initialize(draft)
+      } catch {
+        //
+      }
+    }
+    document.addEventListener('visibilitychange', stashDraft)
+
+    return () => document.removeEventListener('visibilitychange', stashDraft)
+  }, [initialize, input])
 
   if (!newPost && !loadingPost && !error && !post?.post)
     return (
@@ -317,7 +448,7 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
     )
 
   return (
-    <div className='size-full overflow-y-auto p-10'>
+    <div className='p-10'>
       {(loadingPost || error) && (
         <div className='absolute inset-0 z-10 flex size-full items-center justify-center bg-neutral-50 bg-opacity-75'>
           {error && (
@@ -333,10 +464,15 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
         </div>
       )}
       <div className='w-full'>
+        <div className='mb-3 flex w-full items-center justify-between gap-2'>
+          <DraftManager onSelect={useDraft} />
+          <TemplateSelector onSelect={useTemplate} />
+        </div>
+
         <select
           className='mb-3 w-full py-1'
           disabled={loadingCategories}
-          value={draft.category}
+          value={input.category}
           onChange={(e) => setCategory(Number(e.target.value) || undefined)}
         >
           <option>분류 미지정</option>
@@ -347,12 +483,13 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
             </option>
           ))}
         </select>
+
         <div className='mb-3 flex w-full flex-wrap items-center gap-2'>
           <input
             className='min-w-0 grow text-2xl'
             type='text'
             placeholder='게시글 제목'
-            value={draft.title}
+            value={input.title}
             onChange={(e) => setTitle(e.target.value)}
             onBlur={(e) => setTitle(e.target.value.trim())}
             required
@@ -364,7 +501,7 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
                   className='mr-2 accent-primary'
                   type='checkbox'
                   disabled={selectedCategory?.isHidden}
-                  checked={draft.isHidden || selectedCategory?.isHidden}
+                  checked={input.isHidden || selectedCategory?.isHidden}
                   onChange={(e) => setIsHidden(e.target.checked)}
                 />
                 비밀글
@@ -379,10 +516,10 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
         {!loadingPost && (
           <Tiptap
             className='mb-5 min-h-40 grow'
-            content={draft.content}
+            content={input.content}
             onChange={(editor) => setContent(editor.getHTML())}
-            thumbnail={draft.thumbnail}
-            images={draft.images}
+            thumbnail={input.thumbnail}
+            images={input.images}
             onAddImage={addImage}
             onDeleteImage={removeImage}
             onChangeThumbnail={setThumbnail}
@@ -390,18 +527,44 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
         )}
 
         <ThemedButton
-          className='h-10 w-full py-0.5 text-lg'
+          className='mb-2 h-10 w-full py-0.5 text-lg'
           variant='flat'
           color='primary'
-          disabled={!draft.title || creating || updating || deleteingImages}
+          disabled={
+            !input.title ||
+            creatingDraft ||
+            creatingPost ||
+            updating ||
+            deleteingImages
+          }
           onClick={newPost ? createPost : updatePost}
         >
-          {creating || updating || deleteingImages ? (
+          {creatingDraft || creatingPost || updating || deleteingImages ? (
             <Spinner size='xs' />
           ) : newPost ? (
             '게시'
           ) : (
             '수정'
+          )}
+        </ThemedButton>
+
+        <ThemedButton
+          className='h-10 w-full py-0.5 text-lg'
+          variant='text'
+          color='secondary'
+          disabled={
+            !input.title ||
+            creatingDraft ||
+            creatingPost ||
+            updating ||
+            deleteingImages
+          }
+          onClick={createDraft}
+        >
+          {creatingDraft || creatingPost || updating || deleteingImages ? (
+            <Spinner size='xs' />
+          ) : (
+            '임시 저장'
           )}
         </ThemedButton>
       </div>

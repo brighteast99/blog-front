@@ -19,7 +19,7 @@ export const ManagePage: FC = () => {
   }, [location.pathname, navigate])
 
   return (
-    <div className='size-full p-5'>
+    <div className='p-5'>
       <p className='mb-12 text-center text-4xl'>블로그 관리</p>
       <div className='flex border-b border-primary *:cursor-pointer *:rounded-t-sm *:px-3 *:py-1 *:text-xl'>
         <div
@@ -36,6 +36,14 @@ export const ManagePage: FC = () => {
           )}
         >
           <Link to='categories'>게시글 분류</Link>
+        </div>
+        <div
+          className={clsx(
+            location.pathname === '/manage/templates' &&
+              'bg-primary text-background'
+          )}
+        >
+          <Link to='templates'>게시글 템플릿</Link>
         </div>
       </div>
       <div className='p-2'>

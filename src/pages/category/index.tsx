@@ -51,6 +51,10 @@ export const GET_POSTS: TypedDocumentNode<
         id
         name
         isHidden
+        ancestors {
+          id
+          name
+        }
       }
       id
       title
@@ -58,7 +62,6 @@ export const GET_POSTS: TypedDocumentNode<
       thumbnail
       isHidden
       createdAt
-      updatedAt
     }
   }
 `
@@ -151,10 +154,15 @@ export const CategoryPage: FC = () => {
     )
 
   return (
-    <div className='size-full overflow-y-auto'>
-      {data?.categoryInfo?.coverImage && (
+    <>
+      {(loading || data?.categoryInfo?.coverImage) && (
         <div
-          className='h-50 bg-cover bg-center'
+          className={clsx(
+            'h-50 bg-cover bg-center blur-[2px] brightness-50',
+            !data?.categoryInfo?.coverImage &&
+              loading &&
+              'animate-pulse !bg-neutral-700'
+          )}
           style={{
             backgroundImage: `url(${data?.categoryInfo?.coverImage})`
           }}
@@ -163,7 +171,7 @@ export const CategoryPage: FC = () => {
       <div
         className={clsx(
           'sticky top-0 z-20 px-6 py-2',
-          data?.categoryInfo?.coverImage && '-mt-8 mb-8',
+          (loading || data?.categoryInfo?.coverImage) && '-mt-8 mb-8',
           loading && 'animate-pulse'
         )}
       >
@@ -203,36 +211,36 @@ export const CategoryPage: FC = () => {
       </div>
 
       <div className='sticky top-0 z-10 -mt-28 h-32 w-full bg-background' />
-      <div className='mx-auto w-5/6'>
-        <div className='mb-2 flex items-center'>
-          {isLoggedIn && (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <IconButton
-                  className='p-0'
-                  path={mdiPlus}
-                  variant='hover-text'
-                  onClick={() => {
-                    let path = '/post/new'
-                    const id = Number(categoryId)
-                    if (typeof id === 'number' && id > 0)
-                      path += `?category=${categoryId}`
-                    navigate(path)
-                  }}
-                />
-              </TooltipTrigger>
-              <TooltipContent>새 글 쓰기</TooltipContent>
-            </Tooltip>
-          )}
+      <div className='sticky top-32 z-10 mx-auto -mb-0.5 flex w-5/6 items-center border-b-2 border-neutral-600 bg-background py-2'>
+        {isLoggedIn && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <IconButton
+                className='p-0'
+                path={mdiPlus}
+                variant='hover-text'
+                onClick={() => {
+                  let path = '/post/new'
+                  const id = Number(categoryId)
+                  if (typeof id === 'number' && id > 0)
+                    path += `?category=${categoryId}`
+                  navigate(path)
+                }}
+              />
+            </TooltipTrigger>
+            <TooltipContent>새 글 쓰기</TooltipContent>
+          </Tooltip>
+        )}
 
-          <div className='grow' />
-          <input type='text' />
-          <IconButton
-            className='ml-1 p-0'
-            path={mdiMagnify}
-            variant='hover-text'
-          />
-        </div>
+        <div className='grow' />
+        <input type='text' />
+        <IconButton
+          className='ml-1 p-0'
+          path={mdiMagnify}
+          variant='hover-text'
+        />
+      </div>
+      <div className='mx-auto w-5/6'>
         <ErrorBoundary
           FallbackComponent={({ resetErrorBoundary }) => (
             <Error
@@ -254,6 +262,6 @@ export const CategoryPage: FC = () => {
           </Suspense>
         </ErrorBoundary>
       </div>
-    </div>
+    </>
   )
 }

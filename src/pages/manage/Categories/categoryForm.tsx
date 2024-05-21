@@ -207,7 +207,7 @@ export const CategoryForm: FC<{
   }
 
   return (
-    <form className='flex flex-col gap-3' onSubmit={updateCategory}>
+    <form className='flex size-full flex-col gap-3' onSubmit={updateCategory}>
       <div
         className='relative h-50 w-full bg-neutral-100 bg-cover bg-center'
         style={{
@@ -293,7 +293,7 @@ export const CategoryForm: FC<{
         />
       </div>
 
-      <div className='flex gap-3'>
+      <div className='flex grow gap-3'>
         <span className='text-neutral-700'>분류 설명</span>
         <textarea
           className='min-h-20 grow p-2'

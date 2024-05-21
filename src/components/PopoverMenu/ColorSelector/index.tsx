@@ -162,7 +162,7 @@ export const ColorSelector: FC<ColorSelectorProps> = ({
             <div className='flex grow items-center gap-1 border-b border-neutral-500 text-neutral-500 transition-colors focus-within:border-primary focus-within:text-primary'>
               <span className='select-none text-xl'>#</span>
               <input
-                className='w-0 shrink grow border-none bg-transparent text-foreground focus:outline-none'
+                className='flex-1 border-none bg-transparent text-foreground focus:outline-none'
                 value={customColor.input}
                 placeholder='000000'
                 onKeyDown={filterInput}
