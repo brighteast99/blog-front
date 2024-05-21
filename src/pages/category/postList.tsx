@@ -125,14 +125,13 @@ export const PostList: FC<PostListProps> = ({
 
     const page = Number(searchParams.get('page'))
 
-    if (!Number.isNaN(page) && currentPage !== page) {
+    if (!Number.isNaN(page) && currentPage !== page - 1)
       setPagination((prev) => {
         return {
           ...prev,
           currentPage: Math.max(0, page - 1)
         }
       })
-    }
   }, [currentPage, searchParams, useQueryString])
 
   if (!data.postList.length)
@@ -173,17 +172,16 @@ export const PostList: FC<PostListProps> = ({
               )}
               disabled={isActive}
               onClick={() => {
-                if (useQueryString) {
-                  searchParams.set('page', (i + 1).toString())
-                  setSearchParams(searchParams)
-                } else {
-                  setPagination((prev) => {
+                if (!useQueryString)
+                  return setPagination((prev) => {
                     return {
                       ...prev,
                       currentPage: i
                     }
                   })
-                }
+
+                searchParams.set('page', (i + 1).toString())
+                setSearchParams(searchParams)
               }}
             >
               {i + 1}
