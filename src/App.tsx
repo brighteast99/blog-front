@@ -1,4 +1,4 @@
-import { useLayoutEffect, useState } from 'react'
+import { useCallback, useLayoutEffect, useState } from 'react'
 import { Route, Routes } from 'react-router-dom'
 import { throttle } from 'throttle-debounce'
 import { useAppDispatch, useAppSelector } from 'app/hooks'
@@ -12,7 +12,6 @@ import { PostPage } from 'pages/post'
 import { EditPostPage } from 'pages/post/Edit'
 import { LoginPage } from 'pages/login'
 import { refreshToken, selectIsAuthenticated } from 'features/auth/authSlice'
-import { AuthInfo } from 'types/auth'
 import { ManagePage } from 'pages/manage'
 import { ManageInfoPage } from 'pages/manage/info'
 import { ManageCategoryPage } from 'pages/manage/Categories'
@@ -24,6 +23,10 @@ function App() {
   const [refreshLoginTimer, setRefreshLoginTimer] =
     useState<ReturnType<typeof setInterval>>()
   const breakpoint = useAppSelector(selectBreakpoint)
+
+  const refreshLoginToken = useCallback(() => {
+    dispatch(refreshToken(null))
+  }, [dispatch])
 
   useLayoutEffect(() => {
     const dispatchSizeUpdate = throttle(250, () => {
@@ -54,19 +57,17 @@ function App() {
     }
 
     if (!refreshLoginTimer)
-      setRefreshLoginTimer(
-        setInterval(() => {
-          dispatch(refreshToken(null)).then(({ payload }) => {
-            let authInfo = payload as AuthInfo | undefined
-            if (!authInfo) return
-            if (localStorage.getItem('refreshToken'))
-              localStorage.setItem('refreshToken', authInfo.refreshToken)
-            else if (sessionStorage.getItem('refreshToken'))
-              sessionStorage.setItem('refreshToken', authInfo.refreshToken)
-          })
-        }, 1000 * 290)
-      )
-  }, [dispatch, isLoggedIn, refreshLoginTimer])
+      setRefreshLoginTimer(setInterval(refreshLoginToken, 1000 * 290))
+  }, [dispatch, isLoggedIn, refreshLoginTimer, refreshLoginToken])
+
+  useLayoutEffect(() => {
+    const stashDraft = () => {
+      if (!document.hidden && isLoggedIn) return refreshLoginToken()
+    }
+    document.addEventListener('visibilitychange', stashDraft)
+
+    return () => document.removeEventListener('visibilitychange', stashDraft)
+  }, [isLoggedIn, refreshLoginToken])
 
   return (
     <div className='flex size-full min-h-[720px] bg-background text-foreground'>

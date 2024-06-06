@@ -9,7 +9,11 @@ import {
 import { ThemedButton } from 'components/Buttons/ThemedButton'
 import { Spinner } from 'components/Spinner'
 import { UserInfo } from 'types/auth'
-import { selectIsAuthenticated, setToken } from 'features/auth/authSlice'
+import {
+  STORAGE_KEY,
+  selectIsAuthenticated,
+  setToken
+} from 'features/auth/authSlice'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { AuthFailedError, NetworkError, auth } from 'utils/Auth'
 import { useAppDispatch, useAppSelector } from 'app/hooks'
@@ -53,9 +57,8 @@ export const LoginPage: FC = () => {
       setError(undefined)
       auth(info.username, info.password)
         .then((token) => {
-          if (keepLogin)
-            localStorage.setItem('refreshToken', token.refreshToken)
-          else sessionStorage.setItem('refreshToken', token.refreshToken)
+          if (keepLogin) localStorage.setItem(STORAGE_KEY, token.refreshToken)
+          else sessionStorage.setItem(STORAGE_KEY, token.refreshToken)
           dispatch(setToken(token))
           navigate(searchParams.get('next') ?? '/', { replace: true })
         })

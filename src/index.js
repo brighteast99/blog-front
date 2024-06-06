@@ -17,13 +17,8 @@ do {
   try {
     retry = false
     let token = await authFromStorage()
-    if (token) {
+    if (token)
       store.dispatch(setToken(token))
-      if (localStorage.getItem('refreshToken'))
-        localStorage.setItem('refreshToken', token.refreshToken)
-      else if (sessionStorage.getItem('refreshToken'))
-        sessionStorage.setItem('refreshToken', token.refreshToken)
-    }
   }
   catch (err) {
     retry = window.confirm('로그인 중 오류가 발생했습니다.\n다시 시도할까요?')

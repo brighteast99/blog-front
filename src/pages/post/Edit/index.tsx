@@ -221,7 +221,10 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
     }
   })
   const { loading: loadingCategories, data: categories } = useQuery(
-    GET_POSTABLE_CATEGORIES
+    GET_POSTABLE_CATEGORIES,
+    {
+      skip: !isLoggedIn
+    }
   )
   const [
     _createDraft,
