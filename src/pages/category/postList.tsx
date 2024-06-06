@@ -30,11 +30,11 @@ export const PostItem: FC<{ post: Post; isActive?: boolean }> = ({
   return (
     <li
       className={clsx(
-        'flex h-50 items-center gap-2 p-2',
+        'flex h-72 items-center gap-2 px-2 py-4',
         isActive && 'bg-secondary bg-opacity-10'
       )}
     >
-      <div className='flex min-w-0 grow flex-col justify-center gap-1 py-5'>
+      <div className='flex min-w-0 grow flex-col justify-center gap-2 py-5'>
         <span className='text-sm font-light text-neutral-700'>
           {post.category?.ancestors &&
             post.category.ancestors.map((ancestor) => {
@@ -70,17 +70,17 @@ export const PostItem: FC<{ post: Post; isActive?: boolean }> = ({
           {getRelativeTimeFromNow(post.createdAt)}
         </p>
 
-        <p className='line-clamp-3 font-thin text-neutral-800'>
+        <p className='line-clamp-4 font-thin text-neutral-800'>
           {extractText(post.content)}
         </p>
       </div>
 
       {post.thumbnail && (
-        <div className='aspect-square h-full shrink-0 p-1.5'>
+        <div className='aspect-square h-full shrink-0'>
           <img
             src={post.thumbnail}
             alt='thumbnail'
-            className='block size-full'
+            className='block size-full object-contain'
           />
         </div>
       )}
