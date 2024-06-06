@@ -91,13 +91,16 @@ export const PostItem: FC<{ post: Post; isActive?: boolean }> = ({
 export interface PostListProps {
   queryRef: QueryReference<PostListQueryResult, PostListQueryVariables>
   pageSize?: number
-  useQueryString?: boolean
+  option?: {
+    useQueryString?: boolean
+    replace?: boolean
+  }
 }
 
 export const PostList: FC<PostListProps> = ({
   queryRef,
   pageSize: _pageSize = 10,
-  useQueryString = true
+  option = { useQueryString: true, replace: false }
 }) => {
   const [searchParams, setSearchParams] = useSearchParams()
   const location = useLocation()
@@ -121,7 +124,7 @@ export const PostList: FC<PostListProps> = ({
   }, [data.postList.length])
 
   useLayoutEffect(() => {
-    if (!useQueryString) return
+    if (!option.useQueryString) return
 
     const page = Number(searchParams.get('page'))
 
@@ -132,7 +135,7 @@ export const PostList: FC<PostListProps> = ({
           currentPage: Math.max(0, page - 1)
         }
       })
-  }, [currentPage, searchParams, useQueryString])
+  }, [currentPage, searchParams, option.useQueryString])
 
   if (!data.postList.length)
     return (
@@ -172,7 +175,7 @@ export const PostList: FC<PostListProps> = ({
               )}
               disabled={isActive}
               onClick={() => {
-                if (!useQueryString)
+                if (!option.useQueryString)
                   return setPagination((prev) => {
                     return {
                       ...prev,
@@ -181,7 +184,7 @@ export const PostList: FC<PostListProps> = ({
                   })
 
                 searchParams.set('page', (i + 1).toString())
-                setSearchParams(searchParams)
+                setSearchParams(searchParams, { replace: option.replace })
               }}
             >
               {i + 1}
