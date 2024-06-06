@@ -26,6 +26,7 @@ const GET_POSTABLE_CATEGORIES: TypedDocumentNode<{ categories: Category[] }> =
       categories {
         id
         name
+        level
         isHidden
       }
     }
@@ -416,13 +417,13 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
   useLayoutEffect(() => {
     const stashDraft = () => {
       if (document.hidden)
-        return localStorage.setItem('draft', JSON.stringify(input))
+        return sessionStorage.setItem('draft', JSON.stringify(input))
 
       try {
         const draft = JSON.parse(
-          localStorage.getItem('draft') ?? '{}'
+          sessionStorage.getItem('draft') ?? '{}'
         ) as PostInput
-        localStorage.removeItem('draft')
+        sessionStorage.removeItem('draft')
         initialize(draft)
       } catch {
         //
@@ -478,6 +479,7 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
           <option>분류 미지정</option>
           {categories?.categories.map((category) => (
             <option key={category.id} value={category.id}>
+              {category.level > 0 && '└' + '─'.repeat(category.level - 1) + ' '}
               {category.name}
               {category.isHidden && ' (비공개)'}
             </option>

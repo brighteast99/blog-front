@@ -9,15 +9,17 @@ import { Highlight } from '@tiptap/extension-highlight'
 import { TextAlign } from '@tiptap/extension-text-align'
 import { Link } from '@tiptap/extension-link'
 import Image from '@tiptap/extension-image'
-import { FontSize } from './extensions/fontSize'
-import { Toolbar } from './Toolbar'
-import { ImageCatalogue } from './ImageCatalogue'
-import { common, createLowlight } from 'lowlight'
-
-import './Tiptap.scss'
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight'
 import TaskList from '@tiptap/extension-task-list'
 import TaskItem from '@tiptap/extension-task-item'
+import Superscript from '@tiptap/extension-superscript'
+import Subscript from '@tiptap/extension-subscript'
+import { common, createLowlight } from 'lowlight'
+import { FontSize } from './extensions/fontSize'
+import { Toolbar } from './Toolbar'
+import { ImageCatalogue } from './ImageCatalogue'
+
+import './Tiptap.scss'
 
 export interface EditorProps {
   className?: string
@@ -70,6 +72,8 @@ export const Tiptap: FC<EditorProps> = ({
           FontSize,
           Underline,
           TextStyle,
+          Superscript,
+          Subscript,
           Color.configure({
             types: ['textStyle']
           }),
@@ -85,6 +89,7 @@ export const Tiptap: FC<EditorProps> = ({
               rel: 'noopener noreferrer',
               target: '_blank'
             },
+            openOnClick: editable,
             validate: (href) => /^https?:\/\//.test(href)
           }),
           Image.configure({
