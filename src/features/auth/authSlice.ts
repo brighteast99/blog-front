@@ -4,12 +4,18 @@ import { AuthInfo } from 'types/auth'
 import { isPast } from 'utils/dayJS'
 import { refresh, revoke } from 'utils/Auth'
 
+export const STORAGE_KEY = 'refreshToken'
+
+type AuthStatus = 'UNAUTHORIZED' | 'AUTHORIZED' | 'REFRESHING' | 'EXPIRED'
+
 interface AuthState {
   info?: AuthInfo
+  status: AuthStatus
 }
 
 const initialState: AuthState = {
-  info: undefined
+  info: undefined,
+  status: 'UNAUTHORIZED'
 }
 
 export const refreshToken = createAsyncThunk<
@@ -27,6 +33,7 @@ export const refreshToken = createAsyncThunk<
     try {
       return await refresh(info.refreshToken)
     } catch (err) {
+      console.dir(err)
       return thunkAPI.rejectWithValue(err)
     }
   },
@@ -69,25 +76,49 @@ export const createAuthSlice = (initialState: AuthState) =>
     reducers: {
       setToken: (state, action: PayloadAction<AuthInfo>) => {
         state.info = action.payload
+
+        if (action.payload) {
+          if (isPast(action.payload.payload.exp * 1000))
+            state.status = 'EXPIRED'
+          else state.status = 'AUTHORIZED'
+        } else state.status = 'UNAUTHORIZED'
+
+        if (localStorage.getItem(STORAGE_KEY))
+          localStorage.setItem(STORAGE_KEY, action.payload.refreshToken)
+        else if (sessionStorage.getItem(STORAGE_KEY))
+          sessionStorage.setItem(STORAGE_KEY, action.payload.refreshToken)
       }
     },
     extraReducers: (builder) => {
       builder
+        .addCase(refreshToken.pending, (state) => {
+          state.status = 'REFRESHING'
+        })
+        .addCase(refreshToken.rejected, (state) => {
+          state.info = undefined
+          state.status = 'UNAUTHORIZED'
+
+          localStorage.removeItem(STORAGE_KEY)
+          sessionStorage.removeItem(STORAGE_KEY)
+        })
         .addCase(
           refreshToken.fulfilled,
           (state, action: PayloadAction<AuthInfo>) => {
             state.info = action.payload
-            if (localStorage.getItem('refreshToken'))
-              localStorage.setItem('refreshToken', action.payload.refreshToken)
-            else if (sessionStorage.getItem('refreshToken'))
-              sessionStorage.setItem(
-                'refreshToken',
-                action.payload.refreshToken
-              )
+            state.status = 'AUTHORIZED'
+
+            if (localStorage.getItem(STORAGE_KEY))
+              localStorage.setItem(STORAGE_KEY, action.payload.refreshToken)
+            else if (sessionStorage.getItem(STORAGE_KEY))
+              sessionStorage.setItem(STORAGE_KEY, action.payload.refreshToken)
           }
         )
         .addCase(revokeToken.fulfilled, (state, _action) => {
           state.info = undefined
+          state.status = 'UNAUTHORIZED'
+
+          localStorage.removeItem(STORAGE_KEY)
+          sessionStorage.removeItem(STORAGE_KEY)
         })
     }
   })
@@ -97,9 +128,18 @@ export const authSlice = createAuthSlice(initialState)
 export const { setToken } = authSlice.actions
 
 export const selectIsAuthenticated = (state: RootState) => {
-  if (!state.auth.info) return false
+  if (
+    !state.auth.info ||
+    state.auth.status === 'UNAUTHORIZED' ||
+    state.auth.status === 'EXPIRED'
+  )
+    return false
 
-  if (isPast(state.auth.info.payload.exp * 1000)) return false
+  if (
+    isPast(state.auth.info.payload.exp * 1000) &&
+    state.auth.status !== 'REFRESHING'
+  )
+    return false
 
   return true
 }

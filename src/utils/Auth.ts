@@ -1,5 +1,6 @@
 import { ApolloError, TypedDocumentNode, gql } from '@apollo/client'
 import { client } from 'ApolloContext'
+import { STORAGE_KEY } from 'features/auth/authSlice'
 import { AuthInfo, TokenPayload } from 'types/auth'
 
 export class AuthFailedError extends Error {}
@@ -152,15 +153,14 @@ export async function revoke(refreshToken: string): Promise<boolean> {
 
 export async function authFromStorage(): Promise<AuthInfo | null> {
   let token =
-    sessionStorage.getItem('refreshToken') ??
-    localStorage.getItem('refreshToken')
+    sessionStorage.getItem(STORAGE_KEY) ?? localStorage.getItem(STORAGE_KEY)
   if (!token) return null
 
   try {
     return await refresh(token)
   } catch (err) {
     if (err instanceof TokenExpiredError || err instanceof InvalidTokenError) {
-      localStorage.removeItem('refreshToken')
+      localStorage.removeItem(STORAGE_KEY)
       return null
     }
 

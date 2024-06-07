@@ -7,6 +7,7 @@ export interface Category {
   subcategoryOf?: Category
   ancestors?: Category[]
   subcategories: Category[]
+  level: number
   posts: Post[]
   postCount: number
 }

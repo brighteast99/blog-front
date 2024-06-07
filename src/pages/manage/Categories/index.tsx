@@ -50,10 +50,7 @@ export const DELETE_CATEGORY: TypedDocumentNode<
 const ListStateContext = createContext<number | undefined>(undefined)
 const ListActionContext = createContext((_id?: number) => {})
 
-const CategoryListItem: FC<{ category: Category; depth?: number }> = ({
-  category,
-  depth = 0
-}) => {
+const CategoryListItem: FC<{ category: Category }> = ({ category }) => {
   const listState = useContext(ListStateContext)
   const select = useContext(ListActionContext)
 
@@ -66,7 +63,7 @@ const CategoryListItem: FC<{ category: Category; depth?: number }> = ({
             ? 'bg-primary bg-opacity-25 text-primary hover:brightness-125'
             : 'hover:bg-neutral-100'
         )}
-        style={{ paddingLeft: `calc(0.375rem + 1rem * ${depth})` }}
+        style={{ paddingLeft: `calc(0.375rem + 1rem * ${category.level})` }}
         onClick={() => select(category.id)}
       >
         {category.name}
@@ -77,11 +74,7 @@ const CategoryListItem: FC<{ category: Category; depth?: number }> = ({
       {category.subcategories.length > 0 && (
         <ul>
           {category.subcategories.map((subcategory) => (
-            <CategoryListItem
-              key={subcategory.id}
-              category={subcategory}
-              depth={depth + 1}
-            />
+            <CategoryListItem key={subcategory.id} category={subcategory} />
           ))}
         </ul>
       )}

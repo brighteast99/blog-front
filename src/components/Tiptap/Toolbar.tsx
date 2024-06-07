@@ -19,15 +19,18 @@ import {
   mdiFormatListNumbered,
   mdiFormatQuoteClose,
   mdiFormatStrikethroughVariant,
+  mdiFormatSubscript,
+  mdiFormatSuperscript,
   mdiFormatUnderline,
   mdiLinkVariant
 } from '@mdi/js'
 import { Tooltip, TooltipContent, TooltipTrigger } from 'components/Tooltip'
 import { ThemedButton } from 'components/Buttons/ThemedButton'
 import { IconButton } from 'components/Buttons/IconButton'
+import { PopoverMenu } from 'components/PopoverMenu'
 import { ColorSelector } from 'components/PopoverMenu/ColorSelector'
 import { LinkConfigurer } from './LinkConfigurer'
-import { PopoverMenu } from 'components/PopoverMenu'
+import { CodeBlockConfigurer } from './CodeBlockConfigurer'
 
 const FontSizes = [
   11, 13, 15, 16, 19, 24, 28, 30, 34, 38, 42, 50, 60, 75, 90, 100
@@ -59,6 +62,8 @@ export const Toolbar: FC<{ className?: string }> = ({ className }) => {
     italic: editor?.isActive('italic'),
     underline: editor?.isActive('underline'),
     strike: editor?.isActive('strike'),
+    superscript: editor?.isActive('superscript'),
+    subscript: editor?.isActive('subscript'),
     bulletList: editor?.isActive('bulletList'),
     orderedList: editor?.isActive('orderedList'),
     taskList: editor?.isActive('taskList'),
@@ -69,7 +74,10 @@ export const Toolbar: FC<{ className?: string }> = ({ className }) => {
       justify: editor?.isActive({ textAlign: 'justify' })
     },
     blockquote: editor?.isActive('blockquote'),
-    codeBlock: editor?.isActive('codeBlock'),
+    codeBlock: {
+      active: editor?.isActive('codeBlock'),
+      language: editor?.getAttributes('codeBlock').language
+    },
     link: {
       active: Boolean(editor?.getAttributes('link').href),
       href: editor?.getAttributes('link').href,
@@ -293,6 +301,38 @@ export const Toolbar: FC<{ className?: string }> = ({ className }) => {
             </TooltipTrigger>
             <TooltipContent>취소선</TooltipContent>
           </Tooltip>
+
+          <Tooltip placement='bottom' offset={3}>
+            <TooltipTrigger asChild>
+              <IconButton
+                path={mdiFormatSuperscript}
+                color='primary'
+                variant='hover-text-toggle'
+                active={editorStyles.superscript}
+                onClick={() => {
+                  editor?.chain().focus().unsetSubscript().run()
+                  editor?.chain().focus().toggleSuperscript().run()
+                }}
+              />
+            </TooltipTrigger>
+            <TooltipContent>위첨자</TooltipContent>
+          </Tooltip>
+
+          <Tooltip placement='bottom' offset={3}>
+            <TooltipTrigger asChild>
+              <IconButton
+                path={mdiFormatSubscript}
+                color='primary'
+                variant='hover-text-toggle'
+                active={editorStyles.subscript}
+                onClick={() => {
+                  editor?.chain().focus().unsetSuperscript().run()
+                  editor?.chain().focus().toggleSubscript().run()
+                }}
+              />
+            </TooltipTrigger>
+            <TooltipContent>아래첨자</TooltipContent>
+          </Tooltip>
         </div>
 
         <div className='flex gap-1 px-2'>
@@ -376,25 +416,23 @@ export const Toolbar: FC<{ className?: string }> = ({ className }) => {
             <TooltipContent>인용문</TooltipContent>
           </Tooltip>
 
-          <Tooltip placement='bottom' offset={3}>
-            <TooltipTrigger asChild>
-              <IconButton
-                path={mdiCodeBraces}
-                color='primary'
-                variant='hover-text-toggle'
-                active={editorStyles.codeBlock}
-                onClick={() => {
-                  if (editorStyles.codeBlock)
-                    return editor?.chain().focus().toggleCodeBlock().run()
-
-                  const language = window.prompt('언어 선택')
-                  if (language === null) return
-                  editor?.chain().focus().setCodeBlock({ language }).run()
-                }}
-              />
-            </TooltipTrigger>
-            <TooltipContent>코드 블록</TooltipContent>
-          </Tooltip>
+          <CodeBlockConfigurer
+            className='h-fit'
+            description={`코드 블록 ${editorStyles.codeBlock.active ? '편집' : '삽입'}`}
+            active={editorStyles.codeBlock.active}
+            language={editorStyles.codeBlock.language}
+            onChange={(language: string) =>
+              editor?.chain().focus().setCodeBlock({ language }).run()
+            }
+            onDelete={() => editor?.chain().focus().toggleCodeBlock().run()}
+          >
+            <IconButton
+              path={mdiCodeBraces}
+              color='primary'
+              variant='hover-text-toggle'
+              active={editorStyles.codeBlock.active}
+            />
+          </CodeBlockConfigurer>
         </div>
 
         <div className='h-fit px-2'>

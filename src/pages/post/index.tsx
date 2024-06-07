@@ -160,6 +160,8 @@ export const PostPage: FC = () => {
       />
     )
 
+  console.log(data?.post?.thumbnail)
+
   return (
     <>
       <div
@@ -290,7 +292,7 @@ export const PostPage: FC = () => {
                   <PostList
                     queryRef={queryRef}
                     pageSize={5}
-                    useQueryString={false}
+                    option={{ useQueryString: true, replace: true }}
                   />
                 )}
               </Suspense>

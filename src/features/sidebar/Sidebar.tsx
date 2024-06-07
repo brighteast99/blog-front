@@ -75,8 +75,6 @@ export const Sidebar: FC<SidebarProps> = ({
       dispatch(revokeToken(null)).then(() => {
         client.resetStore()
       })
-      localStorage.removeItem('refreshToken')
-      sessionStorage.removeItem('refreshToken')
     }
   }, [dispatch])
 
