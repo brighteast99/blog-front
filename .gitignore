@@ -2,10 +2,6 @@
 .vscode/
 .idea/
 
-# test
-.storybook
-src/stories
-
 # dependencies
 /node_modules
 
