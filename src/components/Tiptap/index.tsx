@@ -67,7 +67,9 @@ export const Tiptap: FC<EditorProps> = ({
       <EditorProvider
         extensions={[
           StarterKit.configure({
-            codeBlock: false
+            codeBlock: false,
+            dropcursor: editable ? undefined : false,
+            gapcursor: editable ? undefined : false
           }),
           FontSize,
           Underline,
