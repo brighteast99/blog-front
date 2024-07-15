@@ -51,12 +51,12 @@ function App() {
   }, [dispatch, isLoggedIn, refreshLoginTimer, refreshLoginToken])
 
   useLayoutEffect(() => {
-    const stashDraft = () => {
+    const refreshLogin = () => {
       if (!document.hidden && isLoggedIn) return refreshLoginToken()
     }
-    document.addEventListener('visibilitychange', stashDraft)
+    document.addEventListener('visibilitychange', refreshLogin)
 
-    return () => document.removeEventListener('visibilitychange', stashDraft)
+    return () => document.removeEventListener('visibilitychange', refreshLogin)
   }, [isLoggedIn, refreshLoginToken])
 
   return (
