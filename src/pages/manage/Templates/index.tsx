@@ -117,7 +117,7 @@ export const ManageTemplatePage: FC = () => {
   }, [selectedTemplate])
 
   return (
-    <div className='flex gap-2 p-5 *:h-[55rem]'>
+    <div className='flex justify-center gap-2 p-5 *:h-[55rem]'>
       <div className='w-1/3'>
         {loading && <Spinner className='absolute inset-0' size='sm' />}
         {data && (
@@ -172,7 +172,7 @@ export const ManageTemplatePage: FC = () => {
         )}
       </div>
 
-      <div className='relative w-2/3'>
+      <div className='relative w-2/3 max-w-[1280px]'>
         <Suspense fallback={<Spinner className='absolute inset-0' />}>
           {queryRef ? (
             <TemplateForm

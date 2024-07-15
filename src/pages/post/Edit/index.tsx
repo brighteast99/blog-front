@@ -467,7 +467,7 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
     )
 
   return (
-    <div className='p-10'>
+    <>
       {(loadingPost || error) && (
         <div className='absolute inset-0 z-10 flex size-full items-center justify-center bg-neutral-50 bg-opacity-75'>
           {error && (
@@ -589,6 +589,6 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
           )}
         </ThemedButton>
       </div>
-    </div>
+    </>
   )
 }
