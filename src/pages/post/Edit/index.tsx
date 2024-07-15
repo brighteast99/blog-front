@@ -6,19 +6,20 @@ import {
   useSearchParams
 } from 'react-router-dom'
 import { TypedDocumentNode, gql, useMutation, useQuery } from '@apollo/client'
+import { useAppSelector } from 'app/hooks'
+import { selectIsAuthenticated } from 'features/auth/authSlice'
 import { Category, Post, Template } from 'types/data'
+import { GET_CATEGORIES } from 'features/sidebar/Sidebar'
+import { GET_POSTS } from 'pages/category'
+import { GET_POST } from 'pages/post'
 import { Tiptap } from 'components/Tiptap'
 import { ThemedButton } from 'components/Buttons/ThemedButton'
 import { Spinner } from 'components/Spinner'
-import { useAppSelector } from 'app/hooks'
-import { selectIsAuthenticated } from 'features/auth/authSlice'
 import { Tooltip, TooltipContent, TooltipTrigger } from 'components/Tooltip'
-import { GET_CATEGORIES } from 'features/sidebar/Sidebar'
-import { GET_POST } from '..'
 import { Error } from 'components/Error'
-import { TemplateSelector } from './TemplateSelector'
 import { Draft, DraftManager, GET_DRAFTS } from './DraftManager'
-import { GET_POSTS } from 'pages/category'
+import { TemplateSelector } from './TemplateSelector'
+import { NavigationBlocker } from 'components/NavigationBlocker'
 
 const GET_POSTABLE_CATEGORIES: TypedDocumentNode<{ categories: Category[] }> =
   gql`
@@ -85,12 +86,26 @@ export interface PostInput
   category?: number
 }
 
-export const usePostInput = (initialValue: PostInput) => {
-  const [input, setInput] = useState<PostInput>(initialValue)
+export const usePostInput = (_initialValue: PostInput) => {
+  const [initialValue, setInitialValue] = useState<PostInput>(_initialValue)
+  const [value, setValue] = useState<PostInput>(_initialValue)
   const [imagesToDelete, setImagesToDelete] = useState<string[]>([])
 
+  const isModified = JSON.stringify(initialValue) !== JSON.stringify(value)
+
+  const initialize = useCallback(
+    (
+      value: PostInput | ((prev: PostInput) => PostInput),
+      keepInitialValue: boolean = false
+    ) => {
+      if (!keepInitialValue) setInitialValue(value)
+      setValue(value)
+    },
+    [setInitialValue, setValue]
+  )
+
   function modifyInput(key: string, value: any) {
-    setInput((prev) => {
+    setValue((prev) => {
       return {
         ...prev,
         [key]: value
@@ -113,7 +128,7 @@ export const usePostInput = (initialValue: PostInput) => {
   function setThumbnail(thumbnail: string | null) {
     if (thumbnail) modifyInput('thumbnail', thumbnail)
     else
-      setInput((prev) => {
+      setValue((prev) => {
         let copy = { ...prev }
         delete copy.thumbnail
 
@@ -130,7 +145,7 @@ export const usePostInput = (initialValue: PostInput) => {
   }
 
   function addImage(image: string) {
-    setInput((prev) => {
+    setValue((prev) => {
       return {
         ...prev,
         images: [...prev.images, image]
@@ -139,7 +154,7 @@ export const usePostInput = (initialValue: PostInput) => {
   }
 
   function removeImage(image: string) {
-    setInput((prev) => {
+    setValue((prev) => {
       const idx = prev.images.findIndex((_image) => _image === image)
       if (idx === -1) return prev
 
@@ -154,9 +169,10 @@ export const usePostInput = (initialValue: PostInput) => {
   }
 
   return {
-    input,
+    input: value,
+    isModified,
     imagesToDelete,
-    initialize: setInput,
+    initialize,
     setTitle,
     setCategory,
     setIsHidden,
@@ -178,6 +194,7 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
   const [searchParams] = useSearchParams()
   const {
     input,
+    isModified,
     initialize,
     setCategory,
     setTitle,
@@ -210,14 +227,16 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
     skip: newPost || !postId,
     notifyOnNetworkStatusChange: true,
     onCompleted: ({ post }) => {
-      initialize({
-        title: post.title,
-        category: post.category.id,
-        content: post.content,
-        isHidden: post.isHidden,
-        thumbnail: post.thumbnail,
-        images: post.images
-      })
+      initialize(
+        {
+          title: post.title,
+          category: post.category.id,
+          content: post.content,
+          isHidden: post.isHidden,
+          thumbnail: post.thumbnail,
+          images: post.images
+        }
+      )
     }
   })
   const { loading: loadingCategories, data: categories } = useQuery(
@@ -234,11 +253,11 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
     _createPost,
     { loading: creatingPost, reset: resetCreatePostMutation }
   ] = useMutation(CREATE_POST)
-  const [_updatePost, { loading: updating, reset: resetUpdateMutation }] =
+  const [_updatePost, { loading: updatingPost, reset: resetUpdateMutation }] =
     useMutation(UPDATE_POST)
-  const [deleteImage, { loading: deleteingImages }] = useMutation(DELETE_IMAGE)
+  const [deleteImage, { loading: deletingImages }] = useMutation(DELETE_IMAGE)
 
-  const useDraft = useCallback(
+  const importDraft = useCallback(
     (draft: Draft) => {
       if (!draft) return
       if (
@@ -248,21 +267,19 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
       )
         return
 
-      initialize((prev) => {
-        return {
-          category: draft.category.id,
-          title: draft.title,
-          content: draft.content,
-          isHidden: prev.isHidden,
-          thumbnail: draft.thumbnail,
-          images: draft.images
-        }
+      initialize({
+        category: draft.category.id,
+        title: draft.title,
+        content: draft.content,
+        isHidden: draft.isHidden,
+        thumbnail: draft.thumbnail,
+        images: draft.images
       })
     },
     [initialize]
   )
 
-  const useTemplate = useCallback(
+  const importTemplate = useCallback(
     (template: Template) => {
       if (!template) return
       if (
@@ -327,9 +344,7 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
         { query: GET_CATEGORIES },
         { query: GET_POSTS, variables: { categoryId: input.category ?? null } }
       ],
-      onCompleted: ({ createPost }) => {
-        navigate(`/post/${createPost.createdPost.id}`)
-      },
+      onCompleted: ({ createPost }) => navigate(`/post/${createPost.createdPost.id}`),
       onError: ({ graphQLErrors, networkError }) => {
         if (networkError) alert('게시글 업로드 중 오류가 발생했습니다.')
         else if (graphQLErrors?.length) {
@@ -427,7 +442,7 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
           sessionStorage.getItem('draft') ?? '{}'
         ) as PostInput
         sessionStorage.removeItem('draft')
-        initialize(draft)
+        initialize(draft, true)
       } catch {
         //
       }
@@ -467,12 +482,17 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
           {loadingPost && <Spinner />}
         </div>
       )}
-      <div className='w-full'>
+      <div className='mx-auto w-full max-w-[1280px] px-5 py-10'>
+        <NavigationBlocker
+          enabled={
+            isModified && !creatingPost && !updatingPost && !deletingImages
+          }
+          message={`${newPost ? '작성' : '수정'}중인 내용이 있습니다.\n페이지를 벗어나시겠습니까?`}
+        />
         <div className='mb-3 flex w-full items-center justify-between gap-2'>
-          <DraftManager onSelect={useDraft} />
-          <TemplateSelector onSelect={useTemplate} />
+          <DraftManager onSelect={importDraft} />
+          <TemplateSelector onSelect={importTemplate} />
         </div>
-
         <select
           className='mb-3 w-full py-1'
           disabled={loadingCategories}
@@ -488,7 +508,6 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
             </option>
           ))}
         </select>
-
         <div className='mb-3 flex w-full flex-wrap items-center gap-2'>
           <input
             className='min-w-0 grow text-2xl'
@@ -517,7 +536,6 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
             )}
           </Tooltip>
         </div>
-
         {!loadingPost && (
           <Tiptap
             className='mb-5 min-h-40 grow'
@@ -530,7 +548,6 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
             onChangeThumbnail={setThumbnail}
           />
         )}
-
         <ThemedButton
           className='mb-2 h-10 w-full py-0.5 text-lg'
           variant='flat'
@@ -539,12 +556,12 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
             !input.title ||
             creatingDraft ||
             creatingPost ||
-            updating ||
-            deleteingImages
+            updatingPost ||
+            deletingImages
           }
           onClick={newPost ? createPost : updatePost}
         >
-          {creatingDraft || creatingPost || updating || deleteingImages ? (
+          {creatingDraft || creatingPost || updatingPost || deletingImages ? (
             <Spinner size='xs' />
           ) : newPost ? (
             '게시'
@@ -552,7 +569,6 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
             '수정'
           )}
         </ThemedButton>
-
         <ThemedButton
           className='h-10 w-full py-0.5 text-lg'
           variant='text'
@@ -561,12 +577,12 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
             !input.title ||
             creatingDraft ||
             creatingPost ||
-            updating ||
-            deleteingImages
+            updatingPost ||
+            deletingImages
           }
           onClick={createDraft}
         >
-          {creatingDraft || creatingPost || updating || deleteingImages ? (
+          {creatingDraft || creatingPost || updatingPost || deletingImages ? (
             <Spinner size='xs' />
           ) : (
             '임시 저장'

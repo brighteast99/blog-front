@@ -12,6 +12,7 @@ import { FC, MouseEvent, useCallback, useEffect } from 'react'
 import { Template } from 'types/data'
 import { GET_TEMPLATE, GET_TEMPLATES, TemplateInput } from '.'
 import { Tiptap } from 'components/Tiptap'
+import { NavigationBlocker } from 'components/NavigationBlocker'
 
 export const UPDATE_TEMPLATE: TypedDocumentNode<
   { updateTemplate: { success: boolean } },
@@ -41,6 +42,7 @@ export const TemplateForm: FC<{
 }> = ({ queryRef, onDelete }) => {
   const {
     input: { title: name, content, thumbnail, images },
+    isModified,
     initialize,
     setTitle: setName,
     setContent,
@@ -119,53 +121,63 @@ export const TemplateForm: FC<{
 
   useEffect(() => {
     if (template)
-      initialize({
-        title: template.name,
-        content: template.content,
-        isHidden: false,
-        thumbnail: template.thumbnail,
-        images: template.images
-      })
+      initialize(
+        {
+          title: template.name,
+          content: template.content,
+          isHidden: false,
+          thumbnail: template.thumbnail,
+          images: template.images
+        },
+        false
+      )
   }, [template, initialize])
 
   return (
-    <div className='flex size-full flex-col gap-2'>
-      <input
-        className='w-full px-1 text-2xl'
-        type='text'
-        value={name}
-        placeholder={template.name}
-        onChange={(e) => setName(e.target.value)}
+    <>
+      <NavigationBlocker
+        enabled={isModified}
+        localAlert
+        message={'수정 중인 내용이 있습니다.\n계속하시겠습니까?'}
       />
-      <Tiptap
-        content={content}
-        thumbnail={thumbnail}
-        images={images}
-        onChange={(editor) => setContent(editor.getHTML())}
-        onChangeThumbnail={setThumbnail}
-        onAddImage={addImage}
-        onDeleteImage={removeImage}
-      />
-      <ThemedButton
-        className='h-12 w-full'
-        type='submit'
-        variant='flat'
-        color='primary'
-        disabled={updating || deleting}
-        onClick={updateTemplate}
-      >
-        {updating ? <Spinner size='xs' /> : '저장'}
-      </ThemedButton>
-      <ThemedButton
-        className='h-12 w-full'
-        type='button'
-        variant='text'
-        color='error'
-        disabled={updating || deleting}
-        onClick={deleteTemplate}
-      >
-        {deleting ? <Spinner size='xs' /> : '삭제'}
-      </ThemedButton>
-    </div>
+      <div className='flex size-full flex-col gap-2'>
+        <input
+          className='w-full px-1 text-2xl'
+          type='text'
+          value={name}
+          placeholder={template.name}
+          onChange={(e) => setName(e.target.value)}
+        />
+        <Tiptap
+          content={content}
+          thumbnail={thumbnail}
+          images={images}
+          onChange={(editor) => setContent(editor.getHTML())}
+          onChangeThumbnail={setThumbnail}
+          onAddImage={addImage}
+          onDeleteImage={removeImage}
+        />
+        <ThemedButton
+          className='h-12 w-full'
+          type='submit'
+          variant='flat'
+          color='primary'
+          disabled={updating || deleting}
+          onClick={updateTemplate}
+        >
+          {updating ? <Spinner size='xs' /> : '저장'}
+        </ThemedButton>
+        <ThemedButton
+          className='h-12 w-full'
+          type='button'
+          variant='text'
+          color='error'
+          disabled={updating || deleting}
+          onClick={deleteTemplate}
+        >
+          {deleting ? <Spinner size='xs' /> : '삭제'}
+        </ThemedButton>
+      </div>
+    </>
   )
 }
