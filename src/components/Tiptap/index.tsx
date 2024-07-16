@@ -15,6 +15,10 @@ import TaskItem from '@tiptap/extension-task-item'
 import Superscript from '@tiptap/extension-superscript'
 import Subscript from '@tiptap/extension-subscript'
 import { common, createLowlight } from 'lowlight'
+import dockerfile from 'highlight.js/lib/languages/dockerfile'
+import django from 'highlight.js/lib/languages/django'
+import nginx from 'highlight.js/lib/languages/nginx'
+import pgsql from 'highlight.js/lib/languages/pgsql'
 import { FontSize } from './extensions/fontSize'
 import { Toolbar } from './Toolbar'
 import { ImageCatalogue } from './ImageCatalogue'
@@ -35,6 +39,7 @@ export interface EditorProps {
 }
 
 const lowlight = createLowlight(common)
+lowlight.register({ django, dockerfile, nginx, pgsql })
 
 export const Tiptap: FC<EditorProps> = ({
   className,
