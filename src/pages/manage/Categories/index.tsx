@@ -1,11 +1,4 @@
-import {
-  FC,
-  Suspense,
-  createContext,
-  useCallback,
-  useContext,
-  useState
-} from 'react'
+import { FC, Suspense, useCallback, useLayoutEffect } from 'react'
 import {
   TypedDocumentNode,
   gql,
@@ -13,14 +6,15 @@ import {
   useMutation,
   useQuery
 } from '@apollo/client'
+import clsx from 'clsx'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { Category } from 'types/data'
+import { GET_CATEGORIES } from 'features/sidebar/Sidebar'
+import { GET_CATEGORY_INFO } from 'pages/category'
+import Icon from '@mdi/react'
 import { mdiLoading, mdiLock, mdiMinus, mdiPlus } from '@mdi/js'
 import { IconButton } from 'components/Buttons/IconButton'
-import { GET_CATEGORIES } from 'features/sidebar/Sidebar'
 import { Spinner } from 'components/Spinner'
-import { Category } from 'types/data'
-import clsx from 'clsx'
-import Icon from '@mdi/react'
-import { GET_CATEGORY_INFO } from 'pages/category'
 import { CategoryForm, CategoryInput } from './categoryForm'
 
 export const CREATE_CATEGORY: TypedDocumentNode<
@@ -47,29 +41,33 @@ export const DELETE_CATEGORY: TypedDocumentNode<
   }
 `
 
-const ListStateContext = createContext<number | undefined>(undefined)
-const ListActionContext = createContext((_id?: number) => {})
-
 const CategoryListItem: FC<{ category: Category }> = ({ category }) => {
-  const listState = useContext(ListStateContext)
-  const select = useContext(ListActionContext)
+  const [searchParams, _] = useSearchParams()
+  const active = searchParams.get('category') === category.id?.toString()
 
   return (
     <>
       <li
-        className={clsx(
-          'cursor-pointer px-1.5 py-1',
-          listState === category.id
+        className={
+          active
             ? 'bg-primary bg-opacity-25 text-primary hover:brightness-125'
             : 'hover:bg-neutral-100'
-        )}
+        }
         style={{ paddingLeft: `calc(0.375rem + 1rem * ${category.level})` }}
-        onClick={() => select(category.id)}
       >
-        {category.name}
-        {category.isHidden && (
-          <Icon className='ml-1 inline' path={mdiLock} size={0.5} />
-        )}
+        <Link
+          className={clsx(
+            'block size-full px-1.5 py-1',
+            active && 'pointer-events-none'
+          )}
+          to={`?category=${category.id}`}
+          replace
+        >
+          {category.name}
+          {category.isHidden && (
+            <Icon className='ml-1 inline' path={mdiLock} size={0.5} />
+          )}
+        </Link>
       </li>
       {category.subcategories.length > 0 && (
         <ul>
@@ -83,35 +81,36 @@ const CategoryListItem: FC<{ category: Category }> = ({ category }) => {
 }
 
 export const ManageCategoryPage: FC = () => {
+  const [searchParams, setSearchParams] = useSearchParams()
+  const navigate = useNavigate()
   const { data, loading } = useQuery(GET_CATEGORIES)
   const [loadCategoryInfo, queryRef, { reset }] = useLoadableQuery(
     GET_CATEGORY_INFO,
     { fetchPolicy: 'cache-and-network' }
   )
-  const [selectedCategory, setSelectedCategory] = useState<number>()
   const [_createCategory, { loading: creating, reset: resetCreateMutation }] =
     useMutation(CREATE_CATEGORY)
   const [_deleteCategory, { loading: deleting, reset: resetDeleteMutation }] =
     useMutation(DELETE_CATEGORY)
+  const selectedCategory =
+    Number.parseInt(searchParams.get('category') ?? '0') || undefined
 
   const categories = JSON.parse(
     JSON.parse(data?.categoryList ?? '"[]"')
   ) as Category[]
 
   const selectCategory = useCallback(
-    (id?: number) => {
-      if (!id) {
-        setSelectedCategory(undefined)
-        reset()
+    (id?: number, forced?: boolean) => {
+      if (forced) {
+        if (id) searchParams.set('category', id.toString())
+        else searchParams.delete('category')
+        setSearchParams(searchParams, { replace: true })
         return
       }
 
-      setSelectedCategory(id)
-      loadCategoryInfo({
-        id
-      })
+      return navigate(id ? `?category=${id}` : '.', { replace: true })
     },
-    [loadCategoryInfo, reset]
+    [navigate, searchParams, setSearchParams]
   )
 
   const createCategory = useCallback(() => {
@@ -160,7 +159,7 @@ export const ManageCategoryPage: FC = () => {
           query: GET_CATEGORIES
         }
       ],
-      onCompleted: () => selectCategory(undefined),
+      onCompleted: () => selectCategory(undefined, true),
       onError: () => {
         alert('분류 삭제 중 문제가 발생했습니다.')
         resetDeleteMutation()
@@ -168,31 +167,35 @@ export const ManageCategoryPage: FC = () => {
     })
   }, [_deleteCategory, resetDeleteMutation, selectCategory, selectedCategory])
 
+  useLayoutEffect(() => {
+    if (!selectedCategory) reset()
+    else
+      loadCategoryInfo({
+        id: selectedCategory
+      })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedCategory])
+
   return (
     <div className='flex gap-2 p-5 *:h-120'>
       <div className='w-1/3'>
         <div
-          className='relative h-full overflow-y-auto rounded border border-neutral-200 bg-neutral-50'
+          className='relative h-full overflow-y-auto rounded border border-neutral-200 bg-neutral-50 pb-10'
           onClick={(e) => {
             if (e.target !== e.currentTarget) return
-            setSelectedCategory(undefined)
-            reset()
+            selectCategory(undefined)
           }}
         >
           {loading && <Spinner className='absolute inset-0' size='sm' />}
           {data && (
-            <ListStateContext.Provider value={selectedCategory}>
-              <ListActionContext.Provider value={selectCategory}>
-                <ul>
-                  {categories.map((category) => {
-                    if (!category.id) return null
-                    return (
-                      <CategoryListItem key={category.id} category={category} />
-                    )
-                  })}
-                </ul>
-              </ListActionContext.Provider>
-            </ListStateContext.Provider>
+            <ul>
+              {categories.map((category) => {
+                if (!category.id) return null
+                return (
+                  <CategoryListItem key={category.id} category={category} />
+                )
+              })}
+            </ul>
           )}
         </div>
 

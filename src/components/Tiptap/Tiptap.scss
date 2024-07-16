@@ -18,6 +18,10 @@
       > div:not(:last-child):not(:first-child) {
         @apply h-120 min-h-120 resize-y overflow-y-scroll rounded-b border border-t-0 border-neutral-100 bg-neutral-50;
       }
+
+      img.ProseMirror-selectednode {
+        @apply outline outline-2 outline-primary;
+      }
     }
 
     > div:not(:last-child):not(:first-child) {
@@ -83,10 +87,6 @@
 
       img {
         @apply inline-block h-auto max-w-full;
-
-        &.ProseMirror-selectednode {
-          @apply outline outline-2 outline-primary;
-        }
       }
 
       blockquote {
@@ -94,11 +94,11 @@
       }
 
       pre {
-        @apply rounded bg-black px-4 py-3 text-white;
+        @apply bg-neutral-50 px-4 py-3 text-white overflow-x-auto;
         font-family: 'JetBrainsMono', monospace;
 
         code {
-          @apply bg-none p-0 text-sm text-inherit;
+          @apply bg-none p-0 text-sm text-inherit w-max block;
         }
 
         .hljs-comment,

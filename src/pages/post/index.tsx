@@ -160,8 +160,6 @@ export const PostPage: FC = () => {
       />
     )
 
-  console.log(data?.post?.thumbnail)
-
   return (
     <>
       <div
