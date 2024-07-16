@@ -9,6 +9,10 @@ import { RouterProvider } from 'react-router-dom'
 import { router } from 'routes.tsx'
 import 'index.scss'
 
+if (/^((?!chrome|android).)*safari/i.test(navigator.userAgent)) {
+  document.documentElement.classList.add('safari')
+}
+
 const container = document.getElementById('root')
 const root = createRoot(container)
 
