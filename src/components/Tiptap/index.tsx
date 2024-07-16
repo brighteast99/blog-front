@@ -8,11 +8,11 @@ import { Color } from '@tiptap/extension-color'
 import { Highlight } from '@tiptap/extension-highlight'
 import { TextAlign } from '@tiptap/extension-text-align'
 import { Link } from '@tiptap/extension-link'
-import Image from '@tiptap/extension-image'
 import TaskList from '@tiptap/extension-task-list'
 import TaskItem from '@tiptap/extension-task-item'
 import Superscript from '@tiptap/extension-superscript'
 import Subscript from '@tiptap/extension-subscript'
+import ImageResize from 'tiptap-extension-resize-image'
 import { BetterCodeBlock } from './nodes/BetterCodeblock'
 import { common, createLowlight } from 'lowlight'
 import dockerfile from 'highlight.js/lib/languages/dockerfile'
@@ -99,9 +99,7 @@ export const Tiptap: FC<EditorProps> = ({
             openOnClick: editable,
             validate: (href) => /^https?:\/\//.test(href)
           }),
-          Image.configure({
-            inline: true
-          }),
+          ImageResize,
           BetterCodeBlock.configure({
             lowlight
           }),
