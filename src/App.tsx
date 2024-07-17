@@ -3,9 +3,11 @@ import { throttle } from 'throttle-debounce'
 import { useAppDispatch, useAppSelector } from 'app/hooks'
 import { refreshToken, selectIsAuthenticated } from 'features/auth/authSlice'
 import { selectBreakpoint, updateSize } from 'features/window/windowSlice'
+import { Outlet } from 'react-router-dom'
 import { Sidebar } from 'features/sidebar/Sidebar'
 import { SidebarHandle } from 'features/sidebar/SidebarHandle'
-import { Outlet } from 'react-router-dom'
+import { ErrorBoundary } from 'react-error-boundary'
+import { Error } from 'components/Error'
 
 function App() {
   const dispatch = useAppDispatch()
@@ -73,7 +75,9 @@ function App() {
           )}
         </div>
 
-        <Outlet />
+        <ErrorBoundary fallback={<Error />}>
+          <Outlet />
+        </ErrorBoundary>
       </div>
     </div>
   )
