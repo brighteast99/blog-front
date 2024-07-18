@@ -115,13 +115,13 @@ export const Sidebar: FC<SidebarProps> = ({
               loadingInfo && 'animate-pulse'
             )}
             size='2xl'
-            imgSrc={data?.blogInfo.avatar}
+            imgSrc={data?.blogInfo?.avatar}
           />
           <Link className='self-center' to='/'>
             <SuspendedText
               className='mb-1 text-lg font-semibold'
               loading={loadingInfo}
-              text={data?.blogInfo.title}
+              text={data?.blogInfo?.title}
               align='center'
               length={10}
             />
@@ -129,7 +129,7 @@ export const Sidebar: FC<SidebarProps> = ({
           <SuspendedText
             className='self-center'
             loading={loadingInfo}
-            text={data?.blogInfo.description}
+            text={data?.blogInfo?.description}
             align='center'
             length={70}
             lines={2}
