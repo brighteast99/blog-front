@@ -95,15 +95,16 @@ export const PostPage: FC = () => {
     })
   }, [
     _deletePost,
-    data?.post.category.id,
+    data?.post?.category.id,
     navigate,
     postId,
     resetDeleteMutation
   ])
 
   useEffect(() => {
-    if (!data) return
-    const categoryId = data?.post.category.id
+    if (!data?.post) return
+
+    const categoryId = data.post.category.id
     if (!queryRef) getPosts({ categoryId: categoryId ?? null })
   }, [data, getPosts, queryRef])
 
