@@ -41,7 +41,7 @@ export const TemplateForm: FC<{
   onDelete?: () => any
 }> = ({ queryRef, onDelete }) => {
   const {
-    input: { title: name, content, thumbnail, images },
+    input: { title, content, thumbnail, images },
     isModified,
     initialize,
     setTitle: setName,
@@ -71,7 +71,7 @@ export const TemplateForm: FC<{
       variables: {
         id: template.id,
         data: {
-          name,
+          title,
           content,
           thumbnail: thumbnail,
           images: images
@@ -86,15 +86,16 @@ export const TemplateForm: FC<{
           variables: { id: template.id }
         }
       ],
-      onError: () => {
-        alert('템플릿 수정 중 오류가 발생했습니다.')
+      onError: ({ networkError, graphQLErrors }) => {
+        if (networkError) alert('템플릿 수정 중 오류가 발생했습니다.')
+        else if (graphQLErrors.length) alert(graphQLErrors[0].message)
         resetUpdateMutation()
       }
     })
   }
 
   const deleteTemplate = useCallback(() => {
-    if (!window.confirm(`'${template.name}' 템플릿을 삭제합니다.`)) return
+    if (!window.confirm(`'${template.title}' 템플릿을 삭제합니다.`)) return
 
     _deleteTemplate({
       variables: {
@@ -106,8 +107,9 @@ export const TemplateForm: FC<{
         }
       ],
       onCompleted: () => onDelete?.(),
-      onError: () => {
-        alert('템플릿 삭제 중 문제가 발생했습니다.')
+      onError: ({ networkError, graphQLErrors }) => {
+        if (networkError) alert('템플릿 삭제 중 오류가 발생했습니다.')
+        else if (graphQLErrors.length) alert(graphQLErrors[0].message)
         resetDeleteMutation()
       }
     })
@@ -116,14 +118,14 @@ export const TemplateForm: FC<{
     onDelete,
     resetDeleteMutation,
     template.id,
-    template.name
+    template.title
   ])
 
   useEffect(() => {
     if (template)
       initialize(
         {
-          title: template.name,
+          title: template.title,
           content: template.content,
           isHidden: false,
           thumbnail: template.thumbnail,
@@ -144,8 +146,8 @@ export const TemplateForm: FC<{
         <input
           className='w-full px-1 text-2xl'
           type='text'
-          value={name}
-          placeholder={template.name}
+          value={title}
+          placeholder={template.title}
           onChange={(e) => setName(e.target.value)}
         />
         <Tiptap

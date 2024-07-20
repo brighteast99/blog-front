@@ -8,8 +8,8 @@ import {
   useReadQuery
 } from '@apollo/client'
 import { Category } from 'types/data'
-import { GET_CATEGORIES } from 'features/sidebar/Sidebar'
-import { GET_CATEGORY_INFO } from 'pages/category'
+import { GET_CATEGORY_HIERARCHY } from 'features/sidebar/Sidebar'
+import { GET_CATEGORY } from 'pages/category'
 import { mdiClose, mdiRefresh } from '@mdi/js'
 import { IconButton } from 'components/Buttons/IconButton'
 import { ThemedButton } from 'components/Buttons/ThemedButton'
@@ -48,7 +48,7 @@ const UPDATE_CATEGORY: TypedDocumentNode<
   }
 `
 
-export const useCategoryInfo = (_initialValue: CategoryInput) => {
+export const useCategory = (_initialValue: CategoryInput) => {
   const [initialValue, setInitialValue] = useState<CategoryInput>(_initialValue)
   const [value, setValue] = useState<CategoryInput>(_initialValue)
   const [coverPreview, setCoverPreview] = useState<string | null>()
@@ -143,14 +143,14 @@ export const useCategoryInfo = (_initialValue: CategoryInput) => {
 }
 
 export const CategoryForm: FC<{
-  queryRef: QueryReference<{ categoryInfo: Category }, { id: number }>
+  queryRef: QueryReference<{ category: Category }, { id: number }>
 }> = ({ queryRef }) => {
   const ImageInput = useRef<HTMLInputElement>(null)
   const {
-    data: { categoryInfo }
+    data: { category }
   } = useReadQuery(queryRef)
   const { data: categoriesData } = useQuery(GET_VALID_SUPERCATEGORIES, {
-    variables: { id: categoryInfo.id as number },
+    variables: { id: category.id as number },
     fetchPolicy: 'cache-and-network'
   })
   const [_updateCategory, { loading: updating, reset: resetUpdateMutation }] =
@@ -165,7 +165,7 @@ export const CategoryForm: FC<{
     setDescription,
     setSubcategoryOf,
     setIsHidden
-  } = useCategoryInfo({
+  } = useCategory({
     name: '',
     description: '',
     isHidden: false
@@ -179,23 +179,23 @@ export const CategoryForm: FC<{
     )?.isHidden ?? false
 
   useEffect(() => {
-    if (categoryInfo) {
+    if (category) {
       let categoryData: CategoryInput = {
-        name: categoryInfo.name,
-        description: categoryInfo.description,
-        isHidden: categoryInfo.isHidden
+        name: category.name,
+        description: category.description,
+        isHidden: category.isHidden
       }
-      if (categoryInfo.subcategoryOf?.id)
-        categoryData.subcategoryOf = categoryInfo.subcategoryOf?.id
+      if (category.subcategoryOf?.id)
+        categoryData.subcategoryOf = category.subcategoryOf?.id
 
       initialize(categoryData, false)
     }
-  }, [categoryInfo, initialize])
+  }, [category, initialize])
 
   function updateCategory(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
 
-    const id = categoryInfo.id as number
+    const id = category.id as number
     _updateCategory({
       variables: {
         id,
@@ -209,15 +209,16 @@ export const CategoryForm: FC<{
       },
       refetchQueries: [
         {
-          query: GET_CATEGORIES
+          query: GET_CATEGORY_HIERARCHY
         },
         {
-          query: GET_CATEGORY_INFO,
+          query: GET_CATEGORY,
           variables: { id }
         }
       ],
-      onError: () => {
-        alert('분류 수정 중 오류가 발생했습니다.')
+      onError: ({ networkError, graphQLErrors }) => {
+        if (networkError) alert('분류 수정 중 오류가 발생했습니다.')
+        else if (graphQLErrors.length) alert(graphQLErrors[0].message)
         resetUpdateMutation()
       }
     })
@@ -237,10 +238,10 @@ export const CategoryForm: FC<{
             backgroundImage:
               coverImage === null
                 ? undefined
-                : `url(${coverPreview ?? categoryInfo.coverImage})`
+                : `url(${coverPreview ?? category.coverImage})`
           }}
         >
-          {!coverImage && !categoryInfo.coverImage && (
+          {!coverImage && !category.coverImage && (
             <span className='absolute inset-0 z-0 m-auto block size-fit select-none text-lg font-semibold text-neutral-400'>
               커버 이미지
             </span>
@@ -252,36 +253,32 @@ export const CategoryForm: FC<{
             }}
           >
             <span className='block text-xl text-foreground'>변경</span>
-            {(coverImage || categoryInfo.coverImage) && (
+            {(coverImage || category.coverImage) && (
               <Tooltip>
                 <TooltipTrigger asChild>
                   <IconButton
                     className='absolute right-0 top-0 !bg-transparent p-1'
                     path={
-                      coverChanged && categoryInfo.coverImage
+                      coverChanged && category.coverImage
                         ? mdiRefresh
                         : mdiClose
                     }
                     variant='text'
                     type='button'
                     color={
-                      coverChanged && categoryInfo.coverImage
-                        ? 'unset'
-                        : 'error'
+                      coverChanged && category.coverImage ? 'unset' : 'error'
                     }
                     onClick={(e) => {
                       e.stopPropagation()
                       setCoverImage(
-                        coverChanged && categoryInfo.coverImage
-                          ? undefined
-                          : null
+                        coverChanged && category.coverImage ? undefined : null
                       )
                       if (ImageInput.current) ImageInput.current.value = ''
                     }}
                   />
                 </TooltipTrigger>
                 <TooltipContent>
-                  {coverChanged && categoryInfo.coverImage
+                  {coverChanged && category.coverImage
                     ? '되돌리기'
                     : '기본 이미지로 변경'}
                 </TooltipContent>
@@ -327,7 +324,7 @@ export const CategoryForm: FC<{
           >
             <option value={0}>선택안함</option>
             {categoriesData?.validSupercategories.map((category) => {
-              if (category.id === categoryInfo.id) return null
+              if (category.id === category.id) return null
               return (
                 <option
                   key={category.id}
@@ -348,7 +345,7 @@ export const CategoryForm: FC<{
             type='text'
             required
             value={name}
-            placeholder={categoryInfo.name}
+            placeholder={category.name}
             onChange={(e) => setName(e.target.value)}
           />
 
@@ -386,7 +383,7 @@ export const CategoryForm: FC<{
           <textarea
             className='min-h-20 grow p-2'
             value={description}
-            placeholder={categoryInfo.description}
+            placeholder={category.description}
             onChange={(e) => setDescription(e.target.value)}
           />
         </div>

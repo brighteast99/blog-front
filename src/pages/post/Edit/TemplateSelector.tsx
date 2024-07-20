@@ -60,7 +60,7 @@ export const TemplateSelector: FC<TemplateSelectorProps> = ({
             템플릿 목록
           </div>
           <ul className='min-h-0 grow overflow-y-auto'>
-            {templates?.templateList.map((template) => (
+            {templates?.templates.map((template) => (
               <li
                 className={clsx(
                   'px-1 py-0.5',
@@ -74,7 +74,7 @@ export const TemplateSelector: FC<TemplateSelectorProps> = ({
                   loadTemplateInfo({ variables: { id: template.id } })
                 }}
               >
-                {template.name}
+                {template.title}
               </li>
             ))}
           </ul>

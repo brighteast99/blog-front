@@ -152,8 +152,10 @@ export const ManageInfoPage: FC = () => {
           }
         },
         onCompleted: () => {},
-        onError: ({ networkError }) => {
-          if (networkError) alert('정보 수정 중 오류가 발생했습니다.')
+        onError: ({ networkError, graphQLErrors }) => {
+          if (networkError)
+            if (networkError) alert('정보 수정 중 오류가 발생했습니다.')
+            else if (graphQLErrors.length) alert(graphQLErrors[0].message)
           resetUpdateMutation()
         }
       })

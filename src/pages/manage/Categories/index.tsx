@@ -9,8 +9,8 @@ import {
 import clsx from 'clsx'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { Category } from 'types/data'
-import { GET_CATEGORIES } from 'features/sidebar/Sidebar'
-import { GET_CATEGORY_INFO } from 'pages/category'
+import { GET_CATEGORY_HIERARCHY } from 'features/sidebar/Sidebar'
+import { GET_CATEGORY } from 'pages/category'
 import Icon from '@mdi/react'
 import { mdiLoading, mdiLock, mdiMinus, mdiPlus } from '@mdi/js'
 import { IconButton } from 'components/Buttons/IconButton'
@@ -83,11 +83,10 @@ const CategoryListItem: FC<{ category: Category }> = ({ category }) => {
 export const ManageCategoryPage: FC = () => {
   const [searchParams, setSearchParams] = useSearchParams()
   const navigate = useNavigate()
-  const { data, loading } = useQuery(GET_CATEGORIES)
-  const [loadCategoryInfo, queryRef, { reset }] = useLoadableQuery(
-    GET_CATEGORY_INFO,
-    { fetchPolicy: 'cache-and-network' }
-  )
+  const { data, loading } = useQuery(GET_CATEGORY_HIERARCHY)
+  const [loadCategory, queryRef, { reset }] = useLoadableQuery(GET_CATEGORY, {
+    fetchPolicy: 'cache-and-network'
+  })
   const [_createCategory, { loading: creating, reset: resetCreateMutation }] =
     useMutation(CREATE_CATEGORY)
   const [_deleteCategory, { loading: deleting, reset: resetDeleteMutation }] =
@@ -96,7 +95,7 @@ export const ManageCategoryPage: FC = () => {
     Number.parseInt(searchParams.get('category') ?? '0') || undefined
 
   const categories = JSON.parse(
-    JSON.parse(data?.categoryList ?? '"[]"')
+    JSON.parse(data?.categoryHierarchy ?? '"[]"')
   ) as Category[]
 
   const selectCategory = useCallback(
@@ -128,13 +127,14 @@ export const ManageCategoryPage: FC = () => {
       },
       refetchQueries: [
         {
-          query: GET_CATEGORIES
+          query: GET_CATEGORY_HIERARCHY
         }
       ],
       onCompleted: ({ createCategory: { createdCategory } }) =>
         selectCategory(createdCategory.id),
-      onError: () => {
-        alert('분류 생성 중 오류가 발생했습니다.')
+      onError: ({ networkError, graphQLErrors }) => {
+        if (networkError) alert('분류 생성 중 오류가 발생했습니다.')
+        else if (graphQLErrors.length) alert(graphQLErrors[0].message)
         resetCreateMutation()
       }
     })
@@ -156,12 +156,13 @@ export const ManageCategoryPage: FC = () => {
       },
       refetchQueries: [
         {
-          query: GET_CATEGORIES
+          query: GET_CATEGORY_HIERARCHY
         }
       ],
       onCompleted: () => selectCategory(undefined, true),
-      onError: () => {
-        alert('분류 삭제 중 문제가 발생했습니다.')
+      onError: ({ networkError, graphQLErrors }) => {
+        if (networkError) alert('분류 삭제 중 오류가 발생했습니다.')
+        else if (graphQLErrors.length) alert(graphQLErrors[0].message)
         resetDeleteMutation()
       }
     })
@@ -170,7 +171,7 @@ export const ManageCategoryPage: FC = () => {
   useLayoutEffect(() => {
     if (!selectedCategory) reset()
     else
-      loadCategoryInfo({
+      loadCategory({
         id: selectedCategory
       })
     // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -24,7 +24,7 @@ import { PopoverMenuItem } from 'components/PopoverMenu/PopoverMenuItem'
 import { BlogInfo } from 'types/data'
 import { SuspendedText } from 'components/SuspendedText'
 
-export type CategoryListQueryResult = { categoryList: string }
+export type CategoryHierarchyQueryResult = { categoryHierarchy: string }
 
 export const GET_INFO: TypedDocumentNode<{ blogInfo: BlogInfo }> = gql`
   query BlogInfo {
@@ -36,9 +36,9 @@ export const GET_INFO: TypedDocumentNode<{ blogInfo: BlogInfo }> = gql`
   }
 `
 
-export const GET_CATEGORIES: TypedDocumentNode<CategoryListQueryResult> = gql`
-  query CategoryList {
-    categoryList
+export const GET_CATEGORY_HIERARCHY: TypedDocumentNode<CategoryHierarchyQueryResult> = gql`
+  query categoryHierarchy {
+    categoryHierarchy
   }
 `
 
@@ -64,7 +64,7 @@ export const Sidebar: FC<SidebarProps> = ({
     notifyOnNetworkStatusChange: true
   })
   const [loadCategories, queryRef, { refetch: refetchCategories }] =
-    useLoadableQuery(GET_CATEGORIES)
+    useLoadableQuery(GET_CATEGORY_HIERARCHY)
 
   const logIn = useCallback(() => {
     navigate(`/login?next=${location.pathname}`)

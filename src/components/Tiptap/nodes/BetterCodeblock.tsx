@@ -17,7 +17,7 @@ const BetterCodeBlockComponent: FC<CodeBlockComponentProps> = ({ node }) => {
 
   const handleCopy = () => {
     navigator.clipboard.writeText(node.textContent)
-    alert('Copied to clipboard')
+    alert('클립보드에 복사됨')
   }
 
   return (
