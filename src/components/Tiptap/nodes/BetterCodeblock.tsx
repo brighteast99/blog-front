@@ -1,4 +1,4 @@
-import React, { FC } from 'react'
+import React, { FC, useState } from 'react'
 import {
   NodeViewWrapper,
   NodeViewContent,
@@ -14,10 +14,11 @@ interface CodeBlockComponentProps extends NodeViewProps {}
 
 const BetterCodeBlockComponent: FC<CodeBlockComponentProps> = ({ node }) => {
   const { language } = node.attrs
+  const [alertTimer, setAlertTimer] = useState<ReturnType<typeof setTimeout>>()
 
   const handleCopy = () => {
     navigator.clipboard.writeText(node.textContent)
-    alert('클립보드에 복사됨')
+    setAlertTimer(setTimeout(() => setAlertTimer(undefined), 2000))
   }
 
   return (
@@ -33,7 +34,9 @@ const BetterCodeBlockComponent: FC<CodeBlockComponentProps> = ({ node }) => {
               onClick={handleCopy}
             />
           </TooltipTrigger>
-          <TooltipContent>클립보드에 복사</TooltipContent>
+          <TooltipContent>
+            {alertTimer ? '복사됨' : '클립보드에 복사'}
+          </TooltipContent>
         </Tooltip>
       </div>
       <pre>
