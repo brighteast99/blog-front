@@ -125,7 +125,7 @@ export const ManageInfoPage: FC = () => {
   const profileChanged = avatar || avatar === null
 
   useEffect(() => {
-    if (data)
+    if (data?.blogInfo)
       initialize(
         {
           title: data.blogInfo.title,
@@ -146,14 +146,16 @@ export const ManageInfoPage: FC = () => {
         ],
         variables: {
           data: {
-            title: title || data?.blogInfo.title || '',
-            description: description || data?.blogInfo.description || '',
+            title: title || data?.blogInfo?.title || '',
+            description: description || data?.blogInfo?.description || '',
             avatar
           }
         },
         onCompleted: () => {},
-        onError: ({ networkError }) => {
-          if (networkError) alert('정보 수정 중 오류가 발생했습니다.')
+        onError: ({ networkError, graphQLErrors }) => {
+          if (networkError)
+            if (networkError) alert('정보 수정 중 오류가 발생했습니다.')
+            else if (graphQLErrors.length) alert(graphQLErrors[0].message)
           resetUpdateMutation()
         }
       })
@@ -161,8 +163,8 @@ export const ManageInfoPage: FC = () => {
     [
       _updateInfo,
       avatar,
-      data?.blogInfo.description,
-      data?.blogInfo.title,
+      data?.blogInfo?.description,
+      data?.blogInfo?.title,
       description,
       resetUpdateMutation,
       title
@@ -189,27 +191,27 @@ export const ManageInfoPage: FC = () => {
               }}
             >
               <span className='block text-xl text-foreground'>변경</span>
-              {(data?.blogInfo.avatar || avatar) && (
+              {(data?.blogInfo?.avatar || avatar) && (
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <IconButton
                       className='absolute right-0 top-0 !bg-transparent p-1'
                       path={
-                        profileChanged && data?.blogInfo.avatar
+                        profileChanged && data?.blogInfo?.avatar
                           ? mdiRefresh
                           : mdiClose
                       }
                       variant='text'
                       type='button'
                       color={
-                        profileChanged && data?.blogInfo.avatar
+                        profileChanged && data?.blogInfo?.avatar
                           ? 'unset'
                           : 'error'
                       }
                       onClick={(e) => {
                         e.stopPropagation()
                         setAvatar(
-                          profileChanged && data?.blogInfo.avatar
+                          profileChanged && data?.blogInfo?.avatar
                             ? undefined
                             : null
                         )
@@ -218,7 +220,7 @@ export const ManageInfoPage: FC = () => {
                     />
                   </TooltipTrigger>
                   <TooltipContent>
-                    {profileChanged && data?.blogInfo.avatar
+                    {profileChanged && data?.blogInfo?.avatar
                       ? '되돌리기'
                       : '기본 이미지로 변경'}
                   </TooltipContent>
@@ -248,7 +250,7 @@ export const ManageInfoPage: FC = () => {
               imgSrc={
                 avatar === null
                   ? undefined
-                  : avatarPreview ?? data?.blogInfo.avatar
+                  : avatarPreview ?? data?.blogInfo?.avatar
               }
             />
           </div>
@@ -258,14 +260,14 @@ export const ManageInfoPage: FC = () => {
             required
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder={data?.blogInfo.title || '블로그 제목'}
+            placeholder={data?.blogInfo?.title || '블로그 제목'}
           />
           <textarea
             className='min-h-32 p-2'
             required
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            placeholder={data?.blogInfo.description || '블로그 소개'}
+            placeholder={data?.blogInfo?.description || '블로그 소개'}
           />
 
           <ThemedButton
@@ -275,8 +277,8 @@ export const ManageInfoPage: FC = () => {
               !title.length ||
               !description.length ||
               (!profileChanged &&
-                title === data?.blogInfo.title &&
-                description === data?.blogInfo.description)
+                title === data?.blogInfo?.title &&
+                description === data?.blogInfo?.description)
             }
           >
             {updating ? <Spinner size='xs' /> : '저장'}

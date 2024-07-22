@@ -12,24 +12,28 @@ export interface Category {
   postCount: number
 }
 
-export interface Post {
+interface Template {
   id: number
   title: string
-  category: Category
-  isHidden: boolean
-  thumbnail?: string
-  images: string[]
   content: string
-  createdAt: Date
-  updatedAt: Date
+  images: string[]
+  thumbnail?: string
 }
 
-export interface Template {
-  id: number
-  name: string
-  thumbnail?: string
-  images: string[]
-  content: string
+export interface Draft extends Template {
+  category: Category
+  summary: string
+  isHidden: boolean
+  createdAt: Date
+}
+
+export interface Post extends Omit<Draft, 'id' | 'summary'> {
+  id: string
+  textContent: string
+  isDeleted: boolean
+  createdAt: Date
+  updatedAt: Date
+  deletedAt?: Date
 }
 
 export interface BlogInfo {

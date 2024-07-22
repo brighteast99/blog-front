@@ -4,7 +4,7 @@ import { FC } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { ErrorProps } from 'types/error'
 
-interface action {
+export interface Action {
   label: string
   href?: {
     to: string
@@ -17,7 +17,7 @@ interface action {
 
 export const Error: FC<
   ErrorProps & {
-    actions?: action[]
+    actions?: Action[]
     hideDefaultAction?: boolean
   }
 > = ({

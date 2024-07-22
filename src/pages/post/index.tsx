@@ -8,24 +8,24 @@ import {
   useQuery
 } from '@apollo/client'
 import { Post } from 'types/data'
-import { SuspendedText } from 'components/SuspendedText'
-import { Error } from 'components/Error'
+import { Action, Error } from 'components/Error'
 import { getRelativeTimeFromNow } from 'utils/dayJS'
-import { Tiptap } from 'components/Tiptap'
-import Icon from '@mdi/react'
-import { mdiDelete, mdiLoading, mdiLock, mdiPencil } from '@mdi/js'
 import { useAppSelector } from 'app/hooks'
 import { selectIsAuthenticated } from 'features/auth/authSlice'
-import { PopoverMenu } from 'components/PopoverMenu'
-import { PopoverMenuItem } from 'components/PopoverMenu/PopoverMenuItem'
-import { GET_CATEGORIES } from 'features/sidebar/Sidebar'
-import { ErrorBoundary } from 'react-error-boundary'
-import { Spinner } from 'components/Spinner'
-import { PostList } from 'pages/category/postList'
+import { GET_CATEGORY_HIERARCHY } from 'features/sidebar/Sidebar'
 import { GET_POSTS } from 'pages/category'
+import Icon from '@mdi/react'
+import { mdiDelete, mdiLoading, mdiLock, mdiPencil } from '@mdi/js'
+import { Tiptap } from 'components/Tiptap'
+import { PopoverMenu } from 'components/PopoverMenu'
+import { ErrorBoundary } from 'react-error-boundary'
+import { PopoverMenuItem } from 'components/PopoverMenu/PopoverMenuItem'
+import { Spinner } from 'components/Spinner'
+import { SuspendedText } from 'components/SuspendedText'
+import { PostList } from 'pages/category/postList'
 
-export const GET_POST: TypedDocumentNode<{ post: Post }, { id: number }> = gql`
-  query PostData($id: Int!) {
+export const GET_POST: TypedDocumentNode<{ post: Post }, { id?: string }> = gql`
+  query PostData($id: ID!) {
     post(id: $id) {
       id
       title
@@ -51,9 +51,9 @@ const DELETE_POST: TypedDocumentNode<
   {
     deletePost: { success: boolean }
   },
-  { id: number }
+  { id: string }
 > = gql`
-  mutation DeletePost($id: Int!) {
+  mutation DeletePost($id: ID!) {
     deletePost(id: $id) {
       success
     }
@@ -66,13 +66,13 @@ export const PostPage: FC = () => {
   const navigate = useNavigate()
   const { postId } = useParams()
   const { data, loading, error, refetch } = useQuery(GET_POST, {
-    variables: { id: Number(postId) },
+    variables: { id: postId || '' },
     notifyOnNetworkStatusChange: true,
-    skip: isNaN(Number(postId))
+    skip: !postId
   })
   const [_deletePost, { loading: deleting, reset: resetDeleteMutation }] =
     useMutation(DELETE_POST)
-  const [getPosts, queryRef, { refetch: refetchPostList }] = useLoadableQuery(
+  const [getPosts, queryRef, { refetch: refetchPosts }] = useLoadableQuery(
     GET_POSTS,
     { fetchPolicy: 'cache-and-network' }
   )
@@ -81,15 +81,16 @@ export const PostPage: FC = () => {
     if (!window.confirm('게시글을 삭제합니다.')) return
 
     _deletePost({
-      variables: { id: Number(postId) },
+      variables: { id: postId as string },
       refetchQueries: [
         {
-          query: GET_CATEGORIES
+          query: GET_CATEGORY_HIERARCHY
         }
       ],
       onCompleted: () => navigate(`/category/${data?.post.category.id}`),
-      onError: () => {
-        alert('게시글 삭제 중 문제가 발생했습니다.')
+      onError: ({ networkError, graphQLErrors }) => {
+        if (networkError) alert('게시글 삭제 중 오류가 발생했습니다.')
+        else if (graphQLErrors.length) alert(graphQLErrors[0].message)
         resetDeleteMutation()
       }
     })
@@ -108,58 +109,47 @@ export const PostPage: FC = () => {
     if (!queryRef) getPosts({ categoryId: categoryId ?? null })
   }, [data, getPosts, queryRef])
 
-  if (error?.networkError)
-    return (
-      <Error
-        message='게시글 정보를 불러오지 못했습니다'
-        actions={[
-          {
-            label: '다시 시도',
-            handler: () => refetch()
-          }
-        ]}
-      />
-    )
-
-  if (
-    error?.graphQLErrors.some(
-      (error) =>
-        error.message === 'You do not have permission to perform this action'
-    )
-  )
-    return (
-      <Error
-        code={403}
-        message='접근할 수 없는 게시글입니다'
-        actions={[
-          {
-            label: '로그인',
-            href: {
-              to: `/login?next=${location.pathname}`,
-              option: { replace: true }
+  if (error) {
+    if (error.networkError)
+      return (
+        <Error
+          message='게시글 정보를 불러오지 못했습니다'
+          actions={[
+            {
+              label: '다시 시도',
+              handler: () => refetch()
             }
-          },
-          {
-            label: '전체 게시글 보기',
-            href: { to: '/category/all' }
-          }
-        ]}
-      />
-    )
+          ]}
+        />
+      )
 
-  if (!loading && !data?.post)
-    return (
-      <Error
-        code={404}
-        message='존재하지 않는 게시글입니다'
-        actions={[
-          {
-            label: '전체 게시글 보기',
-            href: { to: '/category/all' }
+    if (error.graphQLErrors.length) {
+      const errorToShow = error.graphQLErrors[0]
+
+      let actions: Action[] = [
+        {
+          label: '전체 게시글 보기',
+          href: { to: '/category/all' }
+        }
+      ]
+      if (errorToShow.extensions.code === 403)
+        actions.unshift({
+          label: '로그인',
+          href: {
+            to: `/login?next=${location.pathname}`,
+            option: { replace: true }
           }
-        ]}
-      />
-    )
+        })
+
+      return (
+        <Error
+          code={errorToShow.extensions.code as number | undefined}
+          message={errorToShow.message}
+          actions={actions}
+        />
+      )
+    }
+  }
 
   return (
     <>
@@ -272,7 +262,7 @@ export const PostPage: FC = () => {
                     {
                       label: '다시 시도',
                       handler: () => {
-                        refetchPostList()
+                        refetchPosts()
                         resetErrorBoundary()
                       }
                     }

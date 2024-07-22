@@ -17,15 +17,14 @@ import { TemplateForm } from './templateForm'
 
 export interface TemplateInput extends Omit<Template, 'id'> {}
 
-export const GET_TEMPLATES: TypedDocumentNode<{ templateList: Template[] }> =
-  gql`
-    query GetTemplates {
-      templateList {
-        id
-        name
-      }
+export const GET_TEMPLATES: TypedDocumentNode<{ templates: Template[] }> = gql`
+  query GetTemplates {
+    templates {
+      id
+      title
     }
-  `
+  }
+`
 
 export const GET_TEMPLATE: TypedDocumentNode<
   { template: Template },
@@ -34,7 +33,7 @@ export const GET_TEMPLATE: TypedDocumentNode<
   query GetTemplate($id: Int!) {
     template(id: $id) {
       id
-      name
+      title
       content
       thumbnail
       images
@@ -88,7 +87,7 @@ export const ManageTemplatePage: FC = () => {
     _createTemplate({
       variables: {
         data: {
-          name: '새 템플릿',
+          title: '새 템플릿',
           content: '<p></p>',
           images: []
         }
@@ -100,8 +99,9 @@ export const ManageTemplatePage: FC = () => {
       ],
       onCompleted: ({ createTemplate: { createdTemplate } }) =>
         selectTemplate(createdTemplate.id),
-      onError: () => {
-        alert('템플릿 생성 중 오류가 발생했습니다.')
+      onError: ({ networkError, graphQLErrors }) => {
+        if (networkError) alert('템플릿 생성 중 오류가 발생했습니다.')
+        else if (graphQLErrors.length) alert(graphQLErrors[0].message)
         resetCreateMutation()
       }
     })
@@ -146,7 +146,7 @@ export const ManageTemplatePage: FC = () => {
               )}
             </ThemedButton>
             <ul className='text-lg'>
-              {data?.templateList.map((template) => (
+              {data?.templates.map((template) => (
                 <li
                   className={
                     selectedTemplate === template.id
@@ -163,7 +163,7 @@ export const ManageTemplatePage: FC = () => {
                     to={`?template=${template.id}`}
                     replace
                   >
-                    {template.name}
+                    {template.title}
                   </Link>
                 </li>
               ))}

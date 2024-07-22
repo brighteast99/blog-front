@@ -3,7 +3,7 @@ import { QueryReference, useReadQuery } from '@apollo/client'
 import { Link } from 'react-router-dom'
 import clsx from 'clsx'
 import { Category } from 'types/data'
-import { CategoryListQueryResult } from './Sidebar'
+import { CategoryHierarchyQueryResult } from './Sidebar'
 import Icon from '@mdi/react'
 import { mdiLock } from '@mdi/js'
 
@@ -45,13 +45,13 @@ export const CategoryItem: FC<{ category: Category }> = ({ category }) => {
 }
 
 export const CategoryList: FC<{
-  queryRef: QueryReference<CategoryListQueryResult>
+  queryRef: QueryReference<CategoryHierarchyQueryResult>
 }> = ({ queryRef }) => {
   const { data } = useReadQuery(queryRef)
 
   return (
     <ul>
-      {(JSON.parse(JSON.parse(data.categoryList)) as Category[]).map(
+      {(JSON.parse(JSON.parse(data.categoryHierarchy)) as Category[]).map(
         (category) => (
           <CategoryItem key={category.id ?? null} category={category} />
         )

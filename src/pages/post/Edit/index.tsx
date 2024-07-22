@@ -8,8 +8,8 @@ import {
 import { TypedDocumentNode, gql, useMutation, useQuery } from '@apollo/client'
 import { useAppSelector } from 'app/hooks'
 import { selectIsAuthenticated } from 'features/auth/authSlice'
-import { Category, Post, Template } from 'types/data'
-import { GET_CATEGORIES } from 'features/sidebar/Sidebar'
+import { Category, Template, Draft, Post } from 'types/data'
+import { GET_CATEGORY_HIERARCHY } from 'features/sidebar/Sidebar'
 import { GET_POSTS } from 'pages/category'
 import { GET_POST } from 'pages/post'
 import { Tiptap } from 'components/Tiptap'
@@ -17,7 +17,7 @@ import { ThemedButton } from 'components/Buttons/ThemedButton'
 import { Spinner } from 'components/Spinner'
 import { Tooltip, TooltipContent, TooltipTrigger } from 'components/Tooltip'
 import { Error } from 'components/Error'
-import { Draft, DraftManager, GET_DRAFTS } from './DraftManager'
+import { DraftManager, GET_DRAFTS } from './DraftManager'
 import { TemplateSelector } from './TemplateSelector'
 import { NavigationBlocker } from 'components/NavigationBlocker'
 
@@ -37,7 +37,7 @@ const CREATE_DRAFT: TypedDocumentNode<
   { createDraft: { createdDraft: Post } },
   { data: PostInput }
 > = gql`
-  mutation CreateDraft($data: PostInput!) {
+  mutation CreateDraft($data: DraftInput!) {
     createDraft(data: $data) {
       createdDraft {
         id
@@ -61,9 +61,9 @@ const CREATE_POST: TypedDocumentNode<
 
 const UPDATE_POST: TypedDocumentNode<
   { updatePost: { success: boolean } },
-  { id?: number; data: PostInput }
+  { id: string; data: PostInput }
 > = gql`
-  mutation CreatePost($id: Int!, $data: PostInput!) {
+  mutation UpdatePost($id: ID!, $data: PostInput!) {
     updatePost(id: $id, data: $data) {
       success
     }
@@ -82,7 +82,10 @@ const DELETE_IMAGE: TypedDocumentNode<
 `
 
 export interface PostInput
-  extends Omit<Post, 'id' | 'category' | 'createdAt' | 'updatedAt'> {
+  extends Omit<
+    Post,
+    'id' | 'category' | 'isDeleted' | 'createdAt' | 'updatedAt' | 'textContent'
+  > {
   category?: number
 }
 
@@ -223,20 +226,18 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
     data: post,
     refetch: reloadPost
   } = useQuery(GET_POST, {
-    variables: { id: Number(postId) as number },
+    variables: { id: postId },
     skip: newPost || !postId,
     notifyOnNetworkStatusChange: true,
     onCompleted: ({ post }) => {
-      initialize(
-        {
-          title: post.title,
-          category: post.category.id,
-          content: post.content,
-          isHidden: post.isHidden,
-          thumbnail: post.thumbnail,
-          images: post.images
-        }
-      )
+      initialize({
+        title: post.title,
+        category: post.category.id,
+        content: post.content,
+        isHidden: post.isHidden,
+        thumbnail: post.thumbnail,
+        images: post.images
+      })
     }
   })
   const { loading: loadingCategories, data: categories } = useQuery(
@@ -312,25 +313,14 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
         }
       },
       refetchQueries: [{ query: GET_DRAFTS }],
-      onCompleted: () => {
-        window.alert('임시 저장되었습니다.')
-      },
-      onError: ({ graphQLErrors, networkError }) => {
+      onCompleted: () => window.alert('임시 저장되었습니다.'),
+      onError: ({ networkError, graphQLErrors }) => {
         if (networkError) alert('임시 저장 중 오류가 발생했습니다.')
-        else if (graphQLErrors?.length) {
-          alert('존재하지 않는 분류입니다')
-          setCategory(undefined)
-        }
+        else if (graphQLErrors?.length) alert(graphQLErrors[0].message)
         resetCreateDraftMutation()
       }
     })
-  }, [
-    _createDraft,
-    input,
-    resetCreateDraftMutation,
-    selectedCategory.isHidden,
-    setCategory
-  ])
+  }, [_createDraft, input, resetCreateDraftMutation, selectedCategory.isHidden])
 
   const createPost = useCallback(() => {
     _createPost({
@@ -341,16 +331,14 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
         }
       },
       refetchQueries: [
-        { query: GET_CATEGORIES },
+        { query: GET_CATEGORY_HIERARCHY },
         { query: GET_POSTS, variables: { categoryId: input.category ?? null } }
       ],
-      onCompleted: ({ createPost }) => navigate(`/post/${createPost.createdPost.id}`),
+      onCompleted: ({ createPost }) =>
+        navigate(`/post/${createPost.createdPost.id}`),
       onError: ({ graphQLErrors, networkError }) => {
         if (networkError) alert('게시글 업로드 중 오류가 발생했습니다.')
-        else if (graphQLErrors?.length) {
-          alert('존재하지 않는 분류입니다')
-          setCategory(undefined)
-        }
+        else if (graphQLErrors?.length) alert(graphQLErrors[0].message)
         resetCreatePostMutation()
       }
     })
@@ -359,21 +347,20 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
     input,
     navigate,
     resetCreatePostMutation,
-    selectedCategory.isHidden,
-    setCategory
+    selectedCategory.isHidden
   ])
 
   const updatePost = useCallback(() => {
     _updatePost({
       variables: {
-        id: Number(postId),
+        id: postId as string,
         data: {
           ...input,
           isHidden: input.isHidden || selectedCategory.isHidden
         }
       },
       refetchQueries: [
-        { query: GET_CATEGORIES },
+        { query: GET_CATEGORY_HIERARCHY },
         { query: GET_POST, variables: { id: Number(postId) } },
         {
           query: GET_POSTS,
@@ -381,11 +368,7 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
         },
         { query: GET_POSTS, variables: { categoryId: input.category ?? null } }
       ],
-      onCompleted: ({ updatePost: { success } }) => {
-        if (!success) {
-          resetUpdateMutation()
-          return alert('게시글 수정 중 오류가 발생했습니다.')
-        }
+      onCompleted: () => {
         Promise.all(
           imagesToDelete.map((image) => {
             return new Promise((resolve) => {
@@ -398,10 +381,11 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
               })
             })
           })
-        ).then(() => navigate(`/post/${Number(postId)}`))
+        ).then(() => navigate(`/post/${postId}`))
       },
-      onError: ({ networkError }) => {
+      onError: ({ networkError, graphQLErrors }) => {
         if (networkError) alert('게시글 수정 중 오류가 발생했습니다.')
+        else if (graphQLErrors.length) alert(graphQLErrors[0].message)
         resetUpdateMutation()
       }
     })
@@ -452,7 +436,7 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
     return () => document.removeEventListener('visibilitychange', stashDraft)
   }, [initialize, input])
 
-  if (!newPost && !loadingPost && !error && !post?.post)
+  if (error?.graphQLErrors[0]?.extensions?.code === 404)
     return (
       <Error
         code={404}
@@ -468,9 +452,9 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
 
   return (
     <>
-      {(loadingPost || error) && (
+      {(loadingPost || error?.networkError) && (
         <div className='absolute inset-0 z-10 flex size-full items-center justify-center bg-neutral-50 bg-opacity-75'>
-          {error && (
+          {error?.networkError && (
             <Error
               message='게시글 정보를 불러오지 못했습니다'
               actions={[

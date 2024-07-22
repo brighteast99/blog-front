@@ -1,3 +1,4 @@
+import { FC, ReactNode, useCallback, useState } from 'react'
 import {
   TypedDocumentNode,
   gql,
@@ -5,23 +6,18 @@ import {
   useMutation,
   useQuery
 } from '@apollo/client'
-import { Placement } from '@floating-ui/react'
 import clsx from 'clsx'
+import { Placement } from '@floating-ui/react'
+import { getRelativeTimeFromNow } from 'utils/dayJS'
+import { Draft } from 'types/data'
 import { ThemedButton } from 'components/Buttons/ThemedButton'
 import { PopoverMenu } from 'components/PopoverMenu'
 import { Spinner } from 'components/Spinner'
 import { Tiptap } from 'components/Tiptap'
-import { FC, ReactNode, useCallback, useState } from 'react'
-import { Post } from 'types/data'
-import { getRelativeTimeFromNow } from 'utils/dayJS'
 
-export interface Draft extends Omit<Post, 'is_deleted|updated_at'> {
-  summary: string
-}
-
-export const GET_DRAFTS: TypedDocumentNode<{ draftList: Draft[] }> = gql`
+export const GET_DRAFTS: TypedDocumentNode<{ drafts: Draft[] }> = gql`
   query GetDrafts {
-    draftList {
+    drafts {
       id
       summary
       createdAt
@@ -100,8 +96,9 @@ export const DraftManager: FC<DraftManagerProps> = ({
         }
       ],
       onCompleted: () => setSelectedDraft(undefined),
-      onError: () => {
-        alert('임시 저장본 삭제 중 문제가 발생했습니다.')
+      onError: ({ networkError, graphQLErrors }) => {
+        if (networkError) alert('임시 저장본 삭제 중 오류가 발생했습니다.')
+        else if (graphQLErrors.length) alert(graphQLErrors[0].message)
         resetDeleteMutation()
       }
     })
@@ -119,13 +116,13 @@ export const DraftManager: FC<DraftManagerProps> = ({
         <ThemedButton
           className='h-8 px-2'
           variant='hover-text'
-          disabled={loadingList || !drafts?.draftList.length}
+          disabled={loadingList || !drafts?.drafts.length}
           color='primary'
         >
           {loadingList ? (
             <Spinner size='xs' />
           ) : (
-            `임시 저장본 ${drafts?.draftList.length ? `(${drafts.draftList.length})` : '없음'}`
+            `임시 저장본 ${drafts?.drafts.length ? `(${drafts.drafts.length})` : '없음'}`
           )}
         </ThemedButton>
       }
@@ -138,7 +135,7 @@ export const DraftManager: FC<DraftManagerProps> = ({
             임시 저장본 목록
           </div>
           <ul className='min-h-0 grow overflow-y-auto'>
-            {drafts?.draftList.map((draft) => (
+            {drafts?.drafts.map((draft) => (
               <li
                 className={clsx(
                   'px-1 py-0.5',

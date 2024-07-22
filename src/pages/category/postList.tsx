@@ -6,7 +6,7 @@ import { Post } from 'types/data'
 import Icon from '@mdi/react'
 import { mdiLock } from '@mdi/js'
 import clsx from 'clsx'
-import { PostListQueryResult, PostListQueryVariables } from '.'
+import { PostsQueryResult, PostsQueryVariables } from '.'
 
 export const PostItem: FC<{ post: Post; isActive?: boolean }> = ({
   post,
@@ -89,7 +89,7 @@ export const PostItem: FC<{ post: Post; isActive?: boolean }> = ({
 }
 
 export interface PostListProps {
-  queryRef: QueryReference<PostListQueryResult, PostListQueryVariables>
+  queryRef: QueryReference<PostsQueryResult, PostsQueryVariables>
   pageSize?: number
   option?: {
     useQueryString?: boolean
@@ -111,17 +111,19 @@ export const PostList: FC<PostListProps> = ({
     pages: 1
   })
 
-  const { data } = useReadQuery(queryRef)
+  const {
+    data: { posts: { edges: posts } }
+  } = useReadQuery(queryRef)
 
   useLayoutEffect(() => {
     setPagination((prev) => {
       return {
         ...prev,
         currentPage: 0,
-        pages: Math.ceil(data.postList.length / prev.pageSize)
+        pages: Math.ceil(posts.length / prev.pageSize)
       }
     })
-  }, [data.postList.length])
+  }, [posts.length])
 
   useLayoutEffect(() => {
     if (!option.useQueryString) return
@@ -137,7 +139,7 @@ export const PostList: FC<PostListProps> = ({
       })
   }, [currentPage, searchParams, option.useQueryString])
 
-  if (!data.postList.length)
+  if (!posts.length)
     return (
       <div className='max-h-full w-full py-5 text-center text-neutral-400'>
         아직 게시물이 없습니다
@@ -150,13 +152,13 @@ export const PostList: FC<PostListProps> = ({
         ref={listRef}
         className='divide-y border-y-2 border-neutral-600 *:border-neutral-600'
       >
-        {data?.postList
+        {posts
           .slice(currentPage * pageSize, (currentPage + 1) * pageSize)
           .map((post) => (
             <PostItem
-              key={post.id}
-              post={post}
-              isActive={location.pathname === `/post/${post.id}`}
+              key={post.node.id}
+              post={post.node}
+              isActive={location.pathname === `/post/${post.node.id}`}
             />
           ))}
       </ul>

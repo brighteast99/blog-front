@@ -141,7 +141,11 @@ export const ImageCatalogue: FC<{
         setFiles((prev) => [...prev, file])
         _uploadImage({
           variables: { file: file },
-          onError: () => alert(`${fileName}을 업로드하지 못했습니다`),
+          onError: ({ networkError, graphQLErrors }) => {
+            if (networkError)
+              return alert(`${fileName}을 업로드하던 중 오류가 발생했습니다`)
+            if (graphQLErrors.length) return alert(graphQLErrors[0].message)
+          },
           onCompleted: ({ uploadImage: { url } }) => {
             addImage?.(url)
             setFiles((prev) => {
