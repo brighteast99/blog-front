@@ -323,15 +323,15 @@ export const CategoryForm: FC<{
             }}
           >
             <option value={0}>선택안함</option>
-            {categoriesData?.validSupercategories.map((category) => {
-              if (category.id === category.id) return null
+            {categoriesData?.validSupercategories.map((_category) => {
+              if (_category.id === category.id) return null
               return (
                 <option
-                  key={category.id}
-                  value={category.id}
-                  data-hidden={category.isHidden || undefined}
+                  key={_category.id}
+                  value={_category.id}
+                  data-hidden={_category.isHidden || undefined}
                 >
-                  {category.name} {category.isHidden && '(비공개)'}
+                  {_category.name} {_category.isHidden && '(비공개)'}
                 </option>
               )
             })}
