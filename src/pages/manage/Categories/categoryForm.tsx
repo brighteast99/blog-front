@@ -1,7 +1,7 @@
 import { FC, FormEvent, useCallback, useEffect, useRef, useState } from 'react'
 
 import {
-  QueryReference,
+  QueryRef,
   TypedDocumentNode,
   gql,
   useMutation,
@@ -148,7 +148,7 @@ export const useCategory = (_initialValue: CategoryInput) => {
 }
 
 export const CategoryForm: FC<{
-  queryRef: QueryReference<{ category: Category }, { id: number }>
+  queryRef: QueryRef<{ category: Category }, { id: number }>
 }> = ({ queryRef }) => {
   const ImageInput = useRef<HTMLInputElement>(null)
   const {

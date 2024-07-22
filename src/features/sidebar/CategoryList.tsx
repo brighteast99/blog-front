@@ -1,7 +1,7 @@
 import { FC } from 'react'
 import { Link } from 'react-router-dom'
 
-import { QueryReference, useReadQuery } from '@apollo/client'
+import { QueryRef, useReadQuery } from '@apollo/client'
 import { mdiLock } from '@mdi/js'
 import Icon from '@mdi/react'
 import clsx from 'clsx'
@@ -48,7 +48,7 @@ export const CategoryItem: FC<{ category: Category }> = ({ category }) => {
 }
 
 export const CategoryList: FC<{
-  queryRef: QueryReference<CategoryHierarchyQueryResult>
+  queryRef: QueryRef<CategoryHierarchyQueryResult>
 }> = ({ queryRef }) => {
   const { data } = useReadQuery(queryRef)
 

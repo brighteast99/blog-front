@@ -1,18 +1,23 @@
+import { FC, MouseEvent, useCallback, useEffect } from 'react'
+
 import {
-  QueryReference,
+  QueryRef,
   TypedDocumentNode,
   gql,
   useMutation,
   useReadQuery
 } from '@apollo/client'
-import { ThemedButton } from 'components/Buttons/ThemedButton'
-import { Spinner } from 'components/Spinner'
+
 import { usePostInput } from 'pages/post/Edit'
-import { FC, MouseEvent, useCallback, useEffect } from 'react'
-import { Template } from 'types/data'
-import { GET_TEMPLATE, GET_TEMPLATES, TemplateInput } from '.'
-import { Tiptap } from 'components/Tiptap'
+
+import { ThemedButton } from 'components/Buttons/ThemedButton'
 import { NavigationBlocker } from 'components/NavigationBlocker'
+import { Spinner } from 'components/Spinner'
+import { Tiptap } from 'components/Tiptap'
+
+import { Template } from 'types/data'
+
+import { GET_TEMPLATE, GET_TEMPLATES, TemplateInput } from '.'
 
 export const UPDATE_TEMPLATE: TypedDocumentNode<
   { updateTemplate: { success: boolean } },
@@ -37,7 +42,7 @@ export const DELETE_TEMPLATE: TypedDocumentNode<
 `
 
 export const TemplateForm: FC<{
-  queryRef: QueryReference<{ template: Template }, { id: number }>
+  queryRef: QueryRef<{ template: Template }, { id: number }>
   onDelete?: () => any
 }> = ({ queryRef, onDelete }) => {
   const {

@@ -1,7 +1,7 @@
 import { FC, useCallback, useLayoutEffect, useRef, useState } from 'react'
 import { Link, useLocation, useSearchParams } from 'react-router-dom'
 
-import { QueryReference, useReadQuery } from '@apollo/client'
+import { QueryRef, useReadQuery } from '@apollo/client'
 import { mdiLock } from '@mdi/js'
 import Icon from '@mdi/react'
 import clsx from 'clsx'
@@ -93,7 +93,7 @@ export const PostItem: FC<{ post: Post; isActive?: boolean }> = ({
 }
 
 export interface PostListProps {
-  queryRef: QueryReference<PostsQueryResult, PostsQueryVariables>
+  queryRef: QueryRef<PostsQueryResult, PostsQueryVariables>
   pageSize?: number
   option?: {
     useQueryString?: boolean
