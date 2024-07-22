@@ -5,23 +5,25 @@ import React, {
   useLayoutEffect,
   useState
 } from 'react'
-import clsx from 'clsx'
+
 import {
+  FloatingDelayGroup,
+  Placement,
   autoUpdate,
   flip,
-  FloatingDelayGroup,
   offset,
-  Placement,
   useClick,
   useDismiss,
   useFloating,
   useInteractions
 } from '@floating-ui/react'
-
 import { mdiDotsVertical } from '@mdi/js'
+import clsx from 'clsx'
+
 import { IconButton } from 'components/Buttons/IconButton'
-import { PopoverMenuItem } from './PopoverMenuItem'
 import { Tooltip, TooltipContent, TooltipTrigger } from 'components/Tooltip'
+
+import { PopoverMenuItem } from './PopoverMenuItem'
 
 export interface PopoverMenuProps {
   open?: boolean

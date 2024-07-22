@@ -4,7 +4,23 @@
   "jsxSingleQuote": true,
   "trailingComma": "none",
   "plugins": [
+    "@trivago/prettier-plugin-sort-imports",
     "prettier-plugin-tailwindcss"
   ],
+  "importOrder": [
+    "^react",
+    "<THIRD_PARTY_MODULES>",
+
+    "app/*",
+    "features/*",
+    "pages/*",
+    "components/*",
+    "utils/*",
+    "types/*",
+
+    "^[./]"
+  ],
+  "importOrderSeparation": true,
+  "importOrderSortSpecifiers": true,
   "tailwindConfig": "./tailwind.config.js"
 }

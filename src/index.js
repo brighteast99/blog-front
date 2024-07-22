@@ -1,13 +1,17 @@
 import React from 'react'
 import { createRoot } from 'react-dom/client'
 import { Provider } from 'react-redux'
-import { ApolloContext } from 'ApolloContext'
-import { store } from 'app/store'
-import { setToken } from 'features/auth/authSlice.ts'
-import { authFromStorage } from 'utils/Auth.ts'
 import { RouterProvider } from 'react-router-dom'
-import { router } from 'routes.tsx'
+
+import { ApolloContext } from 'ApolloContext'
 import 'index.scss'
+import { router } from 'routes.tsx'
+
+import { store } from 'app/store'
+
+import { setToken } from 'features/auth/authSlice.ts'
+
+import { authFromStorage } from 'utils/Auth.ts'
 
 if (/^((?!chrome|android).)*safari/i.test(navigator.userAgent)) {
   document.documentElement.classList.add('safari')

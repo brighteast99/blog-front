@@ -1,28 +1,34 @@
-import { FC, useLayoutEffect, Suspense, useCallback } from 'react'
-import clsx from 'clsx'
-import { useAppDispatch, useAppSelector } from 'app/hooks'
-import { expand, fold, selectSidebarIsFolded } from './sidebarSlice'
+import { FC, Suspense, useCallback, useLayoutEffect } from 'react'
 import { ErrorBoundary } from 'react-error-boundary'
-import { Avatar } from 'components/Avatar'
-import { Spinner } from 'components/Spinner'
-import { CategoryList } from './CategoryList'
-import { Error } from 'components/Error'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
+
 import {
   TypedDocumentNode,
   gql,
   useLoadableQuery,
   useQuery
 } from '@apollo/client'
-import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { IconButton } from 'components/Buttons/IconButton'
-import { revokeToken, selectIsAuthenticated } from 'features/auth/authSlice'
 import { mdiCog, mdiLogin, mdiLogout, mdiMenu } from '@mdi/js'
-import { Tooltip, TooltipContent, TooltipTrigger } from 'components/Tooltip'
 import { client } from 'ApolloContext'
+import clsx from 'clsx'
+
+import { useAppDispatch, useAppSelector } from 'app/hooks'
+
+import { revokeToken, selectIsAuthenticated } from 'features/auth/authSlice'
+
+import { Avatar } from 'components/Avatar'
+import { IconButton } from 'components/Buttons/IconButton'
+import { Error } from 'components/Error'
 import { PopoverMenu } from 'components/PopoverMenu'
 import { PopoverMenuItem } from 'components/PopoverMenu/PopoverMenuItem'
-import { BlogInfo } from 'types/data'
+import { Spinner } from 'components/Spinner'
 import { SuspendedText } from 'components/SuspendedText'
+import { Tooltip, TooltipContent, TooltipTrigger } from 'components/Tooltip'
+
+import { BlogInfo } from 'types/data'
+
+import { CategoryList } from './CategoryList'
+import { expand, fold, selectSidebarIsFolded } from './sidebarSlice'
 
 export type CategoryHierarchyQueryResult = { categoryHierarchy: string }
 

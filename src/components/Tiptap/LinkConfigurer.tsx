@@ -6,13 +6,14 @@ import {
   useLayoutEffect,
   useState
 } from 'react'
-import clsx from 'clsx'
-import { Placement } from '@floating-ui/react'
 
-import Icon from '@mdi/react'
+import { Placement } from '@floating-ui/react'
 import { mdiOpenInNew } from '@mdi/js'
-import { PopoverMenu } from 'components/PopoverMenu'
+import Icon from '@mdi/react'
+import clsx from 'clsx'
+
 import { ThemedButton } from 'components/Buttons/ThemedButton'
+import { PopoverMenu } from 'components/PopoverMenu'
 
 const urlRegex = /(^|\s)((https?:\/\/)?[\w-]+(\.[\w-]+)+\.?(:\d+)?(\/\S*)?)/
 

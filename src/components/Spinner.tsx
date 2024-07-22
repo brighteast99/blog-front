@@ -1,9 +1,12 @@
 import { FC, HTMLAttributes } from 'react'
-import { sizeLiteral } from '../types/commonProps'
-import { cva } from 'class-variance-authority'
-import { cn } from '../utils/handleClassName'
-import Icon from '@mdi/react'
+
 import { mdiLoading } from '@mdi/js'
+import Icon from '@mdi/react'
+import { cva } from 'class-variance-authority'
+
+import { cn } from '../utils/handleClassName'
+
+import { sizeLiteral } from '../types/commonProps'
 
 export interface SpinnerProps extends HTMLAttributes<HTMLDivElement> {
   /**

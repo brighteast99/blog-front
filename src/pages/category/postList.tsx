@@ -1,11 +1,15 @@
 import { FC, useCallback, useLayoutEffect, useRef, useState } from 'react'
-import { QueryReference, useReadQuery } from '@apollo/client'
 import { Link, useLocation, useSearchParams } from 'react-router-dom'
-import { getRelativeTimeFromNow } from 'utils/dayJS'
-import { Post } from 'types/data'
-import Icon from '@mdi/react'
+
+import { QueryReference, useReadQuery } from '@apollo/client'
 import { mdiLock } from '@mdi/js'
+import Icon from '@mdi/react'
 import clsx from 'clsx'
+
+import { getRelativeTimeFromNow } from 'utils/dayJS'
+
+import { Post } from 'types/data'
+
 import { PostsQueryResult, PostsQueryVariables } from '.'
 
 export const PostItem: FC<{ post: Post; isActive?: boolean }> = ({
@@ -41,7 +45,7 @@ export const PostItem: FC<{ post: Post; isActive?: boolean }> = ({
               return (
                 <div key={ancestor.id} className='contents'>
                   <Link to={`/category/${ancestor.id}`}>{ancestor.name}</Link>
-                  <span className='mx-1 '>/</span>
+                  <span className='mx-1'>/</span>
                 </div>
               )
             })}
@@ -112,7 +116,9 @@ export const PostList: FC<PostListProps> = ({
   })
 
   const {
-    data: { posts: { edges: posts } }
+    data: {
+      posts: { edges: posts }
+    }
   } = useReadQuery(queryRef)
 
   useLayoutEffect(() => {

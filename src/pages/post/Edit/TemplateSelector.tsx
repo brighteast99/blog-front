@@ -1,12 +1,16 @@
+import { FC, ReactNode, useState } from 'react'
+
 import { useLazyQuery, useQuery } from '@apollo/client'
 import { Placement } from '@floating-ui/react'
 import clsx from 'clsx'
+
+import { GET_TEMPLATE, GET_TEMPLATES } from 'pages/manage/Templates'
+
 import { ThemedButton } from 'components/Buttons/ThemedButton'
 import { PopoverMenu } from 'components/PopoverMenu'
 import { Spinner } from 'components/Spinner'
 import { Tiptap } from 'components/Tiptap'
-import { GET_TEMPLATE, GET_TEMPLATES } from 'pages/manage/Templates'
-import { FC, ReactNode, useState } from 'react'
+
 import { Template } from 'types/data'
 
 export interface TemplateSelectorProps {

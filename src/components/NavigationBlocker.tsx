@@ -1,8 +1,12 @@
 import { FC, useCallback, useLayoutEffect, useMemo } from 'react'
 import { useBlocker } from 'react-router-dom'
+
 import clsx from 'clsx'
+
 import { useAppSelector } from 'app/hooks'
+
 import { selectIsAuthenticated } from 'features/auth/authSlice'
+
 import { ThemedButton } from 'components/Buttons/ThemedButton'
 
 interface usePromptProps {

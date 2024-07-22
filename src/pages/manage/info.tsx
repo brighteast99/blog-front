@@ -1,14 +1,18 @@
 import { FC, FormEvent, useCallback, useEffect, useRef, useState } from 'react'
+
 import { TypedDocumentNode, gql, useMutation, useQuery } from '@apollo/client'
-import { BlogInfo as _BlogInfo } from 'types/data'
-import { GET_INFO } from 'features/sidebar/Sidebar'
 import { mdiClose, mdiRefresh } from '@mdi/js'
+
+import { GET_INFO } from 'features/sidebar/Sidebar'
+
 import { Avatar } from 'components/Avatar'
 import { IconButton } from 'components/Buttons/IconButton'
 import { ThemedButton } from 'components/Buttons/ThemedButton'
 import { NavigationBlocker } from 'components/NavigationBlocker'
 import { Spinner } from 'components/Spinner'
 import { Tooltip, TooltipContent, TooltipTrigger } from 'components/Tooltip'
+
+import { BlogInfo as _BlogInfo } from 'types/data'
 
 interface BlogInfo extends Omit<_BlogInfo, 'avatar'> {
   avatar?: File | null
@@ -250,7 +254,7 @@ export const ManageInfoPage: FC = () => {
               imgSrc={
                 avatar === null
                   ? undefined
-                  : avatarPreview ?? data?.blogInfo?.avatar
+                  : (avatarPreview ?? data?.blogInfo?.avatar)
               }
             />
           </div>

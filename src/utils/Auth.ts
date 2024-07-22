@@ -1,6 +1,8 @@
 import { ApolloError, TypedDocumentNode, gql } from '@apollo/client'
 import { client } from 'ApolloContext'
+
 import { STORAGE_KEY } from 'features/auth/authSlice'
+
 import { AuthInfo, TokenPayload } from 'types/auth'
 
 export class AuthFailedError extends Error {}

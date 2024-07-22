@@ -1,4 +1,5 @@
 import { FC, ReactNode, useCallback, useState } from 'react'
+
 import {
   TypedDocumentNode,
   gql,
@@ -6,14 +7,17 @@ import {
   useMutation,
   useQuery
 } from '@apollo/client'
-import clsx from 'clsx'
 import { Placement } from '@floating-ui/react'
-import { getRelativeTimeFromNow } from 'utils/dayJS'
-import { Draft } from 'types/data'
+import clsx from 'clsx'
+
 import { ThemedButton } from 'components/Buttons/ThemedButton'
 import { PopoverMenu } from 'components/PopoverMenu'
 import { Spinner } from 'components/Spinner'
 import { Tiptap } from 'components/Tiptap'
+
+import { getRelativeTimeFromNow } from 'utils/dayJS'
+
+import { Draft } from 'types/data'
 
 export const GET_DRAFTS: TypedDocumentNode<{ drafts: Draft[] }> = gql`
   query GetDrafts {

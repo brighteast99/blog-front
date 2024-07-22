@@ -5,21 +5,28 @@ import {
   useParams,
   useSearchParams
 } from 'react-router-dom'
+
 import { TypedDocumentNode, gql, useMutation, useQuery } from '@apollo/client'
+
 import { useAppSelector } from 'app/hooks'
+
 import { selectIsAuthenticated } from 'features/auth/authSlice'
-import { Category, Template, Draft, Post } from 'types/data'
 import { GET_CATEGORY_HIERARCHY } from 'features/sidebar/Sidebar'
+
 import { GET_POSTS } from 'pages/category'
 import { GET_POST } from 'pages/post'
-import { Tiptap } from 'components/Tiptap'
+
 import { ThemedButton } from 'components/Buttons/ThemedButton'
-import { Spinner } from 'components/Spinner'
-import { Tooltip, TooltipContent, TooltipTrigger } from 'components/Tooltip'
 import { Error } from 'components/Error'
+import { NavigationBlocker } from 'components/NavigationBlocker'
+import { Spinner } from 'components/Spinner'
+import { Tiptap } from 'components/Tiptap'
+import { Tooltip, TooltipContent, TooltipTrigger } from 'components/Tooltip'
+
+import { Category, Draft, Post, Template } from 'types/data'
+
 import { DraftManager, GET_DRAFTS } from './DraftManager'
 import { TemplateSelector } from './TemplateSelector'
-import { NavigationBlocker } from 'components/NavigationBlocker'
 
 const GET_POSTABLE_CATEGORIES: TypedDocumentNode<{ categories: Category[] }> =
   gql`

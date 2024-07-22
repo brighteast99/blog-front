@@ -1,9 +1,11 @@
 import { FC, FormEvent, ReactNode, useLayoutEffect, useState } from 'react'
-import { Placement } from '@floating-ui/react'
-import languages from './options'
 
-import { PopoverMenu } from 'components/PopoverMenu'
+import { Placement } from '@floating-ui/react'
+
 import { ThemedButton } from 'components/Buttons/ThemedButton'
+import { PopoverMenu } from 'components/PopoverMenu'
+
+import languages from './options'
 
 export interface CodeBlockConfigurerProps {
   className?: string

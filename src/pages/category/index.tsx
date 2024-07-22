@@ -1,24 +1,30 @@
 import { FC, Suspense, useEffect, useLayoutEffect } from 'react'
+import { ErrorBoundary } from 'react-error-boundary'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
+
 import {
   TypedDocumentNode,
   gql,
   useLoadableQuery,
   useQuery
 } from '@apollo/client'
-import clsx from 'clsx'
-import { useAppSelector } from 'app/hooks'
-import { selectIsAuthenticated } from 'features/auth/authSlice'
-import { Category, Post } from 'types/data'
-import { Action, Error } from 'components/Error'
-import Icon from '@mdi/react'
 import { mdiLock, mdiMagnify, mdiPlus } from '@mdi/js'
-import { PostList } from './postList'
+import Icon from '@mdi/react'
+import clsx from 'clsx'
+
+import { useAppSelector } from 'app/hooks'
+
+import { selectIsAuthenticated } from 'features/auth/authSlice'
+
+import { IconButton } from 'components/Buttons/IconButton'
+import { Action, Error } from 'components/Error'
 import { Spinner } from 'components/Spinner'
 import { SuspendedText } from 'components/SuspendedText'
-import { ErrorBoundary } from 'react-error-boundary'
-import { IconButton } from 'components/Buttons/IconButton'
 import { Tooltip, TooltipContent, TooltipTrigger } from 'components/Tooltip'
+
+import { Category, Post } from 'types/data'
+
+import { PostList } from './postList'
 
 export type PostsQueryResult = {
   posts: {

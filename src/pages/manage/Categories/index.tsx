@@ -1,4 +1,6 @@
 import { FC, Suspense, useCallback, useLayoutEffect } from 'react'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+
 import {
   TypedDocumentNode,
   gql,
@@ -6,15 +8,19 @@ import {
   useMutation,
   useQuery
 } from '@apollo/client'
-import clsx from 'clsx'
-import { Link, useNavigate, useSearchParams } from 'react-router-dom'
-import { Category } from 'types/data'
-import { GET_CATEGORY_HIERARCHY } from 'features/sidebar/Sidebar'
-import { GET_CATEGORY } from 'pages/category'
-import Icon from '@mdi/react'
 import { mdiLoading, mdiLock, mdiMinus, mdiPlus } from '@mdi/js'
+import Icon from '@mdi/react'
+import clsx from 'clsx'
+
+import { GET_CATEGORY_HIERARCHY } from 'features/sidebar/Sidebar'
+
+import { GET_CATEGORY } from 'pages/category'
+
 import { IconButton } from 'components/Buttons/IconButton'
 import { Spinner } from 'components/Spinner'
+
+import { Category } from 'types/data'
+
 import { CategoryForm, CategoryInput } from './categoryForm'
 
 export const CREATE_CATEGORY: TypedDocumentNode<

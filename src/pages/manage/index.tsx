@@ -1,8 +1,11 @@
 import { FC, useEffect } from 'react'
-import { selectIsAuthenticated } from 'features/auth/authSlice'
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
-import { useAppSelector } from 'app/hooks'
+
 import clsx from 'clsx'
+
+import { useAppSelector } from 'app/hooks'
+
+import { selectIsAuthenticated } from 'features/auth/authSlice'
 
 export const ManagePage: FC = () => {
   const navigate = useNavigate()

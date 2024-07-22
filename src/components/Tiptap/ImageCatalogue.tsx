@@ -6,13 +6,15 @@ import {
   useRef,
   useState
 } from 'react'
-import { useCurrentEditor } from '@tiptap/react'
-import { IconButton } from 'components/Buttons/IconButton'
-import { mdiClose, mdiPlus } from '@mdi/js'
+
 import { TypedDocumentNode, gql, useMutation } from '@apollo/client'
-import { Spinner } from 'components/Spinner'
-import { ThemedButton } from 'components/Buttons/ThemedButton'
+import { mdiClose, mdiPlus } from '@mdi/js'
+import { useCurrentEditor } from '@tiptap/react'
 import clsx from 'clsx'
+
+import { IconButton } from 'components/Buttons/IconButton'
+import { ThemedButton } from 'components/Buttons/ThemedButton'
+import { Spinner } from 'components/Spinner'
 
 const UPLOAD_IMAGE: TypedDocumentNode<
   { uploadImage: { url: string } },

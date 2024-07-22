@@ -1,5 +1,7 @@
 import { FC, Suspense, useCallback, useEffect } from 'react'
+import { ErrorBoundary } from 'react-error-boundary'
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
+
 import {
   TypedDocumentNode,
   gql,
@@ -7,22 +9,27 @@ import {
   useMutation,
   useQuery
 } from '@apollo/client'
-import { Post } from 'types/data'
-import { Action, Error } from 'components/Error'
-import { getRelativeTimeFromNow } from 'utils/dayJS'
+import { mdiDelete, mdiLoading, mdiLock, mdiPencil } from '@mdi/js'
+import Icon from '@mdi/react'
+
 import { useAppSelector } from 'app/hooks'
+
 import { selectIsAuthenticated } from 'features/auth/authSlice'
 import { GET_CATEGORY_HIERARCHY } from 'features/sidebar/Sidebar'
+
 import { GET_POSTS } from 'pages/category'
-import Icon from '@mdi/react'
-import { mdiDelete, mdiLoading, mdiLock, mdiPencil } from '@mdi/js'
-import { Tiptap } from 'components/Tiptap'
+import { PostList } from 'pages/category/postList'
+
+import { Action, Error } from 'components/Error'
 import { PopoverMenu } from 'components/PopoverMenu'
-import { ErrorBoundary } from 'react-error-boundary'
 import { PopoverMenuItem } from 'components/PopoverMenu/PopoverMenuItem'
 import { Spinner } from 'components/Spinner'
 import { SuspendedText } from 'components/SuspendedText'
-import { PostList } from 'pages/category/postList'
+import { Tiptap } from 'components/Tiptap'
+
+import { getRelativeTimeFromNow } from 'utils/dayJS'
+
+import { Post } from 'types/data'
 
 export const GET_POST: TypedDocumentNode<{ post: Post }, { id?: string }> = gql`
   query PostData($id: ID!) {

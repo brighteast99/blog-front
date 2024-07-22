@@ -1,11 +1,12 @@
 import { FC } from 'react'
-import clsx from 'clsx'
-import { Placement } from '@floating-ui/react'
-import { IconProps } from '@mdi/react/dist/IconProps'
 
-import Icon from '@mdi/react'
-import { Tooltip, TooltipContent, TooltipTrigger } from 'components/Tooltip'
+import { Placement } from '@floating-ui/react'
 import { mdiLoading } from '@mdi/js'
+import Icon from '@mdi/react'
+import { IconProps } from '@mdi/react/dist/IconProps'
+import clsx from 'clsx'
+
+import { Tooltip, TooltipContent, TooltipTrigger } from 'components/Tooltip'
 
 export interface PopoverMenuItemProps {
   icon: string
@@ -57,7 +58,7 @@ export const PopoverMenuItem: FC<PopoverMenuItemProps> = ({
                   title && (iconOnRight ? 'ml-2' : 'mr-2')
                 )}
                 {...iconProps}
-                path={loading ? mdiLoading : iconProps?.path ?? icon}
+                path={loading ? mdiLoading : (iconProps?.path ?? icon)}
                 size={iconProps?.size ?? 0.75}
                 spin={iconProps?.spin ?? loading}
               />

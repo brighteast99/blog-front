@@ -1,8 +1,11 @@
 import { FC, HTMLAttributes } from 'react'
-import { cn } from '../utils/handleClassName'
-import { PositiveInteger } from 'types/commonTypes'
-import { alignLiteral } from 'types/commonProps'
+
 import { cva } from 'class-variance-authority'
+
+import { cn } from '../utils/handleClassName'
+
+import { alignLiteral } from 'types/commonProps'
+import { PositiveInteger } from 'types/commonTypes'
 
 export interface SuspendedTextProps extends HTMLAttributes<HTMLDivElement> {
   /**

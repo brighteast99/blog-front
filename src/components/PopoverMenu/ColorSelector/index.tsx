@@ -10,17 +10,18 @@ import {
   useCallback,
   useState
 } from 'react'
+
+import { Placement } from '@floating-ui/react'
+import { mdiWaterOff } from '@mdi/js'
+import Icon from '@mdi/react'
 import clsx from 'clsx'
 import { twMerge } from 'tailwind-merge'
-import Palette from './palette'
 
-import Icon from '@mdi/react'
-import { mdiWaterOff } from '@mdi/js'
-import { PopoverMenu } from 'components/PopoverMenu'
 import { ThemedButton } from 'components/Buttons/ThemedButton'
+import { PopoverMenu } from 'components/PopoverMenu'
 
 import styles from './ColorSelector.module.scss'
-import { Placement } from '@floating-ui/react'
+import Palette from './palette'
 
 const ColorPreview: FC<
   DetailedHTMLProps<HTMLAttributes<HTMLButtonElement>, HTMLButtonElement> & {

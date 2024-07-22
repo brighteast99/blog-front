@@ -1,21 +1,22 @@
 import * as React from 'react'
+
 import {
-  useFloating,
-  autoUpdate,
-  offset,
-  flip,
-  shift,
-  useHover,
-  useFocus,
-  useDismiss,
-  useRole,
-  useInteractions,
   FloatingPortal,
+  Placement,
+  autoUpdate,
+  flip,
+  offset,
+  shift,
   useDelayGroup,
   useDelayGroupContext,
+  useDismiss,
+  useFloating,
+  useFocus,
+  useHover,
+  useInteractions,
   useMergeRefs,
-  useTransitionStyles,
-  Placement
+  useRole,
+  useTransitionStyles
 } from '@floating-ui/react'
 import clsx from 'clsx'
 

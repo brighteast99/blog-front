@@ -1,4 +1,5 @@
 import { FC, FormEvent, useCallback, useEffect, useRef, useState } from 'react'
+
 import {
   QueryReference,
   TypedDocumentNode,
@@ -7,15 +8,19 @@ import {
   useQuery,
   useReadQuery
 } from '@apollo/client'
-import { Category } from 'types/data'
-import { GET_CATEGORY_HIERARCHY } from 'features/sidebar/Sidebar'
-import { GET_CATEGORY } from 'pages/category'
 import { mdiClose, mdiRefresh } from '@mdi/js'
+
+import { GET_CATEGORY_HIERARCHY } from 'features/sidebar/Sidebar'
+
+import { GET_CATEGORY } from 'pages/category'
+
 import { IconButton } from 'components/Buttons/IconButton'
 import { ThemedButton } from 'components/Buttons/ThemedButton'
 import { NavigationBlocker } from 'components/NavigationBlocker'
 import { Spinner } from 'components/Spinner'
 import { Tooltip, TooltipContent, TooltipTrigger } from 'components/Tooltip'
+
+import { Category } from 'types/data'
 
 export interface CategoryInput {
   coverImage?: File | null
