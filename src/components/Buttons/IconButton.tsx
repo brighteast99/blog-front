@@ -1,4 +1,4 @@
-import { HTMLProps, StyleHTMLAttributes, forwardRef } from 'react'
+import { HTMLProps, forwardRef } from 'react'
 import clsx from 'clsx'
 import { NamedColors } from 'types/commonProps'
 import { IconProps } from '@mdi/react/dist/IconProps'
