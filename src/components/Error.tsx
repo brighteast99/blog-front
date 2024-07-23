@@ -1,10 +1,9 @@
 import { FC } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-
 import { mdiAlertOutline } from '@mdi/js'
 import Icon from '@mdi/react'
 
-import { ErrorProps } from 'types/error'
+import type { ErrorProps } from 'types/error'
 
 export interface Action {
   label: string

@@ -1,23 +1,19 @@
 import { FC, MouseEvent, useCallback, useEffect } from 'react'
-
 import {
+  gql,
   QueryRef,
   TypedDocumentNode,
-  gql,
   useMutation,
   useReadQuery
 } from '@apollo/client'
-
 import { usePostInput } from 'pages/post/Edit'
-
 import { ThemedButton } from 'components/Buttons/ThemedButton'
 import { NavigationBlocker } from 'components/NavigationBlocker'
 import { Spinner } from 'components/Spinner'
 import { Tiptap } from 'components/Tiptap'
-
-import { Template } from 'types/data'
-
 import { GET_TEMPLATE, GET_TEMPLATES, TemplateInput } from '.'
+
+import type { Template } from 'types/data'
 
 export const UPDATE_TEMPLATE: TypedDocumentNode<
   { updateTemplate: { success: boolean } },

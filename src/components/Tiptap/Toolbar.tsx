@@ -1,6 +1,7 @@
 import { FC } from 'react'
-
 import { FloatingDelayGroup } from '@floating-ui/react'
+import { useCurrentEditor } from '@tiptap/react'
+import { cn } from 'utils/handleClassName'
 import {
   mdiCodeBraces,
   mdiFormatAlignCenter,
@@ -22,16 +23,11 @@ import {
   mdiLinkVariant
 } from '@mdi/js'
 import Icon from '@mdi/react'
-import { useCurrentEditor } from '@tiptap/react'
-
 import { IconButton } from 'components/Buttons/IconButton'
 import { ThemedButton } from 'components/Buttons/ThemedButton'
 import { PopoverMenu } from 'components/PopoverMenu'
 import { ColorSelector } from 'components/PopoverMenu/ColorSelector'
 import { Tooltip, TooltipContent, TooltipTrigger } from 'components/Tooltip'
-
-import { cn } from 'utils/handleClassName'
-
 import { CodeBlockConfigurer } from './CodeBlockConfigurer'
 import { LinkConfigurer } from './LinkConfigurer'
 

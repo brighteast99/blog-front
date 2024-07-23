@@ -1,25 +1,21 @@
 import { FC, Suspense, useCallback, useEffect } from 'react'
 import { ErrorBoundary } from 'react-error-boundary'
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
-
 import {
-  TypedDocumentNode,
   gql,
+  TypedDocumentNode,
   useLoadableQuery,
   useMutation,
   useQuery
 } from '@apollo/client'
-import { mdiDelete, mdiLoading, mdiLock, mdiPencil } from '@mdi/js'
-import Icon from '@mdi/react'
-
 import { useAppSelector } from 'app/hooks'
-
+import { getRelativeTimeFromNow } from 'utils/dayJS'
 import { selectIsAuthenticated } from 'features/auth/authSlice'
 import { GET_CATEGORY_HIERARCHY } from 'features/sidebar/Sidebar'
-
 import { GET_POSTS } from 'pages/category'
 import { PostList } from 'pages/category/postList'
-
+import { mdiDelete, mdiLoading, mdiLock, mdiPencil } from '@mdi/js'
+import Icon from '@mdi/react'
 import { Action, Error } from 'components/Error'
 import { PopoverMenu } from 'components/PopoverMenu'
 import { PopoverMenuItem } from 'components/PopoverMenu/PopoverMenuItem'
@@ -27,9 +23,7 @@ import { Spinner } from 'components/Spinner'
 import { SuspendedText } from 'components/SuspendedText'
 import { Tiptap } from 'components/Tiptap'
 
-import { getRelativeTimeFromNow } from 'utils/dayJS'
-
-import { Post } from 'types/data'
+import type { Post } from 'types/data'
 
 export const GET_POST: TypedDocumentNode<{ post: Post }, { id?: string }> = gql`
   query PostData($id: ID!) {
@@ -139,7 +133,7 @@ export const PostPage: FC = () => {
           href: { to: '/category/all' }
         }
       ]
-      if (errorToShow.extensions.code === 403)
+      if (errorToShow.extensions?.code === 403)
         actions.unshift({
           label: '로그인',
           href: {
@@ -150,7 +144,7 @@ export const PostPage: FC = () => {
 
       return (
         <Error
-          code={errorToShow.extensions.code as number | undefined}
+          code={errorToShow.extensions?.code as number | undefined}
           message={errorToShow.message}
           actions={actions}
         />

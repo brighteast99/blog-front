@@ -6,12 +6,10 @@ import {
   useRef,
   useState
 } from 'react'
-
-import { TypedDocumentNode, gql, useMutation } from '@apollo/client'
-import { mdiClose, mdiPlus } from '@mdi/js'
+import { gql, TypedDocumentNode, useMutation } from '@apollo/client'
 import { useCurrentEditor } from '@tiptap/react'
 import clsx from 'clsx'
-
+import { mdiClose, mdiPlus } from '@mdi/js'
 import { IconButton } from 'components/Buttons/IconButton'
 import { ThemedButton } from 'components/Buttons/ThemedButton'
 import { Spinner } from 'components/Spinner'

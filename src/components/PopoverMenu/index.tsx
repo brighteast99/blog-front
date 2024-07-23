@@ -1,28 +1,25 @@
-import React, {
+import {
   FC,
   ReactNode,
   StyleHTMLAttributes,
   useLayoutEffect,
   useState
 } from 'react'
-
 import {
-  FloatingDelayGroup,
-  Placement,
   autoUpdate,
   flip,
+  FloatingDelayGroup,
   offset,
+  Placement,
   useClick,
   useDismiss,
   useFloating,
   useInteractions
 } from '@floating-ui/react'
-import { mdiDotsVertical } from '@mdi/js'
 import clsx from 'clsx'
-
+import { mdiDotsVertical } from '@mdi/js'
 import { IconButton } from 'components/Buttons/IconButton'
 import { Tooltip, TooltipContent, TooltipTrigger } from 'components/Tooltip'
-
 import { PopoverMenuItem } from './PopoverMenuItem'
 
 export interface PopoverMenuProps {

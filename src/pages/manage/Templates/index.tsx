@@ -1,19 +1,20 @@
 import { FC, Suspense, useCallback, useLayoutEffect } from 'react'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import {
-  TypedDocumentNode,
   gql,
+  TypedDocumentNode,
   useLoadableQuery,
   useMutation,
   useQuery
 } from '@apollo/client'
 import clsx from 'clsx'
-import { Link, useNavigate, useSearchParams } from 'react-router-dom'
-import { Template, BlogInfo as _BlogInfo } from 'types/data'
-import Icon from '@mdi/react'
 import { mdiPlus } from '@mdi/js'
-import { Spinner } from 'components/Spinner'
+import Icon from '@mdi/react'
 import { ThemedButton } from 'components/Buttons/ThemedButton'
+import { Spinner } from 'components/Spinner'
 import { TemplateForm } from './templateForm'
+
+import type { BlogInfo as _BlogInfo, Template } from 'types/data'
 
 export interface TemplateInput extends Omit<Template, 'id'> {}
 

@@ -4,23 +4,24 @@
   "jsxSingleQuote": true,
   "trailingComma": "none",
   "plugins": [
-    "@trivago/prettier-plugin-sort-imports",
+    "@ianvs/prettier-plugin-sort-imports",
     "prettier-plugin-tailwindcss"
   ],
   "importOrder": [
+    "<BUILTIN_MODULES>",
     "^react",
     "<THIRD_PARTY_MODULES>",
-
     "app/*",
+    "utils/*",
     "features/*",
     "pages/*",
+    "@mdi/*",
     "components/*",
-    "utils/*",
-    "types/*",
-
-    "^[./]"
+    "^[./]",
+    "",
+    "<TYPES>",
+    "<TYPES>^[.]"
   ],
-  "importOrderSeparation": true,
-  "importOrderSortSpecifiers": true,
+  "importOrderTypeScriptVersion": "5.3.3",
   "tailwindConfig": "./tailwind.config.js"
 }

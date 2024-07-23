@@ -1,10 +1,7 @@
 import { FC, FormEvent, useCallback, useEffect, useRef, useState } from 'react'
-
-import { TypedDocumentNode, gql, useMutation, useQuery } from '@apollo/client'
-import { mdiClose, mdiRefresh } from '@mdi/js'
-
+import { gql, TypedDocumentNode, useMutation, useQuery } from '@apollo/client'
 import { GET_INFO } from 'features/sidebar/Sidebar'
-
+import { mdiClose, mdiRefresh } from '@mdi/js'
 import { Avatar } from 'components/Avatar'
 import { IconButton } from 'components/Buttons/IconButton'
 import { ThemedButton } from 'components/Buttons/ThemedButton'
@@ -12,7 +9,7 @@ import { NavigationBlocker } from 'components/NavigationBlocker'
 import { Spinner } from 'components/Spinner'
 import { Tooltip, TooltipContent, TooltipTrigger } from 'components/Tooltip'
 
-import { BlogInfo as _BlogInfo } from 'types/data'
+import type { BlogInfo as _BlogInfo } from 'types/data'
 
 interface BlogInfo extends Omit<_BlogInfo, 'avatar'> {
   avatar?: File | null

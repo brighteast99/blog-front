@@ -10,16 +10,13 @@ import {
   useCallback,
   useState
 } from 'react'
-
 import { Placement } from '@floating-ui/react'
-import { mdiWaterOff } from '@mdi/js'
-import Icon from '@mdi/react'
 import clsx from 'clsx'
 import { twMerge } from 'tailwind-merge'
-
+import { mdiWaterOff } from '@mdi/js'
+import Icon from '@mdi/react'
 import { ThemedButton } from 'components/Buttons/ThemedButton'
 import { PopoverMenu } from 'components/PopoverMenu'
-
 import styles from './ColorSelector.module.scss'
 import Palette from './palette'
 

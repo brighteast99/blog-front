@@ -11,11 +11,12 @@
 }
 
 @layer components {
-  select, input {
-    @apply bg-transparent border-b border-neutral-400;
+  select,
+  input {
+    @apply border-b border-neutral-400 bg-transparent;
 
     &:not(:disabled) {
-      @apply hover:border-neutral-600 focus:border-primary focus:outline-none transition-colors;
+      @apply transition-colors hover:border-neutral-600 focus:border-primary focus:outline-none;
     }
   }
   select {
@@ -26,7 +27,7 @@
     @apply rounded border border-neutral-400 bg-neutral-100;
 
     &:not(:disabled) {
-      @apply hover:border-neutral-600 focus:border-primary focus:outline-none transition-colors;
+      @apply transition-colors hover:border-neutral-600 focus:border-primary focus:outline-none;
     }
   }
 }

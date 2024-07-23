@@ -1,14 +1,12 @@
 import { FC } from 'react'
 import { Link } from 'react-router-dom'
-
 import { QueryRef, useReadQuery } from '@apollo/client'
+import clsx from 'clsx'
 import { mdiLock } from '@mdi/js'
 import Icon from '@mdi/react'
-import clsx from 'clsx'
-
-import { Category } from 'types/data'
-
 import { CategoryHierarchyQueryResult } from './Sidebar'
+
+import type { Category } from 'types/data'
 
 export const CategoryItem: FC<{ category: Category }> = ({ category }) => {
   const hasId = category.id !== undefined

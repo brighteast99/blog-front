@@ -1,7 +1,7 @@
 import { configureStore } from '@reduxjs/toolkit'
-import windowReducer from 'features/window/windowSlice'
-import sidebarReducer from 'features/sidebar/sidebarSlice'
 import authReducer from 'features/auth/authSlice'
+import sidebarReducer from 'features/sidebar/sidebarSlice'
+import windowReducer from 'features/window/windowSlice'
 
 export const store = configureStore({
   reducer: {

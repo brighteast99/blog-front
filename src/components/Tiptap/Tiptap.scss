@@ -90,15 +90,15 @@
       }
 
       blockquote {
-        @apply ml-2 border-l-4 border-primary pl-4 py-2 bg-neutral-50 bg-opacity-40;
+        @apply ml-2 border-l-4 border-primary bg-neutral-50 bg-opacity-40 py-2 pl-4;
       }
 
       pre {
-        @apply bg-neutral-50 px-4 py-3 text-white overflow-x-auto;
+        @apply overflow-x-auto bg-neutral-50 px-4 py-3 text-white;
         font-family: 'JetBrainsMono', monospace;
 
         code {
-          @apply bg-none p-0 text-sm text-inherit w-max block;
+          @apply block w-max bg-none p-0 text-sm text-inherit;
         }
 
         .hljs-comment,

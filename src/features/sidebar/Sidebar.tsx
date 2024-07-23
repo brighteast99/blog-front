@@ -1,21 +1,17 @@
 import { FC, Suspense, useCallback, useLayoutEffect } from 'react'
 import { ErrorBoundary } from 'react-error-boundary'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-
 import {
-  TypedDocumentNode,
   gql,
+  TypedDocumentNode,
   useLoadableQuery,
   useQuery
 } from '@apollo/client'
-import { mdiCog, mdiLogin, mdiLogout, mdiMenu } from '@mdi/js'
 import { client } from 'ApolloContext'
 import clsx from 'clsx'
-
 import { useAppDispatch, useAppSelector } from 'app/hooks'
-
 import { revokeToken, selectIsAuthenticated } from 'features/auth/authSlice'
-
+import { mdiCog, mdiLogin, mdiLogout, mdiMenu } from '@mdi/js'
 import { Avatar } from 'components/Avatar'
 import { IconButton } from 'components/Buttons/IconButton'
 import { Error } from 'components/Error'
@@ -24,11 +20,10 @@ import { PopoverMenuItem } from 'components/PopoverMenu/PopoverMenuItem'
 import { Spinner } from 'components/Spinner'
 import { SuspendedText } from 'components/SuspendedText'
 import { Tooltip, TooltipContent, TooltipTrigger } from 'components/Tooltip'
-
-import { BlogInfo } from 'types/data'
-
 import { CategoryList } from './CategoryList'
 import { expand, fold, selectSidebarIsFolded } from './sidebarSlice'
+
+import type { BlogInfo } from 'types/data'
 
 export type CategoryHierarchyQueryResult = { categoryHierarchy: string }
 

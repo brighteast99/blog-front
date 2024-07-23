@@ -1,16 +1,12 @@
 import { PropsWithChildren } from 'react'
-
 import {
   ApolloClient,
   ApolloLink,
   ApolloProvider,
   InMemoryCache
 } from '@apollo/client'
-import 'apollo-upload-client/createUploadLink.mjs'
 import createUploadLink from 'apollo-upload-client/createUploadLink.mjs'
-
 import { store } from 'app/store'
-
 import { isFuture } from 'utils/dayJS'
 
 const uploadLink = createUploadLink({

@@ -1,12 +1,10 @@
-import { HTMLProps, forwardRef } from 'react'
-
+import { forwardRef, HTMLProps } from 'react'
+import clsx from 'clsx'
 import Icon from '@mdi/react'
 import { IconProps } from '@mdi/react/dist/IconProps'
-import clsx from 'clsx'
-
 import { ThemedButton } from 'components/Buttons/ThemedButton'
 
-import { NamedColors } from 'types/commonProps'
+import type { NamedColors } from 'types/commonProps'
 
 export interface IconButtonProps {
   type?: 'submit' | 'button'

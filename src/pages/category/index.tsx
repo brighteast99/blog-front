@@ -1,30 +1,26 @@
 import { FC, Suspense, useEffect, useLayoutEffect } from 'react'
 import { ErrorBoundary } from 'react-error-boundary'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
-
 import {
-  TypedDocumentNode,
   gql,
+  TypedDocumentNode,
   useLoadableQuery,
   useQuery
 } from '@apollo/client'
+import clsx from 'clsx'
+import { GraphQLFormattedError } from 'graphql'
+import { useAppSelector } from 'app/hooks'
+import { selectIsAuthenticated } from 'features/auth/authSlice'
 import { mdiLock, mdiMagnify, mdiPlus } from '@mdi/js'
 import Icon from '@mdi/react'
-import clsx from 'clsx'
-
-import { useAppSelector } from 'app/hooks'
-
-import { selectIsAuthenticated } from 'features/auth/authSlice'
-
 import { IconButton } from 'components/Buttons/IconButton'
 import { Action, Error } from 'components/Error'
 import { Spinner } from 'components/Spinner'
 import { SuspendedText } from 'components/SuspendedText'
 import { Tooltip, TooltipContent, TooltipTrigger } from 'components/Tooltip'
-
-import { Category, Post } from 'types/data'
-
 import { PostList } from './postList'
+
+import type { Category, Post } from 'types/data'
 
 export type PostsQueryResult = {
   posts: {
@@ -138,14 +134,14 @@ export const CategoryPage: FC = () => {
       )
 
     if (error.graphQLErrors.length) {
-      const errorToShow = error.graphQLErrors[0]
+      const errorToShow = error.graphQLErrors[0] as GraphQLFormattedError
       let actions: Action[] = [
         {
           label: '전체 게시글 보기',
           href: { to: '/category/all' }
         }
       ]
-      if (errorToShow.extensions.code === 403)
+      if (errorToShow.extensions?.code === 403)
         actions.unshift({
           label: '로그인',
           href: {
@@ -156,7 +152,7 @@ export const CategoryPage: FC = () => {
 
       return (
         <Error
-          code={errorToShow.extensions.code as number | undefined}
+          code={errorToShow.extensions?.code as number | undefined}
           message={errorToShow.message}
           actions={actions}
         />

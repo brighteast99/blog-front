@@ -1,16 +1,13 @@
 import { FC, useCallback, useLayoutEffect, useRef, useState } from 'react'
 import { Link, useLocation, useSearchParams } from 'react-router-dom'
-
 import { QueryRef, useReadQuery } from '@apollo/client'
+import clsx from 'clsx'
+import { getRelativeTimeFromNow } from 'utils/dayJS'
 import { mdiLock } from '@mdi/js'
 import Icon from '@mdi/react'
-import clsx from 'clsx'
-
-import { getRelativeTimeFromNow } from 'utils/dayJS'
-
-import { Post } from 'types/data'
-
 import { PostsQueryResult, PostsQueryVariables } from '.'
+
+import type { Post } from 'types/data'
 
 export const PostItem: FC<{ post: Post; isActive?: boolean }> = ({
   post,

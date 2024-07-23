@@ -7,21 +7,17 @@ import {
   useState
 } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-
 import { useAppDispatch, useAppSelector } from 'app/hooks'
-
+import { auth, AuthFailedError, NetworkError } from 'utils/Auth'
 import {
-  STORAGE_KEY,
   selectIsAuthenticated,
-  setToken
+  setToken,
+  STORAGE_KEY
 } from 'features/auth/authSlice'
-
 import { ThemedButton } from 'components/Buttons/ThemedButton'
 import { Spinner } from 'components/Spinner'
 
-import { AuthFailedError, NetworkError, auth } from 'utils/Auth'
-
-import { UserInfo } from 'types/auth'
+import type { UserInfo } from 'types/auth'
 
 export const useUserInfo = (initialValue: UserInfo) => {
   const [info, setInfo] = useState<UserInfo>(initialValue)

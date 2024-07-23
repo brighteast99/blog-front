@@ -1,11 +1,9 @@
 import { FC } from 'react'
-
 import { Placement } from '@floating-ui/react'
+import clsx from 'clsx'
 import { mdiLoading } from '@mdi/js'
 import Icon from '@mdi/react'
 import { IconProps } from '@mdi/react/dist/IconProps'
-import clsx from 'clsx'
-
 import { Tooltip, TooltipContent, TooltipTrigger } from 'components/Tooltip'
 
 export interface PopoverMenuItemProps {

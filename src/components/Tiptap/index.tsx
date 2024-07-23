@@ -1,5 +1,4 @@
 import { FC, useEffect, useLayoutEffect, useState } from 'react'
-
 import { Color } from '@tiptap/extension-color'
 import { Highlight } from '@tiptap/extension-highlight'
 import { Link } from '@tiptap/extension-link'
@@ -18,14 +17,13 @@ import nginx from 'highlight.js/lib/languages/nginx'
 import pgsql from 'highlight.js/lib/languages/pgsql'
 import { common, createLowlight } from 'lowlight'
 import ImageResize from 'tiptap-extension-resize-image'
-
 import { cn } from 'utils/handleClassName'
-
-import { ImageCatalogue } from './ImageCatalogue'
-import './Tiptap.scss'
-import { Toolbar } from './Toolbar'
 import { FontSize } from './extensions/fontSize'
+import { ImageCatalogue } from './ImageCatalogue'
 import { BetterCodeBlock } from './nodes/BetterCodeblock'
+import { Toolbar } from './Toolbar'
+
+import './Tiptap.scss'
 
 export interface EditorProps {
   className?: string

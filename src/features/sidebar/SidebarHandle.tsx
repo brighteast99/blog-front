@@ -1,11 +1,7 @@
 import { FC } from 'react'
-
 import clsx from 'clsx'
-
 import { useAppDispatch, useAppSelector } from 'app/hooks'
-
 import { cn } from 'utils/handleClassName'
-
 import { selectSidebarIsFolded, toggle } from './sidebarSlice'
 
 export const SidebarHandle: FC<{ className?: string }> = ({ className }) => {

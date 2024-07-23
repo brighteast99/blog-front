@@ -6,12 +6,10 @@ import {
   useLayoutEffect,
   useState
 } from 'react'
-
 import { Placement } from '@floating-ui/react'
+import clsx from 'clsx'
 import { mdiOpenInNew } from '@mdi/js'
 import Icon from '@mdi/react'
-import clsx from 'clsx'
-
 import { ThemedButton } from 'components/Buttons/ThemedButton'
 import { PopoverMenu } from 'components/PopoverMenu'
 
