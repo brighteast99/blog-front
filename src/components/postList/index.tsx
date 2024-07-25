@@ -1,33 +1,21 @@
-import { FC, useCallback, useLayoutEffect, useRef, useState } from 'react'
-import { Link, useLocation, useSearchParams } from 'react-router-dom'
-import { QueryRef, useReadQuery } from '@apollo/client'
+import { FC, useLayoutEffect, useRef, useState } from 'react'
 import clsx from 'clsx'
+import { Link, useLocation, useSearchParams } from 'react-router-dom'
+
+import { QueryRef, useReadQuery } from '@apollo/client'
+
 import { getRelativeTimeFromNow } from 'utils/dayJS'
-import { mdiLock } from '@mdi/js'
+
 import Icon from '@mdi/react'
-import { PostsQueryResult, PostsQueryVariables } from '.'
+import { mdiLock } from '@mdi/js'
 
 import type { Post } from 'types/data'
+import type { PostsQueryResult, PostsQueryVariables } from './api'
 
 export const PostItem: FC<{ post: Post; isActive?: boolean }> = ({
   post,
   isActive
 }) => {
-  const extractText = useCallback((content: string) => {
-    const parser = new DOMParser()
-    const doc = parser.parseFromString(content, 'text/html')
-
-    const walker = document.createTreeWalker(doc.body, NodeFilter.SHOW_TEXT)
-
-    let texts = []
-    let node
-    while ((node = walker.nextNode())) {
-      texts.push(node.textContent)
-    }
-
-    return texts.join(' ').trim()
-  }, [])
-
   return (
     <li
       className={clsx(
@@ -72,7 +60,7 @@ export const PostItem: FC<{ post: Post; isActive?: boolean }> = ({
         </p>
 
         <p className='line-clamp-4 font-thin text-neutral-800'>
-          {extractText(post.content)}
+          {post.textContent}
         </p>
       </div>
 

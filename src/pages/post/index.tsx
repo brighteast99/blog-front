@@ -1,82 +1,54 @@
-import { FC, Suspense, useCallback, useEffect } from 'react'
+import { Suspense, useCallback, useEffect, useMemo } from 'react'
 import { ErrorBoundary } from 'react-error-boundary'
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
-import {
-  gql,
-  TypedDocumentNode,
-  useLoadableQuery,
-  useMutation,
-  useQuery
-} from '@apollo/client'
+
+import { useLoadableQuery, useMutation, useQuery } from '@apollo/client'
+import { DELETE_POST, GET_POST } from './api'
+import { GET_POSTS } from 'components/postList/api'
+
 import { useAppSelector } from 'app/hooks'
 import { getRelativeTimeFromNow } from 'utils/dayJS'
 import { selectIsAuthenticated } from 'features/auth/authSlice'
 import { GET_CATEGORY_HIERARCHY } from 'features/sidebar/Sidebar'
-import { GET_POSTS } from 'pages/category'
-import { PostList } from 'pages/category/postList'
-import { mdiDelete, mdiLoading, mdiLock, mdiPencil } from '@mdi/js'
+
 import Icon from '@mdi/react'
-import { Action, Error } from 'components/Error'
+import { mdiDelete, mdiLoading, mdiLock, mdiPencil } from '@mdi/js'
+import { Error } from 'components/Error'
 import { PopoverMenu } from 'components/PopoverMenu'
 import { PopoverMenuItem } from 'components/PopoverMenu/PopoverMenuItem'
+import { PostList } from 'components/postList'
 import { Spinner } from 'components/Spinner'
 import { SuspendedText } from 'components/SuspendedText'
 import { Tiptap } from 'components/Tiptap'
 
-import type { Post } from 'types/data'
-
-export const GET_POST: TypedDocumentNode<{ post: Post }, { id?: string }> = gql`
-  query PostData($id: ID!) {
-    post(id: $id) {
-      id
-      title
-      category {
-        id
-        name
-        isHidden
-        ancestors {
-          id
-          name
-        }
-      }
-      isHidden
-      thumbnail
-      images
-      createdAt
-      content
-    }
-  }
-`
-
-const DELETE_POST: TypedDocumentNode<
-  {
-    deletePost: { success: boolean }
-  },
-  { id: string }
-> = gql`
-  mutation DeletePost($id: ID!) {
-    deletePost(id: $id) {
-      success
-    }
-  }
-`
+import type { FC } from 'react'
+import type { Action } from 'components/Error'
 
 export const PostPage: FC = () => {
   const isLoggedIn = useAppSelector(selectIsAuthenticated)
   const location = useLocation()
   const navigate = useNavigate()
   const { postId } = useParams()
-  const { data, loading, error, refetch } = useQuery(GET_POST, {
+
+  const {
+    data: postData,
+    loading,
+    error,
+    refetch
+  } = useQuery(GET_POST, {
     variables: { id: postId || '' },
     notifyOnNetworkStatusChange: true,
     skip: !postId
   })
-  const [_deletePost, { loading: deleting, reset: resetDeleteMutation }] =
-    useMutation(DELETE_POST)
+  const post = useMemo(() => postData?.post, [postData])
+
   const [getPosts, queryRef, { refetch: refetchPosts }] = useLoadableQuery(
     GET_POSTS,
     { fetchPolicy: 'cache-and-network' }
   )
+
+  const [_deletePost, { loading: deleting, reset: resetDeleteMutation }] =
+    useMutation(DELETE_POST)
 
   const deletePost = useCallback(() => {
     if (!window.confirm('게시글을 삭제합니다.')) return
@@ -88,27 +60,21 @@ export const PostPage: FC = () => {
           query: GET_CATEGORY_HIERARCHY
         }
       ],
-      onCompleted: () => navigate(`/category/${data?.post.category.id}`),
+      onCompleted: () => navigate(`/category/${post?.category.id}`),
       onError: ({ networkError, graphQLErrors }) => {
         if (networkError) alert('게시글 삭제 중 오류가 발생했습니다.')
         else if (graphQLErrors.length) alert(graphQLErrors[0].message)
         resetDeleteMutation()
       }
     })
-  }, [
-    _deletePost,
-    data?.post?.category.id,
-    navigate,
-    postId,
-    resetDeleteMutation
-  ])
+  }, [_deletePost, post?.category.id, navigate, postId, resetDeleteMutation])
 
   useEffect(() => {
-    if (!data?.post) return
+    if (!post) return
 
-    const categoryId = data.post.category.id
+    const categoryId = post?.category.id
     if (!queryRef) getPosts({ categoryId: categoryId ?? null })
-  }, [data, getPosts, queryRef])
+  }, [postData, getPosts, queryRef])
 
   if (error) {
     if (error.networkError)
@@ -144,7 +110,7 @@ export const PostPage: FC = () => {
 
       return (
         <Error
-          code={errorToShow.extensions?.code as number | undefined}
+          code={(errorToShow.extensions?.code as number) || undefined}
           message={errorToShow.message}
           actions={actions}
         />
@@ -157,7 +123,7 @@ export const PostPage: FC = () => {
       <div
         className='relative h-56 border-b border-neutral-300 bg-neutral-500 bg-cover bg-center bg-no-repeat'
         style={{
-          backgroundImage: `url(${data?.post?.thumbnail})`
+          backgroundImage: `url(${post?.thumbnail})`
         }}
       >
         {isLoggedIn && (
@@ -178,8 +144,8 @@ export const PostPage: FC = () => {
         )}
         <div className='flex size-full flex-col items-center justify-center gap-1 py-5 backdrop-blur backdrop-brightness-50'>
           <div className='flex items-center justify-center text-lg text-neutral-800'>
-            {data?.post.category?.ancestors &&
-              data.post.category.ancestors.map((ancestor) => {
+            {post?.category?.ancestors &&
+              post?.category.ancestors.map((ancestor) => {
                 return (
                   <div key={ancestor.id} className='contents'>
                     <Link to={`/category/${ancestor.id || 0}`}>
@@ -189,15 +155,15 @@ export const PostPage: FC = () => {
                   </div>
                 )
               })}
-            <Link to={`/category/${data?.post?.category?.id || 0}`}>
+            <Link to={`/category/${post?.category?.id || 0}`}>
               <SuspendedText
                 loading={loading}
-                text={data?.post?.category.name}
+                text={post?.category.name}
                 align='center'
                 length={6}
               />
             </Link>
-            {data?.post?.category.isHidden && (
+            {post?.category.isHidden && (
               <Icon
                 path={mdiLock}
                 size={0.6}
@@ -210,12 +176,12 @@ export const PostPage: FC = () => {
             <SuspendedText
               className='text-4xl font-medium'
               loading={loading}
-              text={data?.post?.title}
+              text={post?.title}
               align='center'
               length={100}
               lines={2}
             />
-            {!data?.post?.category.isHidden && data?.post?.isHidden && (
+            {!post?.category.isHidden && post?.isHidden && (
               <Icon
                 path={mdiLock}
                 size={0.7}
@@ -227,7 +193,7 @@ export const PostPage: FC = () => {
           <SuspendedText
             className='font-thin text-neutral-700'
             loading={loading}
-            text={getRelativeTimeFromNow(data?.post?.createdAt || new Date())}
+            text={getRelativeTimeFromNow(post?.createdAt || new Date())}
             align='center'
             length={8}
           />
@@ -247,12 +213,12 @@ export const PostPage: FC = () => {
           <Tiptap
             className='bg-transparent'
             editable={false}
-            content={data?.post?.content}
+            content={post?.content}
           />
         )}
       </div>
 
-      {data && (
+      {postData && (
         <div className='border-t border-neutral-300 bg-neutral-50'>
           <div className='mx-auto w-full max-w-[1280px] p-10'>
             <ErrorBoundary
@@ -273,8 +239,8 @@ export const PostPage: FC = () => {
             >
               <Suspense fallback={<Spinner />}>
                 <p className='mb-2 text-2xl'>
-                  <Link to={`/category/${data?.post?.category?.id || 0}`}>
-                    {data?.post?.category.name}
+                  <Link to={`/category/${post?.category?.id || 0}`}>
+                    {post?.category.name}
                   </Link>
                   의 다른 게시물
                 </p>

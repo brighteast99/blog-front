@@ -1,70 +1,41 @@
-import { FC, Suspense, useCallback, useLayoutEffect } from 'react'
-import { Link, useNavigate, useSearchParams } from 'react-router-dom'
-import {
-  gql,
-  TypedDocumentNode,
-  useLoadableQuery,
-  useMutation,
-  useQuery
-} from '@apollo/client'
+import { Suspense, useCallback, useLayoutEffect, useMemo } from 'react'
 import clsx from 'clsx'
-import { mdiPlus } from '@mdi/js'
+import { ErrorBoundary } from 'react-error-boundary'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+
+import { useLoadableQuery, useMutation, useQuery } from '@apollo/client'
+import { CREATE_TEMPLATE, GET_TEMPLATE, GET_TEMPLATES } from './api'
+
 import Icon from '@mdi/react'
+import { mdiPlus } from '@mdi/js'
 import { ThemedButton } from 'components/Buttons/ThemedButton'
+import { Error } from 'components/Error'
 import { Spinner } from 'components/Spinner'
 import { TemplateForm } from './templateForm'
 
-import type { BlogInfo as _BlogInfo, Template } from 'types/data'
-
-export interface TemplateInput extends Omit<Template, 'id'> {}
-
-export const GET_TEMPLATES: TypedDocumentNode<{ templates: Template[] }> = gql`
-  query GetTemplates {
-    templates {
-      id
-      title
-    }
-  }
-`
-
-export const GET_TEMPLATE: TypedDocumentNode<
-  { template: Template },
-  { id: number }
-> = gql`
-  query GetTemplate($id: Int!) {
-    template(id: $id) {
-      id
-      title
-      content
-      thumbnail
-      images
-    }
-  }
-`
-
-const CREATE_TEMPLATE: TypedDocumentNode<
-  { createTemplate: { createdTemplate: Template } },
-  { data: TemplateInput }
-> = gql`
-  mutation CreateTemplate($data: TemplateInput!) {
-    createTemplate(data: $data) {
-      createdTemplate {
-        id
-      }
-    }
-  }
-`
+import type { FC } from 'react'
+import type { BlogInfo as _BlogInfo } from 'types/data'
 
 export const ManageTemplatePage: FC = () => {
   const [searchParams, setSearchParams] = useSearchParams()
   const navigate = useNavigate()
-  const { data, loading } = useQuery(GET_TEMPLATES)
-  const [loadTemplateInfo, queryRef, { reset }] = useLoadableQuery(
-    GET_TEMPLATE,
-    {
-      fetchPolicy: 'cache-and-network'
-    }
-  )
+
+  const {
+    data,
+    loading: loadingTemplates,
+    error: errorLoadingTemplates,
+    refetch: refetchTemplates
+  } = useQuery(GET_TEMPLATES, {
+    notifyOnNetworkStatusChange: true
+  })
+  const templates = useMemo(() => data?.templates, [data])
+
+  const [
+    loadTemplate,
+    queryRef,
+    { reset: resetTemplate, refetch: refetchTemplate }
+  ] = useLoadableQuery(GET_TEMPLATE)
+
   const [_createTemplate, { loading: creating, reset: resetCreateMutation }] =
     useMutation(CREATE_TEMPLATE)
   const selectedTemplate =
@@ -109,9 +80,9 @@ export const ManageTemplatePage: FC = () => {
   }, [_createTemplate, resetCreateMutation, selectTemplate])
 
   useLayoutEffect(() => {
-    if (!selectedTemplate) reset()
+    if (!selectedTemplate) resetTemplate()
     else
-      loadTemplateInfo({
+      loadTemplate({
         id: selectedTemplate
       })
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -120,74 +91,109 @@ export const ManageTemplatePage: FC = () => {
   return (
     <div className='flex justify-center gap-2 p-5 *:h-[55rem]'>
       <div className='w-1/3'>
-        {loading && <Spinner className='absolute inset-0' size='sm' />}
-        {data && (
-          <div
-            className='relative h-full overflow-y-auto rounded border border-neutral-200 bg-neutral-50'
-            onClick={(e) => {
-              if (e.target !== e.currentTarget) return
-              selectTemplate(undefined)
-            }}
-          >
-            {loading && <Spinner className='absolute inset-0' size='sm' />}
-            <ThemedButton
-              className='h-12 w-full'
-              variant='text'
-              color='primary'
-              disabled={creating}
-              onClick={createTemplate}
-            >
-              {creating ? (
-                <Spinner size='xs' />
-              ) : (
-                <>
-                  <Icon className='-mt-1 mr-1 inline' path={mdiPlus} size={1} />
-                  새 템플릿
-                </>
-              )}
-            </ThemedButton>
-            <ul className='text-lg'>
-              {data?.templates.map((template) => (
-                <li
-                  className={
-                    selectedTemplate === template.id
-                      ? 'bg-primary bg-opacity-25 hover:brightness-125'
-                      : 'hover:bg-neutral-100'
-                  }
-                  key={template.id}
-                >
-                  <Link
-                    className={clsx(
-                      'block size-full px-2 py-1',
-                      selectedTemplate === template.id && 'pointer-events-none'
-                    )}
-                    to={`?template=${template.id}`}
-                    replace
+        <div
+          className='relative h-full overflow-y-auto rounded border border-neutral-200 bg-neutral-50'
+          onClick={(e) => {
+            if (e.target !== e.currentTarget) return
+            selectTemplate(undefined)
+          }}
+        >
+          {loadingTemplates && (
+            <Spinner className='absolute inset-0' size='sm' />
+          )}
+          {errorLoadingTemplates && (
+            <div className='absolute inset-0'>
+              <Error
+                code={500}
+                hideDefaultAction
+                actions={[{ label: '다시 시도', handler: refetchTemplates }]}
+              />
+            </div>
+          )}
+          {templates && (
+            <>
+              <ThemedButton
+                className='h-12 w-full'
+                variant='text'
+                color='primary'
+                disabled={creating}
+                onClick={createTemplate}
+              >
+                {creating ? (
+                  <Spinner size='xs' />
+                ) : (
+                  <>
+                    <Icon
+                      className='-mt-1 mr-1 inline'
+                      path={mdiPlus}
+                      size={1}
+                    />
+                    새 템플릿
+                  </>
+                )}
+              </ThemedButton>
+              <ul className='text-lg'>
+                {templates.map((template) => (
+                  <li
+                    className={
+                      selectedTemplate === template.id
+                        ? 'bg-primary bg-opacity-25 hover:brightness-125'
+                        : 'hover:bg-neutral-100'
+                    }
+                    key={template.id}
                   >
-                    {template.title}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
+                    <Link
+                      className={clsx(
+                        'block size-full px-2 py-1',
+                        selectedTemplate === template.id &&
+                          'pointer-events-none'
+                      )}
+                      to={`?template=${template.id}`}
+                      replace
+                    >
+                      {template.title}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
+        </div>
       </div>
 
       <div className='relative w-2/3 max-w-[1280px]'>
-        <Suspense fallback={<Spinner className='absolute inset-0' />}>
-          {queryRef ? (
-            <TemplateForm
-              queryRef={queryRef}
-              onDelete={() => {
-                selectTemplate(undefined, true)
-              }}
+        <ErrorBoundary
+          FallbackComponent={({ resetErrorBoundary }) => (
+            <Error
+              message='게시판 정보를 불러오지 못했습니다'
+              hideDefaultAction
+              actions={[
+                {
+                  label: '다시 시도',
+                  handler: () => {
+                    refetchTemplate()
+                    resetErrorBoundary()
+                  }
+                }
+              ]}
             />
-          ) : (
-            <span className='absolute inset-0 m-auto block size-fit text-xl text-neutral-400'>
-              편집할 템플릿을 선택하세요
-            </span>
           )}
-        </Suspense>
+        >
+          <Suspense fallback={<Spinner className='absolute inset-0' />}>
+            {queryRef ? (
+              <TemplateForm
+                queryRef={queryRef}
+                onDelete={() => {
+                  selectTemplate(undefined, true)
+                }}
+              />
+            ) : (
+              <span className='absolute inset-0 m-auto block size-fit text-xl text-neutral-400'>
+                편집할 템플릿을 선택하세요
+              </span>
+            )}
+          </Suspense>
+        </ErrorBoundary>
       </div>
     </div>
   )

@@ -1,41 +1,22 @@
-import { FC, MouseEvent, useCallback, useEffect } from 'react'
+import { useCallback, useEffect } from 'react'
+
+import { useMutation, useReadQuery } from '@apollo/client'
 import {
-  gql,
-  QueryRef,
-  TypedDocumentNode,
-  useMutation,
-  useReadQuery
-} from '@apollo/client'
-import { usePostInput } from 'pages/post/Edit'
+  DELETE_TEMPLATE,
+  GET_TEMPLATE,
+  GET_TEMPLATES,
+  UPDATE_TEMPLATE
+} from './api'
+
+import { usePostInput as useTemplateInput } from 'pages/post/Edit/hooks'
 import { ThemedButton } from 'components/Buttons/ThemedButton'
-import { NavigationBlocker } from 'components/NavigationBlocker'
 import { Spinner } from 'components/Spinner'
 import { Tiptap } from 'components/Tiptap'
-import { GET_TEMPLATE, GET_TEMPLATES, TemplateInput } from '.'
+import { NavigationBlocker } from 'components/utils/NavigationBlocker'
 
+import type { FC, MouseEvent } from 'react'
+import type { QueryRef } from '@apollo/client'
 import type { Template } from 'types/data'
-
-export const UPDATE_TEMPLATE: TypedDocumentNode<
-  { updateTemplate: { success: boolean } },
-  { id: number; data: TemplateInput }
-> = gql`
-  mutation UpdateTemplate($id: Int!, $data: TemplateInput!) {
-    updateTemplate(id: $id, data: $data) {
-      success
-    }
-  }
-`
-
-export const DELETE_TEMPLATE: TypedDocumentNode<
-  { updateTemplate: { success: boolean } },
-  { id: number }
-> = gql`
-  mutation DeleteTemplate($id: Int!) {
-    deleteTemplate(id: $id) {
-      success
-    }
-  }
-`
 
 export const TemplateForm: FC<{
   queryRef: QueryRef<{ template: Template }, { id: number }>
@@ -45,12 +26,12 @@ export const TemplateForm: FC<{
     input: { title, content, thumbnail, images },
     isModified,
     initialize,
-    setTitle: setName,
+    setTitle,
     setContent,
     setThumbnail,
     addImage,
     removeImage
-  } = usePostInput({
+  } = useTemplateInput({
     title: '',
     isHidden: false,
     content: '<p></p>',
@@ -149,7 +130,7 @@ export const TemplateForm: FC<{
           type='text'
           value={title}
           placeholder={template.title}
-          onChange={(e) => setName(e.target.value)}
+          onChange={(e) => setTitle(e.target.value)}
         />
         <Tiptap
           content={content}

@@ -2,9 +2,7 @@ import {
   cloneElement,
   createContext,
   forwardRef,
-  HTMLProps,
   isValidElement,
-  ReactNode,
   useContext,
   useMemo,
   useState
@@ -14,7 +12,6 @@ import {
   flip,
   FloatingPortal,
   offset,
-  Placement,
   shift,
   useDelayGroup,
   useDelayGroupContext,
@@ -29,7 +26,10 @@ import {
 } from '@floating-ui/react'
 import clsx from 'clsx'
 
-export interface TooltipOptions {
+import type { HTMLProps, ReactNode } from 'react'
+import type { Placement } from '@floating-ui/react'
+
+interface TooltipOptions {
   initialOpen?: boolean
   placement?: Placement
   offset?: number

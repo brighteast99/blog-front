@@ -1,12 +1,18 @@
-import { FC } from 'react'
-import { Placement } from '@floating-ui/react'
 import clsx from 'clsx'
-import { mdiLoading } from '@mdi/js'
-import Icon from '@mdi/react'
-import { IconProps } from '@mdi/react/dist/IconProps'
-import { Tooltip, TooltipContent, TooltipTrigger } from 'components/Tooltip'
 
-export interface PopoverMenuItemProps {
+import Icon from '@mdi/react'
+import { mdiLoading } from '@mdi/js'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger
+} from 'components/utils/Tooltip'
+
+import type { FC } from 'react'
+import type { Placement } from '@floating-ui/react'
+import type { IconProps } from '@mdi/react/dist/IconProps'
+
+interface PopoverMenuItemProps {
   icon: string
   iconOnRight?: boolean
   title: string

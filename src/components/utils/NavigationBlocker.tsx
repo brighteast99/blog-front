@@ -1,18 +1,22 @@
-import { FC, useCallback, useLayoutEffect, useMemo } from 'react'
-import { useBlocker } from 'react-router-dom'
+import { useCallback, useLayoutEffect, useMemo } from 'react'
 import clsx from 'clsx'
+import { useBlocker } from 'react-router-dom'
+
 import { useAppSelector } from 'app/hooks'
 import { selectIsAuthenticated } from 'features/auth/authSlice'
+
 import { ThemedButton } from 'components/Buttons/ThemedButton'
 
-interface usePromptProps {
+import type { FC } from 'react'
+
+interface NavigationBlockerProps {
   enabled: boolean
   disableOnLoggedOut?: boolean
   localAlert?: boolean
   message?: string
 }
 
-export const NavigationBlocker: FC<usePromptProps> = ({
+export const NavigationBlocker: FC<NavigationBlockerProps> = ({
   enabled: _enabled,
   disableOnLoggedOut = true,
   localAlert = false,

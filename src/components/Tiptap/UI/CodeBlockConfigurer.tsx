@@ -1,10 +1,13 @@
-import { FC, FormEvent, ReactNode, useLayoutEffect, useState } from 'react'
-import { Placement } from '@floating-ui/react'
+import { useLayoutEffect, useState } from 'react'
+
 import { ThemedButton } from 'components/Buttons/ThemedButton'
 import { PopoverMenu } from 'components/PopoverMenu'
-import languages from './options'
+import { languages } from 'components/Tiptap/extensions/lowlight'
 
-export interface CodeBlockConfigurerProps {
+import type { FC, FormEvent, ReactNode } from 'react'
+import type { Placement } from '@floating-ui/react'
+
+interface CodeBlockConfigurerProps {
   className?: string
   active?: boolean
   placement?: Placement

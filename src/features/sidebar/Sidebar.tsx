@@ -1,16 +1,14 @@
-import { FC, Suspense, useCallback, useLayoutEffect } from 'react'
-import { ErrorBoundary } from 'react-error-boundary'
-import { Link, useLocation, useNavigate } from 'react-router-dom'
-import {
-  gql,
-  TypedDocumentNode,
-  useLoadableQuery,
-  useQuery
-} from '@apollo/client'
+import { Suspense, useCallback, useLayoutEffect } from 'react'
 import { client } from 'ApolloContext'
 import clsx from 'clsx'
+import { ErrorBoundary } from 'react-error-boundary'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
+
+import { gql, useLoadableQuery, useQuery } from '@apollo/client'
+
 import { useAppDispatch, useAppSelector } from 'app/hooks'
 import { revokeToken, selectIsAuthenticated } from 'features/auth/authSlice'
+
 import { mdiCog, mdiLogin, mdiLogout, mdiMenu } from '@mdi/js'
 import { Avatar } from 'components/Avatar'
 import { IconButton } from 'components/Buttons/IconButton'
@@ -19,10 +17,16 @@ import { PopoverMenu } from 'components/PopoverMenu'
 import { PopoverMenuItem } from 'components/PopoverMenu/PopoverMenuItem'
 import { Spinner } from 'components/Spinner'
 import { SuspendedText } from 'components/SuspendedText'
-import { Tooltip, TooltipContent, TooltipTrigger } from 'components/Tooltip'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger
+} from 'components/utils/Tooltip'
 import { CategoryList } from './CategoryList'
 import { expand, fold, selectSidebarIsFolded } from './sidebarSlice'
 
+import type { FC } from 'react'
+import type { TypedDocumentNode } from '@apollo/client'
 import type { BlogInfo } from 'types/data'
 
 export type CategoryHierarchyQueryResult = { categoryHierarchy: string }

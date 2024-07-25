@@ -1,3 +1,11 @@
+export interface Pagination {
+  offset?: number
+  before?: string
+  after?: string
+  first?: number
+  last?: number
+}
+
 export interface Category {
   id?: number
   name: string
@@ -12,7 +20,7 @@ export interface Category {
   postCount: number
 }
 
-interface Template {
+export interface Template {
   id: number
   title: string
   content: string

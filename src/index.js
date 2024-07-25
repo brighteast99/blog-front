@@ -1,7 +1,7 @@
+import { ApolloContext } from 'ApolloContext'
 import { createRoot } from 'react-dom/client'
 import { Provider } from 'react-redux'
 import { RouterProvider } from 'react-router-dom'
-import { ApolloContext } from 'ApolloContext'
 import { router } from 'routes.tsx'
 import { store } from 'app/store'
 import { authFromStorage } from 'utils/Auth.ts'

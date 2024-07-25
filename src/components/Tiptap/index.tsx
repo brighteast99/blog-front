@@ -1,31 +1,17 @@
-import { FC, useEffect, useLayoutEffect, useState } from 'react'
-import { Color } from '@tiptap/extension-color'
-import { Highlight } from '@tiptap/extension-highlight'
-import { Link } from '@tiptap/extension-link'
-import Subscript from '@tiptap/extension-subscript'
-import Superscript from '@tiptap/extension-superscript'
-import TaskItem from '@tiptap/extension-task-item'
-import TaskList from '@tiptap/extension-task-list'
-import { TextAlign } from '@tiptap/extension-text-align'
-import { TextStyle } from '@tiptap/extension-text-style'
-import { Underline } from '@tiptap/extension-underline'
+import { useEffect, useLayoutEffect, useMemo, useState } from 'react'
 import { Editor, EditorProvider } from '@tiptap/react'
-import { StarterKit } from '@tiptap/starter-kit'
-import django from 'highlight.js/lib/languages/django'
-import dockerfile from 'highlight.js/lib/languages/dockerfile'
-import nginx from 'highlight.js/lib/languages/nginx'
-import pgsql from 'highlight.js/lib/languages/pgsql'
-import { common, createLowlight } from 'lowlight'
-import ImageResize from 'tiptap-extension-resize-image'
+
 import { cn } from 'utils/handleClassName'
-import { FontSize } from './extensions/fontSize'
-import { ImageCatalogue } from './ImageCatalogue'
-import { BetterCodeBlock } from './nodes/BetterCodeblock'
-import { Toolbar } from './Toolbar'
+
+import { getExtensions } from './editor'
+import { ImageCatalogue } from './UI/ImageCatalogue'
+import { Toolbar } from './UI/Toolbar'
+
+import type { FC } from 'react'
 
 import './Tiptap.scss'
 
-export interface EditorProps {
+interface EditorProps {
   className?: string
   content?: string
   thumbnail?: string
@@ -37,9 +23,6 @@ export interface EditorProps {
   onDeleteImage?: (image: string) => any
   onChangeThumbnail?: (image: string | null) => any
 }
-
-const lowlight = createLowlight(common)
-lowlight.register({ django, dockerfile, nginx, pgsql })
 
 export const Tiptap: FC<EditorProps> = ({
   className,
@@ -54,6 +37,7 @@ export const Tiptap: FC<EditorProps> = ({
   onChangeThumbnail
 }) => {
   const [editor, setEditor] = useState<Editor>()
+  const extensions = useMemo(() => getExtensions(editable), [editable])
 
   useLayoutEffect(() => {
     editor?.setEditable(editable)
@@ -70,44 +54,7 @@ export const Tiptap: FC<EditorProps> = ({
       className={cn(className, 'Tiptap-wrapper', !editable && 'Tiptap-viewer')}
     >
       <EditorProvider
-        extensions={[
-          StarterKit.configure({
-            codeBlock: false,
-            dropcursor: editable ? undefined : false,
-            gapcursor: editable ? undefined : false
-          }),
-          FontSize,
-          Underline,
-          TextStyle,
-          Superscript,
-          Subscript,
-          Color.configure({
-            types: ['textStyle']
-          }),
-          Highlight.configure({
-            multicolor: true
-          }),
-          TextAlign.configure({
-            types: ['heading', 'paragraph'],
-            defaultAlignment: 'justify'
-          }),
-          Link.configure({
-            HTMLAttributes: {
-              rel: 'noopener noreferrer',
-              target: '_blank'
-            },
-            openOnClick: editable,
-            validate: (href) => /^https?:\/\//.test(href)
-          }),
-          ImageResize,
-          BetterCodeBlock.configure({
-            lowlight
-          }),
-          TaskList,
-          TaskItem.configure({
-            nested: true
-          })
-        ]}
+        extensions={extensions}
         slotBefore={editable && <Toolbar className='rounded-t' />}
         slotAfter={
           editable && (

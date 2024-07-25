@@ -1,99 +1,44 @@
-import { FC, Suspense, useEffect, useLayoutEffect } from 'react'
+import { Suspense, useEffect, useLayoutEffect, useMemo } from 'react'
+import clsx from 'clsx'
 import { ErrorBoundary } from 'react-error-boundary'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
-import {
-  gql,
-  TypedDocumentNode,
-  useLoadableQuery,
-  useQuery
-} from '@apollo/client'
-import clsx from 'clsx'
-import { GraphQLFormattedError } from 'graphql'
+
+import { useLoadableQuery, useQuery } from '@apollo/client'
+import { CATEGORY_INFO } from './api'
+import { GET_POSTS } from 'components/postList/api'
+
 import { useAppSelector } from 'app/hooks'
 import { selectIsAuthenticated } from 'features/auth/authSlice'
-import { mdiLock, mdiMagnify, mdiPlus } from '@mdi/js'
+
 import Icon from '@mdi/react'
+import { mdiLock, mdiMagnify, mdiPlus } from '@mdi/js'
 import { IconButton } from 'components/Buttons/IconButton'
-import { Action, Error } from 'components/Error'
+import { Error } from 'components/Error'
+import { PostList } from 'components/postList'
 import { Spinner } from 'components/Spinner'
 import { SuspendedText } from 'components/SuspendedText'
-import { Tooltip, TooltipContent, TooltipTrigger } from 'components/Tooltip'
-import { PostList } from './postList'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger
+} from 'components/utils/Tooltip'
 
-import type { Category, Post } from 'types/data'
-
-export type PostsQueryResult = {
-  posts: {
-    edges: {
-      cursor: string
-      node: Post
-    }[]
-    pageInfo: {
-      hasNextPage: boolean
-      hasPreviousPage: boolean
-      startCursor: string
-      endCursor: string
-    }
-  }
-}
-export type PostsQueryVariables = { categoryId: number | null }
-
-export const GET_CATEGORY: TypedDocumentNode<
-  { category: Category },
-  { id: number }
-> = gql`
-  query Category($id: Int) {
-    category(id: $id) {
-      id
-      name
-      isHidden
-      description
-      postCount
-      coverImage
-      subcategoryOf {
-        id
-      }
-    }
-  }
-`
-export const GET_POSTS: TypedDocumentNode<
-  PostsQueryResult,
-  PostsQueryVariables
-> = gql`
-  query Posts($categoryId: Decimal) {
-    posts(categoryId: $categoryId) {
-      edges {
-        node {
-          category {
-            id
-            name
-            isHidden
-            ancestors {
-              id
-              name
-            }
-          }
-          id
-          title
-          content
-          thumbnail
-          isHidden
-          createdAt
-        }
-      }
-    }
-  }
-`
+import type { FC } from 'react'
+import type { Action } from 'components/Error'
+import type { GraphQLFormattedError } from 'graphql'
 
 export const CategoryPage: FC = () => {
-  const isLoggedIn = useAppSelector(selectIsAuthenticated)
   const { categoryId } = useParams()
+  const navigate = useNavigate()
+  const location = useLocation()
+  const isLoggedIn = useAppSelector(selectIsAuthenticated)
+
   const {
-    data,
+    data: categoryData,
     loading,
     error,
     refetch: refetchCategory
-  } = useQuery(GET_CATEGORY, {
+  } = useQuery(CATEGORY_INFO, {
     variables: { id: Number(categoryId) },
     fetchPolicy: 'cache-and-network',
     notifyOnNetworkStatusChange: true,
@@ -102,12 +47,12 @@ export const CategoryPage: FC = () => {
       categoryId !== undefined &&
       categoryId !== 'all'
   })
+  const category = useMemo(() => categoryData?.category, [categoryData])
+
   const [getPosts, queryRef, { refetch: refetchPosts }] = useLoadableQuery(
     GET_POSTS,
     { fetchPolicy: 'cache-and-network' }
   )
-  const navigate = useNavigate()
-  const location = useLocation()
 
   useLayoutEffect(() => {
     if (categoryId === undefined) navigate('/category/all', { replace: true })
@@ -152,33 +97,30 @@ export const CategoryPage: FC = () => {
 
       return (
         <Error
-          code={errorToShow.extensions?.code as number | undefined}
+          code={(errorToShow.extensions?.code as number) || undefined}
           message={errorToShow.message}
           actions={actions}
         />
       )
     }
   }
-
   return (
     <>
-      {(loading || data?.category?.coverImage) && (
+      {(loading || category?.coverImage) && (
         <div
           className={clsx(
             'h-50 bg-cover bg-center blur-[2px] brightness-50',
-            !data?.category?.coverImage &&
-              loading &&
-              'animate-pulse !bg-neutral-700'
+            !category?.coverImage && 'animate-pulse !bg-neutral-700'
           )}
           style={{
-            backgroundImage: `url(${data?.category?.coverImage})`
+            backgroundImage: `url(${category?.coverImage})`
           }}
         />
       )}
       <div
         className={clsx(
           'sticky top-0 z-20 px-6 py-2',
-          (loading || data?.category?.coverImage) && '-mt-8 mb-8',
+          (loading || category?.coverImage) && '-mt-8 mb-8',
           loading && 'animate-pulse'
         )}
       >
@@ -186,11 +128,11 @@ export const CategoryPage: FC = () => {
           <div className='mb-1 flex items-center'>
             <SuspendedText
               className='text-5xl'
-              text={data?.category?.name}
+              text={category?.name}
               length={4}
               loading={loading}
             />
-            {data?.category?.isHidden && (
+            {category?.isHidden && (
               <Icon
                 path={mdiLock}
                 size={1.2}
@@ -200,17 +142,14 @@ export const CategoryPage: FC = () => {
           </div>
           <SuspendedText
             className='ml-2 text-lg font-light text-neutral-600'
-            text={`${data?.category.postCount}개 게시물`}
+            text={`${category?.postCount}개 게시물`}
             length={6}
             loading={loading}
           />
         </div>
         <SuspendedText
           className='pl-2 text-lg font-light'
-          text={
-            data?.category?.description ||
-            `${data?.category?.name}의 모든 게시물`
-          }
+          text={category?.description || `${category?.name}의 모든 게시물`}
           lines={2}
           length={100}
           loading={loading}
