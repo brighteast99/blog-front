@@ -1,10 +1,8 @@
-import { Suspense, useCallback, useEffect, useMemo } from 'react'
-import { ErrorBoundary } from 'react-error-boundary'
+import { useCallback, useMemo } from 'react'
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 
-import { useLoadableQuery, useMutation, useQuery } from '@apollo/client'
+import { useMutation, useQuery } from '@apollo/client'
 import { DELETE_POST, GET_POST } from './api'
-import { GET_POSTS } from 'components/postList/api'
 
 import { useAppSelector } from 'app/hooks'
 import { getRelativeTimeFromNow } from 'utils/dayJS'
@@ -17,7 +15,6 @@ import { Error } from 'components/Error'
 import { PopoverMenu } from 'components/PopoverMenu'
 import { PopoverMenuItem } from 'components/PopoverMenu/PopoverMenuItem'
 import { PostList } from 'components/postList'
-import { Spinner } from 'components/Spinner'
 import { SuspendedText } from 'components/SuspendedText'
 import { Tiptap } from 'components/Tiptap'
 
@@ -42,11 +39,6 @@ export const PostPage: FC = () => {
   })
   const post = useMemo(() => postData?.post, [postData])
 
-  const [getPosts, queryRef, { refetch: refetchPosts }] = useLoadableQuery(
-    GET_POSTS,
-    { fetchPolicy: 'cache-and-network' }
-  )
-
   const [_deletePost, { loading: deleting, reset: resetDeleteMutation }] =
     useMutation(DELETE_POST)
 
@@ -68,13 +60,6 @@ export const PostPage: FC = () => {
       }
     })
   }, [_deletePost, post?.category.id, navigate, postId, resetDeleteMutation])
-
-  useEffect(() => {
-    if (!post) return
-
-    const categoryId = post?.category.id
-    if (!queryRef) getPosts({ categoryId: categoryId ?? null })
-  }, [postData, getPosts, queryRef])
 
   if (error) {
     if (error.networkError)
@@ -218,41 +203,19 @@ export const PostPage: FC = () => {
         )}
       </div>
 
-      {postData && (
+      {post && (
         <div className='border-t border-neutral-300 bg-neutral-50'>
           <div className='mx-auto w-full max-w-[1280px] p-10'>
-            <ErrorBoundary
-              FallbackComponent={({ resetErrorBoundary }) => (
-                <Error
-                  message='게시글 목록을 불러오지 못했습니다'
-                  actions={[
-                    {
-                      label: '다시 시도',
-                      handler: () => {
-                        refetchPosts()
-                        resetErrorBoundary()
-                      }
-                    }
-                  ]}
-                />
-              )}
-            >
-              <Suspense fallback={<Spinner />}>
-                <p className='mb-2 text-2xl'>
-                  <Link to={`/category/${post?.category?.id || 0}`}>
-                    {post?.category.name}
-                  </Link>
-                  의 다른 게시물
-                </p>
-                {queryRef && (
-                  <PostList
-                    queryRef={queryRef}
-                    pageSize={5}
-                    option={{ useQueryString: true, replace: true }}
-                  />
-                )}
-              </Suspense>
-            </ErrorBoundary>
+            <p className='mb-2 text-2xl'>
+              <Link to={`/category/${post.category?.id || 0}`}>
+                {post.category.name}
+              </Link>
+              의 다른 게시물
+            </p>
+            <PostList
+              filterArgs={{ categoryId: post.category?.id }}
+              initialPagination={{ targetPost: post.id }}
+            />
           </div>
         </div>
       )}

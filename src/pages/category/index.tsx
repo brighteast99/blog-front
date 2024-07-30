@@ -1,11 +1,14 @@
-import { Suspense, useEffect, useLayoutEffect, useMemo } from 'react'
+import { useLayoutEffect, useMemo, useRef, useState } from 'react'
 import clsx from 'clsx'
-import { ErrorBoundary } from 'react-error-boundary'
-import { useLocation, useNavigate, useParams } from 'react-router-dom'
+import {
+  useLocation,
+  useNavigate,
+  useParams,
+  useSearchParams
+} from 'react-router-dom'
 
-import { useLoadableQuery, useQuery } from '@apollo/client'
+import { useQuery } from '@apollo/client'
 import { CATEGORY_INFO } from './api'
-import { GET_POSTS } from 'components/postList/api'
 
 import { useAppSelector } from 'app/hooks'
 import { selectIsAuthenticated } from 'features/auth/authSlice'
@@ -15,7 +18,6 @@ import { mdiLock, mdiMagnify, mdiPlus } from '@mdi/js'
 import { IconButton } from 'components/Buttons/IconButton'
 import { Error } from 'components/Error'
 import { PostList } from 'components/postList'
-import { Spinner } from 'components/Spinner'
 import { SuspendedText } from 'components/SuspendedText'
 import {
   Tooltip,
@@ -23,15 +25,30 @@ import {
   TooltipTrigger
 } from 'components/utils/Tooltip'
 
-import type { FC } from 'react'
+import type { FC, FormEvent } from 'react'
 import type { Action } from 'components/Error'
 import type { GraphQLFormattedError } from 'graphql'
 
+type PostSearchField = 'titleAndContent' | 'title' | 'content'
+
 export const CategoryPage: FC = () => {
-  const { categoryId } = useParams()
   const navigate = useNavigate()
   const location = useLocation()
   const isLoggedIn = useAppSelector(selectIsAuthenticated)
+
+  const { categoryId } = useParams()
+  const [searchParams, setSearchParams] = useSearchParams()
+  const pageIdx = Number.parseInt(searchParams.get('page') || '') || 0
+  const [pageSize, setPageSize] = useState<number>(
+    Number.parseInt(searchParams.get('pageSize') || '') || 10
+  )
+  const [{ searchBy, searchKeyword }, setSearchCondition] = useState<{
+    searchBy: PostSearchField
+    searchKeyword: string
+  }>({
+    searchBy: (searchParams.get('key') as PostSearchField) || 'titleAndContent',
+    searchKeyword: searchParams.get('value') || ''
+  })
 
   const {
     data: categoryData,
@@ -49,20 +66,32 @@ export const CategoryPage: FC = () => {
   })
   const category = useMemo(() => categoryData?.category, [categoryData])
 
-  const [getPosts, queryRef, { refetch: refetchPosts }] = useLoadableQuery(
-    GET_POSTS,
-    { fetchPolicy: 'cache-and-network' }
-  )
+  const searchPosts = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+
+    if (
+      (searchParams.get('key') ?? 'titleAndContent') === searchBy &&
+      (searchParams.get('value') ?? '') === searchKeyword
+    )
+      return
+
+    searchParams.set('key', searchBy)
+    searchParams.set('value', searchKeyword)
+    setSearchParams(searchParams)
+  }
 
   useLayoutEffect(() => {
     if (categoryId === undefined) navigate('/category/all', { replace: true })
   }, [categoryId, navigate])
 
-  useEffect(() => {
-    if (!loading && !error)
-      getPosts({ categoryId: categoryId ? Number(categoryId) : null })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [categoryId, loading, error])
+  useLayoutEffect(() => {
+    setSearchCondition({
+      searchBy:
+        (searchParams.get('key') as PostSearchField) || 'titleAndContent',
+      searchKeyword: searchParams.get('value') || ''
+    })
+    setPageSize(Number(searchParams.get('pageSize')) || 5)
+  }, [searchParams])
 
   if (error) {
     if (error.networkError)
@@ -157,7 +186,7 @@ export const CategoryPage: FC = () => {
       </div>
 
       <div className='sticky top-0 z-10 -mt-28 h-32 w-full bg-background' />
-      <div className='sticky top-32 z-10 mx-auto -mb-0.5 flex w-5/6 items-center border-b-2 border-neutral-600 bg-background py-2'>
+      <div className='sticky top-32 z-10 mx-auto -mb-0.5 flex w-5/6 items-center gap-2 border-b-2 border-neutral-600 bg-background py-2'>
         {isLoggedIn && (
           <Tooltip>
             <TooltipTrigger asChild>
@@ -179,34 +208,78 @@ export const CategoryPage: FC = () => {
         )}
 
         <div className='grow' />
-        <input type='text' />
-        <IconButton
-          className='ml-1 p-0'
-          path={mdiMagnify}
-          variant='hover-text'
-        />
+        <form className='contents' onSubmit={searchPosts}>
+          <select
+            className='px-4 py-0.5 text-center'
+            name='pageSize'
+            value={pageSize}
+            onChange={(e) => {
+              searchParams.set('pageSize', e.target.value)
+              setSearchParams(searchParams)
+            }}
+          >
+            {Array.from({ length: 5 }).map((_, i) => {
+              const size = 5 * (i + 1)
+              return (
+                <option key={i} value={size}>
+                  {size}개씩
+                </option>
+              )
+            })}
+          </select>
+          <select
+            className='w-30 px-2 py-0.5 text-center'
+            name='filterBy'
+            value={searchBy}
+            onChange={(e) =>
+              setSearchCondition((prev) => {
+                return {
+                  ...prev,
+                  searchBy: e.target.value as PostSearchField
+                }
+              })
+            }
+          >
+            <option value='titleAndContent'>제목+내용</option>
+            <option value='title'>제목</option>
+            <option value='content'>내용</option>
+          </select>
+
+          <input
+            type='text'
+            value={searchKeyword}
+            onChange={(e) =>
+              setSearchCondition((prev) => {
+                return {
+                  ...prev,
+                  searchKeyword: e.target.value
+                }
+              })
+            }
+          />
+
+          <IconButton
+            className='ml-1 p-0'
+            path={mdiMagnify}
+            variant='hover-text'
+            type='submit'
+          />
+        </form>
       </div>
       <div className='mx-auto w-5/6'>
-        <ErrorBoundary
-          FallbackComponent={({ resetErrorBoundary }) => (
-            <Error
-              message='게시글 목록을 불러오지 못했습니다'
-              actions={[
-                {
-                  label: '다시 시도',
-                  handler: () => {
-                    refetchPosts()
-                    resetErrorBoundary()
-                  }
-                }
-              ]}
-            />
-          )}
-        >
-          <Suspense fallback={<Spinner />}>
-            {queryRef && <PostList queryRef={queryRef} />}
-          </Suspense>
-        </ErrorBoundary>
+        <PostList
+          pageSize={pageSize}
+          filterArgs={{
+            categoryId: categoryId ? Number(categoryId) : undefined,
+            [searchParams.get('key') ?? 'titleAndContent']:
+              searchParams.get('value')
+          }}
+          initialPagination={{
+            offset: pageSize * pageIdx
+          }}
+          useSearchParam='page'
+          logHistory
+        />
       </div>
     </>
   )

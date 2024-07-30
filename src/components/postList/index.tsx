@@ -1,13 +1,17 @@
-import { FC, useLayoutEffect, useRef, useState } from 'react'
+import { FC, useCallback, useMemo, useRef } from 'react'
 import clsx from 'clsx'
 import { Link, useLocation, useSearchParams } from 'react-router-dom'
 
-import { QueryRef, useReadQuery } from '@apollo/client'
+import { QueryRef, useQuery, useReadQuery } from '@apollo/client'
+import { GET_POSTS } from './api'
 
 import { getRelativeTimeFromNow } from 'utils/dayJS'
 
 import Icon from '@mdi/react'
 import { mdiLock } from '@mdi/js'
+import { Error } from 'components/Error'
+import { Spinner } from 'components/Spinner'
+import { Paginator } from 'components/Tiptap/UI/Paginator'
 
 import type { Post } from 'types/data'
 import type { PostsQueryResult, PostsQueryVariables } from './api'
@@ -78,59 +82,82 @@ export const PostItem: FC<{ post: Post; isActive?: boolean }> = ({
 }
 
 export interface PostListProps {
-  queryRef: QueryRef<PostsQueryResult, PostsQueryVariables>
   pageSize?: number
-  option?: {
-    useQueryString?: boolean
-    replace?: boolean
+  filterArgs?: {
+    categoryId?: number
+    titleAndContent?: string
+    title?: string
+    content?: string
   }
+  initialPagination?: {
+    targetPost?: string
+    offset?: number
+  }
+  useSearchParam?: string
+  logHistory?: boolean
 }
 
 export const PostList: FC<PostListProps> = ({
-  queryRef,
-  pageSize: _pageSize = 10,
-  option = { useQueryString: true, replace: false }
+  pageSize = 5,
+  filterArgs = {},
+  initialPagination = {},
+  useSearchParam,
+  logHistory
 }) => {
-  const [searchParams, setSearchParams] = useSearchParams()
   const location = useLocation()
+  const [searchParams, setSearchParams] = useSearchParams()
+
   const listRef = useRef<HTMLUListElement>(null)
-  const [{ pageSize, currentPage, pages }, setPagination] = useState({
-    pageSize: _pageSize,
-    currentPage: 0,
-    pages: 1
-  })
-
   const {
-    data: {
-      posts: { edges: posts }
-    }
-  } = useReadQuery(queryRef)
+    data: postsData,
+    loading,
+    error,
+    refetch
+  } = useQuery(GET_POSTS, {
+    variables: {
+      pageSize,
+      ...filterArgs,
+      ...initialPagination
+    },
+    fetchPolicy: 'cache-and-network',
+    notifyOnNetworkStatusChange: true
+  })
+  const posts = useMemo(() => postsData?.posts, [postsData])
 
-  useLayoutEffect(() => {
-    setPagination((prev) => {
-      return {
-        ...prev,
-        currentPage: 0,
-        pages: Math.ceil(posts.length / prev.pageSize)
+  const handlePageChange = useCallback(
+    (page: number) => {
+      if (useSearchParam) {
+        searchParams.set(useSearchParam, page.toString())
+        setSearchParams(searchParams, { replace: !logHistory })
       }
-    })
-  }, [posts.length])
-
-  useLayoutEffect(() => {
-    if (!option.useQueryString) return
-
-    const page = Number(searchParams.get('page'))
-
-    if (!Number.isNaN(page) && currentPage !== page - 1)
-      setPagination((prev) => {
-        return {
-          ...prev,
-          currentPage: Math.max(0, page - 1)
-        }
+      refetch({
+        pageSize,
+        offset: pageSize * page,
+        targetPost: undefined,
+        ...filterArgs
       })
-  }, [currentPage, searchParams, option.useQueryString])
+    },
+    [refetch, pageSize]
+  )
 
-  if (!posts.length)
+  if (error)
+    return (
+      <Error
+        message='게시글 목록을 불러오지 못했습니다'
+        actions={[
+          {
+            label: '다시 시도',
+            handler: () => refetch()
+          }
+        ]}
+      />
+    )
+
+  if (loading) return <Spinner />
+
+  if (!posts) return
+
+  if (!posts.posts?.length)
     return (
       <div className='max-h-full w-full py-5 text-center text-neutral-400'>
         아직 게시물이 없습니다
@@ -143,48 +170,19 @@ export const PostList: FC<PostListProps> = ({
         ref={listRef}
         className='divide-y border-y-2 border-neutral-600 *:border-neutral-600'
       >
-        {posts
-          .slice(currentPage * pageSize, (currentPage + 1) * pageSize)
-          .map((post) => (
-            <PostItem
-              key={post.node.id}
-              post={post.node}
-              isActive={location.pathname === `/post/${post.node.id}`}
-            />
-          ))}
+        {posts.posts.map((post) => (
+          <PostItem
+            key={post.id}
+            post={post}
+            isActive={location.pathname === `/post/${post.id}`}
+          />
+        ))}
       </ul>
-
-      <div className='flex justify-center gap-2 py-1'>
-        {Array.from({ length: pages }, (_, i) => {
-          const isActive = currentPage === i
-          return (
-            <button
-              key={i}
-              className={clsx(
-                'p-1',
-                isActive
-                  ? 'text-primary'
-                  : 'text-neutral-500 hover:text-neutral-800'
-              )}
-              disabled={isActive}
-              onClick={() => {
-                if (!option.useQueryString)
-                  return setPagination((prev) => {
-                    return {
-                      ...prev,
-                      currentPage: i
-                    }
-                  })
-
-                searchParams.set('page', (i + 1).toString())
-                setSearchParams(searchParams, { replace: option.replace })
-              }}
-            >
-              {i + 1}
-            </button>
-          )
-        })}
-      </div>
+      <Paginator
+        currentPage={posts.pageInfo?.currentPage}
+        pages={posts.pageInfo?.pages}
+        onPageChanged={handlePageChange}
+      />
     </>
   )
 }

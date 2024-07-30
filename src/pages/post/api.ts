@@ -38,3 +38,10 @@ export const DELETE_POST: TypedDocumentNode<
     }
   }
 `
+
+// export const GET_RELATED_POSTS: TypedDocumentNode<{}, { postCount: number }> =
+//   gql`
+// query RelatedPosts() {
+
+// }
+// `

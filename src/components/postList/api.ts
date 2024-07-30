@@ -5,48 +5,65 @@ import type { Pagination, Post } from 'types/data'
 
 export type PostsQueryResult = {
   posts: {
-    edges: {
-      cursor: string
-      node: Post
-    }[]
+    posts: Post[]
     pageInfo: {
-      hasNextPage: boolean
-      hasPreviousPage: boolean
-      startCursor: string
-      endCursor: string
+      pages: number
+      currentPage: number
     }
   }
 }
 export interface PostsQueryVariables extends Pagination {
   categoryId?: number | null
+  titleAndContent?: string
   title?: string
   content?: string
+  offset?: number
+  targetPost?: string
+  pageSize?: number
 }
 
 export const GET_POSTS: TypedDocumentNode<
   PostsQueryResult,
   PostsQueryVariables
 > = gql`
-  query Posts($categoryId: Decimal) {
-    posts(categoryId: $categoryId) {
-      edges {
-        node {
-          category {
+  query Posts(
+    $categoryId: Int
+    $titleAndContent: String
+    $title: String
+    $content: String
+    $offset: Int
+    $targetPost: ID
+    $pageSize: Int
+  ) {
+    posts(
+      categoryId: $categoryId
+      titleAndContent: $titleAndContent
+      title: $title
+      content: $content
+      offset: $offset
+      targetPost: $targetPost
+      pageSize: $pageSize
+    ) {
+      posts {
+        category {
+          id
+          name
+          isHidden
+          ancestors {
             id
             name
-            isHidden
-            ancestors {
-              id
-              name
-            }
           }
-          id
-          title
-          textContent
-          thumbnail
-          isHidden
-          createdAt
         }
+        id
+        title
+        textContent
+        thumbnail
+        isHidden
+        createdAt
+      }
+      pageInfo {
+        pages
+        currentPage
       }
     }
   }
