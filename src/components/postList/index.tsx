@@ -2,7 +2,7 @@ import { FC, useCallback, useMemo, useRef } from 'react'
 import clsx from 'clsx'
 import { Link, useLocation, useSearchParams } from 'react-router-dom'
 
-import { QueryRef, useQuery, useReadQuery } from '@apollo/client'
+import { useQuery } from '@apollo/client'
 import { GET_POSTS } from './api'
 
 import { getRelativeTimeFromNow } from 'utils/dayJS'
@@ -10,11 +10,10 @@ import { getRelativeTimeFromNow } from 'utils/dayJS'
 import Icon from '@mdi/react'
 import { mdiLock } from '@mdi/js'
 import { Error } from 'components/Error'
+import { Paginator } from 'components/Paginator'
 import { Spinner } from 'components/Spinner'
-import { Paginator } from 'components/Tiptap/UI/Paginator'
 
 import type { Post } from 'types/data'
-import type { PostsQueryResult, PostsQueryVariables } from './api'
 
 export const PostItem: FC<{ post: Post; isActive?: boolean }> = ({
   post,
@@ -137,7 +136,15 @@ export const PostList: FC<PostListProps> = ({
         ...filterArgs
       })
     },
-    [refetch, pageSize]
+    [
+      refetch,
+      pageSize,
+      filterArgs,
+      logHistory,
+      searchParams,
+      setSearchParams,
+      useSearchParam
+    ]
   )
 
   if (error)

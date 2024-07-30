@@ -14,12 +14,15 @@ export const Paginator: FC<PaginatorProps> = ({
   currentPage,
   onPageChanged
 }) => {
-  const clickHandler = useCallback((e: MouseEvent<HTMLButtonElement>) => {
-    const pageIdx =
-      Number.parseInt(e.currentTarget.dataset.pageIdx as string) || 0
+  const clickHandler = useCallback(
+    (e: MouseEvent<HTMLButtonElement>) => {
+      const pageIdx =
+        Number.parseInt(e.currentTarget.dataset.pageIdx as string) || 0
 
-    return onPageChanged?.(pageIdx)
-  }, [])
+      return onPageChanged?.(pageIdx)
+    },
+    [onPageChanged]
+  )
 
   return (
     <div className='flex justify-center gap-2 py-1'>
