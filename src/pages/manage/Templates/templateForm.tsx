@@ -23,11 +23,12 @@ export const TemplateForm: FC<{
   onDelete?: () => any
 }> = ({ queryRef, onDelete }) => {
   const {
-    input: { title, content, thumbnail, images },
+    input: { title, content, textContent, thumbnail, images },
     isModified,
     initialize,
     setTitle,
     setContent,
+    setTextContent,
     setThumbnail,
     addImage,
     removeImage
@@ -35,6 +36,7 @@ export const TemplateForm: FC<{
     title: '',
     isHidden: false,
     content: '<p></p>',
+    textContent: '',
     images: []
   })
   const {
@@ -55,6 +57,7 @@ export const TemplateForm: FC<{
         data: {
           title,
           content,
+          textContent,
           thumbnail: thumbnail,
           images: images
         }
@@ -109,6 +112,7 @@ export const TemplateForm: FC<{
         {
           title: template.title,
           content: template.content,
+          textContent: template.textContent,
           isHidden: false,
           thumbnail: template.thumbnail,
           images: template.images
@@ -136,7 +140,10 @@ export const TemplateForm: FC<{
           content={content}
           thumbnail={thumbnail}
           images={images}
-          onChange={(editor) => setContent(editor.getHTML())}
+          onChange={(editor) => {
+            setContent(editor.getHTML())
+            setTextContent(editor.getText())
+          }}
           onChangeThumbnail={setThumbnail}
           onAddImage={addImage}
           onDeleteImage={removeImage}

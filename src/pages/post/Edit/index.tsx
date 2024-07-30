@@ -55,6 +55,7 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
     setCategory,
     setTitle,
     setContent,
+    setTextContent,
     setIsHidden,
     setThumbnail,
     addImage,
@@ -65,6 +66,7 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
     category: Number(searchParams.get('category')) || undefined,
     isHidden: false,
     content: '<p></p>',
+    textContent: '',
     images: []
   })
 
@@ -81,6 +83,7 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
         title: post.title,
         category: post.category.id,
         content: post.content,
+        textContent: post.textContent,
         isHidden: post.isHidden,
         thumbnail: post.thumbnail,
         images: post.images
@@ -132,6 +135,7 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
         category: draft.category.id,
         title: draft.title,
         content: draft.content,
+        textContent: draft.textContent,
         isHidden: draft.isHidden,
         thumbnail: draft.thumbnail,
         images: draft.images
@@ -155,6 +159,7 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
           category: prev.category,
           title: prev.title,
           content: template.content,
+          textContent: template.textContent,
           isHidden: prev.isHidden,
           thumbnail: template.thumbnail,
           images: template.images
@@ -395,7 +400,10 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
           <Tiptap
             className='mb-5 min-h-40 grow'
             content={input.content}
-            onChange={(editor) => setContent(editor.getHTML())}
+            onChange={(editor) => {
+              setContent(editor.getHTML())
+              setTextContent(editor.getText())
+            }}
             thumbnail={input.thumbnail}
             images={input.images}
             onAddImage={addImage}

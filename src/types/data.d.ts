@@ -16,6 +16,7 @@ export interface Template {
   id: number
   title: string
   content: string
+  textContent: srting
   images: string[]
   thumbnail?: string
 }
@@ -29,7 +30,6 @@ export interface Draft extends Template {
 
 export interface Post extends Omit<Draft, 'id' | 'summary'> {
   id: string
-  textContent: string
   isDeleted: boolean
   createdAt: Date
   updatedAt: Date

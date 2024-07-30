@@ -6,7 +6,7 @@ import type { Category, Post } from 'types/data'
 export interface PostInput
   extends Omit<
     Post,
-    'id' | 'category' | 'isDeleted' | 'createdAt' | 'updatedAt' | 'textContent'
+    'id' | 'category' | 'isDeleted' | 'createdAt' | 'updatedAt'
   > {
   category?: number
 }

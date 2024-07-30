@@ -74,6 +74,7 @@ export const usePostInput = (_initialValue: PostInput) => {
     ),
     setTitle: createSetter<string, PostInput>(setValue, 'title'),
     setContent: createSetter<string, PostInput>(setValue, 'content'),
+    setTextContent: createSetter<string, PostInput>(setValue, 'textContent'),
     setIsHidden: createSetter<boolean, PostInput>(setValue, 'isHidden'),
     setImages: createSetter<string[], PostInput>(setValue, 'images'),
     setThumbnail,

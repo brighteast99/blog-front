@@ -61,6 +61,7 @@ export const ManageTemplatePage: FC = () => {
         data: {
           title: '새 템플릿',
           content: '<p></p>',
+          textContent: '',
           images: []
         }
       },

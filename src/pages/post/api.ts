@@ -17,11 +17,12 @@ export const GET_POST: TypedDocumentNode<{ post: Post }, { id?: string }> = gql`
           name
         }
       }
-      isHidden
-      thumbnail
-      images
-      createdAt
       content
+      textContent
+      images
+      thumbnail
+      isHidden
+      createdAt
     }
   }
 `
