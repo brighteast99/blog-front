@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 
 import type { TypedDocumentNode } from '@apollo/client'
-import type { Pagination, Post } from 'types/data'
+import type { Post } from 'types/data'
 
 export type PostsQueryResult = {
   posts: {
@@ -12,7 +12,7 @@ export type PostsQueryResult = {
     }
   }
 }
-export interface PostsQueryVariables extends Pagination {
+export interface PostsQueryVariables {
   categoryId?: number | null
   titleAndContent?: string
   title?: string

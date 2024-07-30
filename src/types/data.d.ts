@@ -1,11 +1,3 @@
-export interface Pagination {
-  offset?: number
-  before?: string
-  after?: string
-  first?: number
-  last?: number
-}
-
 export interface Category {
   id?: number
   name: string
