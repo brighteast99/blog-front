@@ -77,6 +77,7 @@ export const CategoryPage: FC = () => {
 
     searchParams.set('key', searchBy)
     searchParams.set('value', searchKeyword)
+    searchParams.delete('page')
     setSearchParams(searchParams)
   }
 
