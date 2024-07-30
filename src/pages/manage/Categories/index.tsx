@@ -1,45 +1,22 @@
-import { FC, Suspense, useCallback, useLayoutEffect } from 'react'
-import {
-  TypedDocumentNode,
-  gql,
-  useLoadableQuery,
-  useMutation,
-  useQuery
-} from '@apollo/client'
+import { Suspense, useCallback, useLayoutEffect, useMemo } from 'react'
 import clsx from 'clsx'
+import { ErrorBoundary } from 'react-error-boundary'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
-import { Category } from 'types/data'
+
+import { useLoadableQuery, useMutation, useQuery } from '@apollo/client'
+import { CATEGORY_FULL_INFO, CREATE_CATEGORY, DELETE_CATEGORY } from './api'
+
 import { GET_CATEGORY_HIERARCHY } from 'features/sidebar/Sidebar'
-import { GET_CATEGORY } from 'pages/category'
+
 import Icon from '@mdi/react'
 import { mdiLoading, mdiLock, mdiMinus, mdiPlus } from '@mdi/js'
 import { IconButton } from 'components/Buttons/IconButton'
+import { Error } from 'components/Error'
 import { Spinner } from 'components/Spinner'
-import { CategoryForm, CategoryInput } from './categoryForm'
+import { CategoryForm } from './categoryForm'
 
-export const CREATE_CATEGORY: TypedDocumentNode<
-  { createCategory: { createdCategory: Category } },
-  { data: CategoryInput }
-> = gql`
-  mutation CreateCategory($data: CategoryInput!) {
-    createCategory(data: $data) {
-      createdCategory {
-        id
-      }
-    }
-  }
-`
-
-export const DELETE_CATEGORY: TypedDocumentNode<
-  { deleteCategory: { success: boolean } },
-  { id: number }
-> = gql`
-  mutation DeleteCategory($id: Int!) {
-    deleteCategory(id: $id) {
-      success
-    }
-  }
-`
+import type { FC } from 'react'
+import type { Category } from 'types/data'
 
 const CategoryListItem: FC<{ category: Category }> = ({ category }) => {
   const [searchParams, _] = useSearchParams()
@@ -83,20 +60,39 @@ const CategoryListItem: FC<{ category: Category }> = ({ category }) => {
 export const ManageCategoryPage: FC = () => {
   const [searchParams, setSearchParams] = useSearchParams()
   const navigate = useNavigate()
-  const { data, loading } = useQuery(GET_CATEGORY_HIERARCHY)
-  const [loadCategory, queryRef, { reset }] = useLoadableQuery(GET_CATEGORY, {
-    fetchPolicy: 'cache-and-network'
+
+  const {
+    data: categoriesData,
+    loading: loadingCategories,
+    error: errorLoadingCategories,
+    refetch: refetchCategories
+  } = useQuery(GET_CATEGORY_HIERARCHY, {
+    notifyOnNetworkStatusChange: true
   })
+  const categories = useMemo(() => {
+    if (!categoriesData?.categoryHierarchy) return null
+
+    try {
+      return JSON.parse(
+        JSON.parse(categoriesData?.categoryHierarchy)
+      ) as Category[]
+    } catch {
+      return []
+    }
+  }, [categoriesData?.categoryHierarchy])
+
+  const [
+    loadCategory,
+    queryRef,
+    { reset: resetCategory, refetch: refetchCategory }
+  ] = useLoadableQuery(CATEGORY_FULL_INFO)
+
   const [_createCategory, { loading: creating, reset: resetCreateMutation }] =
     useMutation(CREATE_CATEGORY)
   const [_deleteCategory, { loading: deleting, reset: resetDeleteMutation }] =
     useMutation(DELETE_CATEGORY)
   const selectedCategory =
     Number.parseInt(searchParams.get('category') ?? '0') || undefined
-
-  const categories = JSON.parse(
-    JSON.parse(data?.categoryHierarchy ?? '"[]"')
-  ) as Category[]
 
   const selectCategory = useCallback(
     (id?: number, forced?: boolean) => {
@@ -119,7 +115,7 @@ export const ManageCategoryPage: FC = () => {
           name: '새 분류',
           description: '',
           isHidden: Boolean(
-            categories.find((category) => category.id === selectedCategory)
+            categories?.find((category) => category.id === selectedCategory)
               ?.isHidden
           ),
           subcategoryOf: selectedCategory
@@ -169,7 +165,7 @@ export const ManageCategoryPage: FC = () => {
   }, [_deleteCategory, resetDeleteMutation, selectCategory, selectedCategory])
 
   useLayoutEffect(() => {
-    if (!selectedCategory) reset()
+    if (!selectedCategory) resetCategory()
     else
       loadCategory({
         id: selectedCategory
@@ -187,8 +183,17 @@ export const ManageCategoryPage: FC = () => {
             selectCategory(undefined)
           }}
         >
-          {loading && <Spinner className='absolute inset-0' size='sm' />}
-          {data && (
+          {loadingCategories && (
+            <Spinner className='absolute inset-0' size='sm' />
+          )}
+          {errorLoadingCategories && (
+            <Error
+              code={500}
+              hideDefaultAction
+              actions={[{ label: '다시 시도', handler: refetchCategories }]}
+            />
+          )}
+          {categories && (
             <ul>
               {categories.map((category) => {
                 if (!category.id) return null
@@ -227,15 +232,33 @@ export const ManageCategoryPage: FC = () => {
       </div>
 
       <div className='relative w-2/3'>
-        <Suspense fallback={<Spinner className='absolute inset-0' />}>
-          {queryRef ? (
-            <CategoryForm queryRef={queryRef} />
-          ) : (
-            <span className='absolute inset-0 m-auto block size-fit text-xl text-neutral-400'>
-              편집할 분류를 선택하세요
-            </span>
+        <ErrorBoundary
+          FallbackComponent={({ resetErrorBoundary }) => (
+            <Error
+              message='게시판 정보를 불러오지 못했습니다'
+              hideDefaultAction
+              actions={[
+                {
+                  label: '다시 시도',
+                  handler: () => {
+                    refetchCategory()
+                    resetErrorBoundary()
+                  }
+                }
+              ]}
+            />
           )}
-        </Suspense>
+        >
+          <Suspense fallback={<Spinner className='absolute inset-0' />}>
+            {queryRef ? (
+              <CategoryForm queryRef={queryRef} />
+            ) : (
+              <span className='absolute inset-0 m-auto block size-fit text-xl text-neutral-400'>
+                편집할 분류를 선택하세요
+              </span>
+            )}
+          </Suspense>
+        </ErrorBoundary>
       </div>
     </div>
   )

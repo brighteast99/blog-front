@@ -4,7 +4,31 @@
   "jsxSingleQuote": true,
   "trailingComma": "none",
   "plugins": [
+    "@ianvs/prettier-plugin-sort-imports",
     "prettier-plugin-tailwindcss"
   ],
+  "importOrder": [
+    "<BUILTIN_MODULES>",
+    "^react$",
+    "<THIRD_PARTY_MODULES>",
+    "",
+    "@apollo",
+    "api$",
+    "",
+    "^app/*",
+    "^utils/*",
+    "^features/*",
+    "",
+    "@mdi/react",
+    "@mdi/js",
+    "^pages/*",
+    "^components/*",
+    "^[./]",
+    "",
+    "<TYPES>^(^react$)",
+    "<TYPES>",
+    "<TYPES>^[.]"
+  ],
+  "importOrderTypeScriptVersion": "5.3.3",
   "tailwindConfig": "./tailwind.config.js"
 }

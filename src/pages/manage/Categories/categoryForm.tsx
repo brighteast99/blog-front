@@ -1,160 +1,36 @@
-import { FC, FormEvent, useCallback, useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
+
+import { useMutation, useQuery, useReadQuery } from '@apollo/client'
 import {
-  QueryReference,
-  TypedDocumentNode,
-  gql,
-  useMutation,
-  useQuery,
-  useReadQuery
-} from '@apollo/client'
-import { Category } from 'types/data'
+  CATEGORY_FULL_INFO,
+  CategoryInput,
+  UPDATE_CATEGORY,
+  VALID_SUPERCATEGORIES
+} from './api'
+
 import { GET_CATEGORY_HIERARCHY } from 'features/sidebar/Sidebar'
-import { GET_CATEGORY } from 'pages/category'
+
 import { mdiClose, mdiRefresh } from '@mdi/js'
 import { IconButton } from 'components/Buttons/IconButton'
 import { ThemedButton } from 'components/Buttons/ThemedButton'
-import { NavigationBlocker } from 'components/NavigationBlocker'
 import { Spinner } from 'components/Spinner'
-import { Tooltip, TooltipContent, TooltipTrigger } from 'components/Tooltip'
+import { NavigationBlocker } from 'components/utils/NavigationBlocker'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger
+} from 'components/utils/Tooltip'
+import { useCategory } from './hooks'
 
-export interface CategoryInput {
-  coverImage?: File | null
-  name: string
-  description: string
-  subcategoryOf?: number
-  isHidden: boolean
-}
-
-const GET_VALID_SUPERCATEGORIES: TypedDocumentNode<
-  { validSupercategories: Category[] },
-  { id: number }
-> = gql`
-  query ValidSupercategories($id: Int!) {
-    validSupercategories(id: $id) {
-      id
-      name
-      isHidden
-    }
-  }
-`
-const UPDATE_CATEGORY: TypedDocumentNode<
-  { updateCategory: { success: boolean } },
-  { id: number; data: CategoryInput }
-> = gql`
-  mutation UpdateCategory($id: Int!, $data: CategoryInput!) {
-    updateCategory(id: $id, data: $data) {
-      success
-    }
-  }
-`
-
-export const useCategory = (_initialValue: CategoryInput) => {
-  const [initialValue, setInitialValue] = useState<CategoryInput>(_initialValue)
-  const [value, setValue] = useState<CategoryInput>(_initialValue)
-  const [coverPreview, setCoverPreview] = useState<string | null>()
-
-  const isModified = JSON.stringify(initialValue) !== JSON.stringify(value)
-
-  const initialize = useCallback(
-    (
-      value: CategoryInput | ((prev: CategoryInput) => CategoryInput),
-      keepInitialValue: boolean = false
-    ) => {
-      if (!keepInitialValue) setInitialValue(value)
-      setValue(value)
-    },
-    [setInitialValue, setValue]
-  )
-
-  function setName(name: string) {
-    setValue((prev) => {
-      return {
-        ...prev,
-        name
-      }
-    })
-  }
-
-  function setDescription(description: string) {
-    setValue((prev) => {
-      return {
-        ...prev,
-        description
-      }
-    })
-  }
-
-  function setIsHidden(isHidden: boolean) {
-    setValue((prev) => {
-      return {
-        ...prev,
-        isHidden
-      }
-    })
-  }
-
-  function setSubcategoryOf(subcategoryOf: number) {
-    setValue((prev) => {
-      return {
-        ...prev,
-        subcategoryOf: subcategoryOf
-      }
-    })
-  }
-
-  function setCoverImage(coverImage?: File | null) {
-    setValue((prev) => {
-      if (coverImage === undefined) {
-        let copy = { ...prev }
-        delete copy.coverImage
-        return copy
-      }
-
-      return {
-        ...prev,
-        coverImage
-      }
-    })
-  }
-
-  useEffect(() => {
-    let url: string
-    if (value.coverImage) {
-      url = URL.createObjectURL(value.coverImage)
-      setCoverPreview(url)
-    } else setCoverPreview(null)
-
-    return () => {
-      if (url) URL.revokeObjectURL(url)
-    }
-  }, [value.coverImage])
-
-  return {
-    info: value,
-    isModified,
-    coverPreview,
-    initialize,
-    setCoverImage,
-    setName,
-    setDescription,
-    setSubcategoryOf,
-    setIsHidden
-  }
-}
+import type { FC, FormEvent } from 'react'
+import type { QueryRef } from '@apollo/client'
+import type { Category } from 'types/data'
 
 export const CategoryForm: FC<{
-  queryRef: QueryReference<{ category: Category }, { id: number }>
+  queryRef: QueryRef<{ category: Category }, { id: number }>
 }> = ({ queryRef }) => {
   const ImageInput = useRef<HTMLInputElement>(null)
-  const {
-    data: { category }
-  } = useReadQuery(queryRef)
-  const { data: categoriesData } = useQuery(GET_VALID_SUPERCATEGORIES, {
-    variables: { id: category.id as number },
-    fetchPolicy: 'cache-and-network'
-  })
-  const [_updateCategory, { loading: updating, reset: resetUpdateMutation }] =
-    useMutation(UPDATE_CATEGORY)
+
   const {
     info: { coverImage, name, description, subcategoryOf, isHidden },
     isModified,
@@ -171,26 +47,30 @@ export const CategoryForm: FC<{
     isHidden: false
   })
 
+  const {
+    data: { category }
+  } = useReadQuery(queryRef)
+
+  const { data: validSupercategoriesData } = useQuery(VALID_SUPERCATEGORIES, {
+    variables: { id: category.id as number },
+    fetchPolicy: 'cache-and-network'
+  })
+  const validSupercategories = useMemo(
+    () => validSupercategoriesData?.validSupercategories || [],
+    [validSupercategoriesData]
+  )
+
+  const [_updateCategory, { loading: updating, reset: resetUpdateMutation }] =
+    useMutation(UPDATE_CATEGORY)
+
   const coverChanged = coverImage || coverImage === null
 
-  const parentIsHidden =
-    categoriesData?.validSupercategories.find(
-      (category) => category.id === subcategoryOf
-    )?.isHidden ?? false
-
-  useEffect(() => {
-    if (category) {
-      let categoryData: CategoryInput = {
-        name: category.name,
-        description: category.description,
-        isHidden: category.isHidden
-      }
-      if (category.subcategoryOf?.id)
-        categoryData.subcategoryOf = category.subcategoryOf?.id
-
-      initialize(categoryData, false)
-    }
-  }, [category, initialize])
+  const parentIsHidden = useMemo(
+    () =>
+      validSupercategories.find((category) => category.id === subcategoryOf)
+        ?.isHidden ?? false,
+    [validSupercategories, subcategoryOf]
+  )
 
   function updateCategory(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -212,7 +92,7 @@ export const CategoryForm: FC<{
           query: GET_CATEGORY_HIERARCHY
         },
         {
-          query: GET_CATEGORY,
+          query: CATEGORY_FULL_INFO,
           variables: { id }
         }
       ],
@@ -223,6 +103,20 @@ export const CategoryForm: FC<{
       }
     })
   }
+
+  useEffect(() => {
+    if (category) {
+      let categoryData: CategoryInput = {
+        name: category.name,
+        description: category.description,
+        isHidden: category.isHidden
+      }
+      if (category.subcategoryOf?.id)
+        categoryData.subcategoryOf = category.subcategoryOf?.id
+
+      initialize(categoryData, false)
+    }
+  }, [category, initialize])
 
   return (
     <>
@@ -323,7 +217,7 @@ export const CategoryForm: FC<{
             }}
           >
             <option value={0}>선택안함</option>
-            {categoriesData?.validSupercategories.map((_category) => {
+            {validSupercategories.map((_category) => {
               if (_category.id === category.id) return null
               return (
                 <option

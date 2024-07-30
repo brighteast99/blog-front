@@ -1,12 +1,12 @@
-import React from 'react'
+import { ApolloContext } from 'ApolloContext'
 import { createRoot } from 'react-dom/client'
 import { Provider } from 'react-redux'
-import { ApolloContext } from 'ApolloContext'
-import { store } from 'app/store'
-import { setToken } from 'features/auth/authSlice.ts'
-import { authFromStorage } from 'utils/Auth.ts'
 import { RouterProvider } from 'react-router-dom'
 import { router } from 'routes.tsx'
+import { store } from 'app/store'
+import { authFromStorage } from 'utils/Auth.ts'
+import { setToken } from 'features/auth/authSlice.ts'
+
 import 'index.scss'
 
 if (/^((?!chrome|android).)*safari/i.test(navigator.userAgent)) {
@@ -28,11 +28,9 @@ do {
 } while (retry)
 
 root.render(
-  // <React.StrictMode>
   <ApolloContext>
     <Provider store={store}>
       <RouterProvider router={router} />
     </Provider>
   </ApolloContext>
-  // </React.StrictMode>
 )

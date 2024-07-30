@@ -1,4 +1,15 @@
-import {
+import { useCallback, useState } from 'react'
+import clsx from 'clsx'
+import { twMerge } from 'tailwind-merge'
+
+import Icon from '@mdi/react'
+import { mdiWaterOff } from '@mdi/js'
+import { ThemedButton } from 'components/Buttons/ThemedButton'
+import { PopoverMenu } from 'components/PopoverMenu'
+import styles from './ColorSelector.module.scss'
+import Palette from './palette'
+
+import type {
   ChangeEvent,
   DetailedHTMLProps,
   FC,
@@ -6,21 +17,9 @@ import {
   KeyboardEvent,
   MouseEvent,
   ReactNode,
-  StyleHTMLAttributes,
-  useCallback,
-  useState
+  StyleHTMLAttributes
 } from 'react'
-import clsx from 'clsx'
-import { twMerge } from 'tailwind-merge'
-import Palette from './palette'
-
-import Icon from '@mdi/react'
-import { mdiWaterOff } from '@mdi/js'
-import { PopoverMenu } from 'components/PopoverMenu'
-import { ThemedButton } from 'components/Buttons/ThemedButton'
-
-import styles from './ColorSelector.module.scss'
-import { Placement } from '@floating-ui/react'
+import type { Placement } from '@floating-ui/react'
 
 const ColorPreview: FC<
   DetailedHTMLProps<HTMLAttributes<HTMLButtonElement>, HTMLButtonElement> & {
@@ -40,7 +39,7 @@ const ColorPreview: FC<
   )
 }
 
-export interface ColorSelectorProps {
+interface ColorSelectorProps {
   className?: string
   description?: string
   value: string

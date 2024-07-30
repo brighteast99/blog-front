@@ -1,12 +1,14 @@
 import { useCallback, useLayoutEffect, useState } from 'react'
+import { ErrorBoundary } from 'react-error-boundary'
+import { Outlet } from 'react-router-dom'
 import { throttle } from 'throttle-debounce'
+
 import { useAppDispatch, useAppSelector } from 'app/hooks'
 import { refreshToken, selectIsAuthenticated } from 'features/auth/authSlice'
-import { selectBreakpoint, updateSize } from 'features/window/windowSlice'
-import { Outlet } from 'react-router-dom'
 import { Sidebar } from 'features/sidebar/Sidebar'
 import { SidebarHandle } from 'features/sidebar/SidebarHandle'
-import { ErrorBoundary } from 'react-error-boundary'
+import { selectBreakpoint, updateSize } from 'features/window/windowSlice'
+
 import { Error } from 'components/Error'
 
 function App() {

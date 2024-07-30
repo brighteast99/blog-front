@@ -1,14 +1,21 @@
-import React, { FC, useState } from 'react'
-import {
-  NodeViewWrapper,
-  NodeViewContent,
-  ReactNodeViewRenderer,
-  NodeViewProps
-} from '@tiptap/react'
+import { useState } from 'react'
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight'
-import { IconButton } from 'components/Buttons/IconButton'
+import {
+  NodeViewContent,
+  NodeViewWrapper,
+  ReactNodeViewRenderer
+} from '@tiptap/react'
+
 import { mdiContentCopy } from '@mdi/js'
-import { Tooltip, TooltipContent, TooltipTrigger } from 'components/Tooltip'
+import { IconButton } from 'components/Buttons/IconButton'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger
+} from 'components/utils/Tooltip'
+
+import type { FC } from 'react'
+import type { NodeViewProps } from '@tiptap/react'
 
 interface CodeBlockComponentProps extends NodeViewProps {}
 

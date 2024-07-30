@@ -1,14 +1,16 @@
-import { PropsWithChildren } from 'react'
+import createUploadLink from 'apollo-upload-client/createUploadLink.mjs'
+
 import {
   ApolloClient,
   ApolloLink,
   ApolloProvider,
   InMemoryCache
 } from '@apollo/client'
+
 import { store } from 'app/store'
 import { isFuture } from 'utils/dayJS'
-import 'apollo-upload-client/createUploadLink.mjs'
-import createUploadLink from 'apollo-upload-client/createUploadLink.mjs'
+
+import type { PropsWithChildren } from 'react'
 
 const uploadLink = createUploadLink({
   uri: process.env.REACT_APP_API_ENDPOINT

@@ -1,108 +1,25 @@
-import { FC, FormEvent, useCallback, useEffect, useRef, useState } from 'react'
-import { TypedDocumentNode, gql, useMutation, useQuery } from '@apollo/client'
-import { BlogInfo as _BlogInfo } from 'types/data'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+
+import { useMutation, useQuery } from '@apollo/client'
+import { UPDATE_INFO } from './api'
+
 import { GET_INFO } from 'features/sidebar/Sidebar'
+
 import { mdiClose, mdiRefresh } from '@mdi/js'
 import { Avatar } from 'components/Avatar'
 import { IconButton } from 'components/Buttons/IconButton'
 import { ThemedButton } from 'components/Buttons/ThemedButton'
-import { NavigationBlocker } from 'components/NavigationBlocker'
+import { Error } from 'components/Error'
 import { Spinner } from 'components/Spinner'
-import { Tooltip, TooltipContent, TooltipTrigger } from 'components/Tooltip'
+import { NavigationBlocker } from 'components/utils/NavigationBlocker'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger
+} from 'components/utils/Tooltip'
+import { useBlogInfo } from './hooks'
 
-interface BlogInfo extends Omit<_BlogInfo, 'avatar'> {
-  avatar?: File | null
-}
-
-const UPDATE_INFO: TypedDocumentNode<
-  { updateInfo: { updatedInfo: _BlogInfo } },
-  { data: BlogInfo }
-> = gql`
-  mutation UpdateInfo($data: InfoInput!) {
-    updateInfo(data: $data) {
-      updatedInfo {
-        title
-        description
-        avatar
-      }
-    }
-  }
-`
-
-export const useBlogInfo = (_initialValue: BlogInfo) => {
-  const [initialValue, setInitialValue] = useState<BlogInfo>(_initialValue)
-  const [value, setValue] = useState<BlogInfo>(_initialValue)
-  const [avatarPreview, setAvatarPreview] = useState<string | null>()
-
-  const isModified = JSON.stringify(initialValue) !== JSON.stringify(value)
-
-  const initialize = useCallback(
-    (
-      value: BlogInfo | ((prev: BlogInfo) => BlogInfo),
-      keepInitialValue: boolean = false
-    ) => {
-      if (!keepInitialValue) setInitialValue(value)
-      setValue(value)
-    },
-    [setInitialValue, setValue]
-  )
-
-  function setTitle(title: string) {
-    setValue((prev) => {
-      return {
-        ...prev,
-        title
-      }
-    })
-  }
-
-  function setDescription(description: string) {
-    setValue((prev) => {
-      return {
-        ...prev,
-        description
-      }
-    })
-  }
-
-  function setAvatar(avatar?: File | null) {
-    setValue((prev) => {
-      if (avatar === undefined) {
-        return {
-          title: prev.title,
-          description: prev.description
-        }
-      }
-
-      return {
-        ...prev,
-        avatar
-      }
-    })
-  }
-
-  useEffect(() => {
-    let url: string
-    if (value.avatar) {
-      url = URL.createObjectURL(value.avatar)
-      setAvatarPreview(url)
-    } else setAvatarPreview(null)
-
-    return () => {
-      if (url) URL.revokeObjectURL(url)
-    }
-  }, [value.avatar])
-
-  return {
-    info: value,
-    isModified,
-    avatarPreview,
-    initialize,
-    setTitle,
-    setDescription,
-    setAvatar
-  }
-}
+import type { FC, FormEvent } from 'react'
 
 export const ManageInfoPage: FC = () => {
   const ImageInput = useRef<HTMLInputElement>(null)
@@ -118,22 +35,19 @@ export const ManageInfoPage: FC = () => {
     title: '',
     description: ''
   })
-  const { data, loading } = useQuery(GET_INFO)
+
+  const {
+    data: blogInfoData,
+    loading: loadingBlogInfo,
+    error: errorLoadingBlogInfo,
+    refetch: refetchBlogInfo
+  } = useQuery(GET_INFO, { notifyOnNetworkStatusChange: true })
+  const blogInfo = useMemo(() => blogInfoData?.blogInfo, [blogInfoData])
+
   const [_updateInfo, { loading: updating, reset: resetUpdateMutation }] =
     useMutation(UPDATE_INFO)
 
   const profileChanged = avatar || avatar === null
-
-  useEffect(() => {
-    if (data?.blogInfo)
-      initialize(
-        {
-          title: data.blogInfo.title,
-          description: data.blogInfo.description
-        },
-        false
-      )
-  }, [data, initialize])
 
   const updateInfo = useCallback(
     (e: FormEvent<HTMLFormElement>) => {
@@ -146,8 +60,8 @@ export const ManageInfoPage: FC = () => {
         ],
         variables: {
           data: {
-            title: title || data?.blogInfo?.title || '',
-            description: description || data?.blogInfo?.description || '',
+            title: title || blogInfo?.title || '',
+            description: description || blogInfo?.description || '',
             avatar
           }
         },
@@ -163,15 +77,34 @@ export const ManageInfoPage: FC = () => {
     [
       _updateInfo,
       avatar,
-      data?.blogInfo?.description,
-      data?.blogInfo?.title,
+      blogInfo?.description,
+      blogInfo?.title,
       description,
       resetUpdateMutation,
       title
     ]
   )
 
-  if (loading) return <Spinner size='lg' />
+  useEffect(() => {
+    if (blogInfo)
+      initialize(
+        {
+          title: blogInfo.title,
+          description: blogInfo.description
+        },
+        false
+      )
+  }, [blogInfoData, initialize])
+
+  if (loadingBlogInfo) return <Spinner size='lg' />
+  if (errorLoadingBlogInfo)
+    return (
+      <Error
+        code={500}
+        hideDefaultAction
+        actions={[{ label: '다시 시도', handler: refetchBlogInfo }]}
+      />
+    )
   return (
     <>
       <NavigationBlocker
@@ -191,36 +124,32 @@ export const ManageInfoPage: FC = () => {
               }}
             >
               <span className='block text-xl text-foreground'>변경</span>
-              {(data?.blogInfo?.avatar || avatar) && (
+              {(blogInfo?.avatar || avatar) && (
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <IconButton
                       className='absolute right-0 top-0 !bg-transparent p-1'
                       path={
-                        profileChanged && data?.blogInfo?.avatar
+                        profileChanged && blogInfo?.avatar
                           ? mdiRefresh
                           : mdiClose
                       }
                       variant='text'
                       type='button'
                       color={
-                        profileChanged && data?.blogInfo?.avatar
-                          ? 'unset'
-                          : 'error'
+                        profileChanged && blogInfo?.avatar ? 'unset' : 'error'
                       }
                       onClick={(e) => {
                         e.stopPropagation()
                         setAvatar(
-                          profileChanged && data?.blogInfo?.avatar
-                            ? undefined
-                            : null
+                          profileChanged && blogInfo?.avatar ? undefined : null
                         )
                         if (ImageInput.current) ImageInput.current.value = ''
                       }}
                     />
                   </TooltipTrigger>
                   <TooltipContent>
-                    {profileChanged && data?.blogInfo?.avatar
+                    {profileChanged && blogInfo?.avatar
                       ? '되돌리기'
                       : '기본 이미지로 변경'}
                   </TooltipContent>
@@ -250,7 +179,7 @@ export const ManageInfoPage: FC = () => {
               imgSrc={
                 avatar === null
                   ? undefined
-                  : avatarPreview ?? data?.blogInfo?.avatar
+                  : (avatarPreview ?? blogInfo?.avatar)
               }
             />
           </div>
@@ -260,14 +189,14 @@ export const ManageInfoPage: FC = () => {
             required
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder={data?.blogInfo?.title || '블로그 제목'}
+            placeholder={blogInfo?.title || '블로그 제목'}
           />
           <textarea
             className='min-h-32 p-2'
             required
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            placeholder={data?.blogInfo?.description || '블로그 소개'}
+            placeholder={blogInfo?.description || '블로그 소개'}
           />
 
           <ThemedButton
@@ -277,8 +206,8 @@ export const ManageInfoPage: FC = () => {
               !title.length ||
               !description.length ||
               (!profileChanged &&
-                title === data?.blogInfo?.title &&
-                description === data?.blogInfo?.description)
+                title === blogInfo?.title &&
+                description === blogInfo?.description)
             }
           >
             {updating ? <Spinner size='xs' /> : '저장'}

@@ -1,8 +1,14 @@
-import { mdiAlertOutline } from '@mdi/js'
-import Icon from '@mdi/react'
-import { FC } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { ErrorProps } from 'types/error'
+
+import Icon from '@mdi/react'
+import { mdiAlertOutline } from '@mdi/js'
+
+import type { FC } from 'react'
+
+interface ErrorProps {
+  code?: number | string
+  message?: string
+}
 
 export interface Action {
   label: string

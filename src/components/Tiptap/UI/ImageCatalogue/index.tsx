@@ -1,29 +1,16 @@
-import {
-  ChangeEvent,
-  FC,
-  useCallback,
-  useEffect,
-  useRef,
-  useState
-} from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useCurrentEditor } from '@tiptap/react'
-import { IconButton } from 'components/Buttons/IconButton'
-import { mdiClose, mdiPlus } from '@mdi/js'
-import { TypedDocumentNode, gql, useMutation } from '@apollo/client'
-import { Spinner } from 'components/Spinner'
-import { ThemedButton } from 'components/Buttons/ThemedButton'
 import clsx from 'clsx'
 
-const UPLOAD_IMAGE: TypedDocumentNode<
-  { uploadImage: { url: string } },
-  { file: File }
-> = gql`
-  mutation UploadImage($file: Upload!) {
-    uploadImage(file: $file) {
-      url
-    }
-  }
-`
+import { useMutation } from '@apollo/client'
+import { UPLOAD_IMAGE } from './api'
+
+import { mdiClose, mdiPlus } from '@mdi/js'
+import { IconButton } from 'components/Buttons/IconButton'
+import { ThemedButton } from 'components/Buttons/ThemedButton'
+import { Spinner } from 'components/Spinner'
+
+import type { ChangeEvent, FC } from 'react'
 
 const ImagePreview: FC<{
   isThumbnail?: boolean

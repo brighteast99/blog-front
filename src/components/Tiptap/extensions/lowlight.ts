@@ -1,4 +1,10 @@
-const languages = [
+import django from 'highlight.js/lib/languages/django'
+import dockerfile from 'highlight.js/lib/languages/dockerfile'
+import nginx from 'highlight.js/lib/languages/nginx'
+import pgsql from 'highlight.js/lib/languages/pgsql'
+import { common, createLowlight } from 'lowlight'
+
+export const languages = [
   { name: 'Bash', value: 'bash' },
   { name: 'C', value: 'c' },
   { name: 'C++', value: 'cpp' },
@@ -23,4 +29,5 @@ const languages = [
   { name: 'YAML', value: 'yaml' }
 ]
 
-export default languages
+export const lowlight = createLowlight(common)
+lowlight.register({ django, dockerfile, nginx, pgsql })

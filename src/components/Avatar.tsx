@@ -1,9 +1,11 @@
-import { FC, HTMLAttributes } from 'react'
-import { sizeLiteral } from '../types/commonProps'
 import { cva } from 'class-variance-authority'
-import { cn } from '../utils/handleClassName'
 
-export interface AvatarProps extends HTMLAttributes<HTMLDivElement> {
+import { cn } from 'utils/handleClassName'
+
+import type { FC, HTMLAttributes } from 'react'
+import type { sizeLiteral } from 'types/commonProps'
+
+interface AvatarProps extends HTMLAttributes<HTMLDivElement> {
   /**
    * Size of the avatar
    */
@@ -14,7 +16,7 @@ export interface AvatarProps extends HTMLAttributes<HTMLDivElement> {
   imgSrc?: string
 }
 
-export const AvatarVariants = cva(`aspect-square overflow-clip rounded-full`, {
+export const AvatarVariants = cva('aspect-square overflow-clip rounded-full', {
   variants: {
     size: {
       xs: 'size-12',

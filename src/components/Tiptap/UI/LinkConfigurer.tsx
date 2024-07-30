@@ -1,18 +1,13 @@
-import {
-  ChangeEvent,
-  FC,
-  FormEvent,
-  ReactNode,
-  useLayoutEffect,
-  useState
-} from 'react'
+import { useLayoutEffect, useState } from 'react'
 import clsx from 'clsx'
-import { Placement } from '@floating-ui/react'
 
 import Icon from '@mdi/react'
 import { mdiOpenInNew } from '@mdi/js'
-import { PopoverMenu } from 'components/PopoverMenu'
 import { ThemedButton } from 'components/Buttons/ThemedButton'
+import { PopoverMenu } from 'components/PopoverMenu'
+
+import type { ChangeEvent, FC, FormEvent, ReactNode } from 'react'
+import type { Placement } from '@floating-ui/react'
 
 const urlRegex = /(^|\s)((https?:\/\/)?[\w-]+(\.[\w-]+)+\.?(:\d+)?(\/\S*)?)/
 
@@ -22,7 +17,7 @@ export type LinkInfo = {
   valid: boolean
 }
 
-export interface LinkConfigurerProps {
+interface LinkConfigurerProps {
   className?: string
   active?: boolean
   placement?: Placement

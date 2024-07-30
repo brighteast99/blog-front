@@ -1,6 +1,6 @@
-import { FC } from 'react'
-import { useCurrentEditor } from '@tiptap/react'
 import { FloatingDelayGroup } from '@floating-ui/react'
+import { useCurrentEditor } from '@tiptap/react'
+
 import { cn } from 'utils/handleClassName'
 
 import Icon from '@mdi/react'
@@ -24,13 +24,19 @@ import {
   mdiFormatUnderline,
   mdiLinkVariant
 } from '@mdi/js'
-import { Tooltip, TooltipContent, TooltipTrigger } from 'components/Tooltip'
-import { ThemedButton } from 'components/Buttons/ThemedButton'
 import { IconButton } from 'components/Buttons/IconButton'
+import { ThemedButton } from 'components/Buttons/ThemedButton'
 import { PopoverMenu } from 'components/PopoverMenu'
-import { ColorSelector } from 'components/PopoverMenu/ColorSelector'
-import { LinkConfigurer } from './LinkConfigurer'
+import { ColorSelector } from 'components/Tiptap/UI/ColorSelector'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger
+} from 'components/utils/Tooltip'
 import { CodeBlockConfigurer } from './CodeBlockConfigurer'
+import { LinkConfigurer } from './LinkConfigurer'
+
+import type { FC } from 'react'
 
 const FontSizes = [
   11, 13, 15, 16, 19, 24, 28, 30, 34, 38, 42, 50, 60, 75, 90, 100

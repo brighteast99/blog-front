@@ -1,11 +1,4 @@
-import React, {
-  FC,
-  ReactNode,
-  StyleHTMLAttributes,
-  useLayoutEffect,
-  useState
-} from 'react'
-import clsx from 'clsx'
+import { useLayoutEffect, useState } from 'react'
 import {
   autoUpdate,
   flip,
@@ -17,13 +10,20 @@ import {
   useFloating,
   useInteractions
 } from '@floating-ui/react'
+import clsx from 'clsx'
 
 import { mdiDotsVertical } from '@mdi/js'
 import { IconButton } from 'components/Buttons/IconButton'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger
+} from 'components/utils/Tooltip'
 import { PopoverMenuItem } from './PopoverMenuItem'
-import { Tooltip, TooltipContent, TooltipTrigger } from 'components/Tooltip'
 
-export interface PopoverMenuProps {
+import type { FC, ReactNode, StyleHTMLAttributes } from 'react'
+
+interface PopoverMenuProps {
   open?: boolean
   subMenu?: boolean
   menuBtn?: ReactNode

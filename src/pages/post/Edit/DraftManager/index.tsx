@@ -1,61 +1,22 @@
-import { FC, ReactNode, useCallback, useState } from 'react'
-import {
-  TypedDocumentNode,
-  gql,
-  useLazyQuery,
-  useMutation,
-  useQuery
-} from '@apollo/client'
-import clsx from 'clsx'
+import { useCallback, useMemo, useState } from 'react'
 import { Placement } from '@floating-ui/react'
+import clsx from 'clsx'
+
+import { useLazyQuery, useMutation, useQuery } from '@apollo/client'
+import { DELETE_DRAFT, GET_DRAFT, GET_DRAFTS } from './api'
+
 import { getRelativeTimeFromNow } from 'utils/dayJS'
-import { Draft } from 'types/data'
+
 import { ThemedButton } from 'components/Buttons/ThemedButton'
+import { Error } from 'components/Error'
 import { PopoverMenu } from 'components/PopoverMenu'
 import { Spinner } from 'components/Spinner'
 import { Tiptap } from 'components/Tiptap'
 
-export const GET_DRAFTS: TypedDocumentNode<{ drafts: Draft[] }> = gql`
-  query GetDrafts {
-    drafts {
-      id
-      summary
-      createdAt
-    }
-  }
-`
+import type { FC, ReactNode } from 'react'
+import type { Draft } from 'types/data'
 
-export const GET_DRAFT: TypedDocumentNode<{ draft: Draft }, { id: number }> =
-  gql`
-    query GetDraft($id: Int!) {
-      draft(id: $id) {
-        id
-        summary
-        title
-        category {
-          id
-          name
-        }
-        isHidden
-        content
-        thumbnail
-        images
-      }
-    }
-  `
-
-export const DELETE_DRAFT: TypedDocumentNode<
-  { deleteDraft: { success: boolean } },
-  { id: number }
-> = gql`
-  mutation DeleteDraft($id: Int!) {
-    deleteDraft(id: $id) {
-      success
-    }
-  }
-`
-
-export interface DraftManagerProps {
+interface DraftManagerProps {
   className?: string
   placement?: Placement
   tooltipPlacement?: Placement
@@ -72,24 +33,41 @@ export const DraftManager: FC<DraftManagerProps> = ({
   onSelect
 }) => {
   const [isOpen, setIsOpen] = useState<boolean>(false)
-  const { data: drafts, loading: loadingList } = useQuery(GET_DRAFTS)
+
+  const {
+    data: draftsData,
+    loading: loadingDrafts,
+    error: errorLoadingDrafts,
+    refetch: refetchDrafts
+  } = useQuery(GET_DRAFTS, {
+    notifyOnNetworkStatusChange: true
+  })
+  const drafts = useMemo(() => draftsData?.drafts, [draftsData])
+
+  const [
+    loadDraft,
+    {
+      data: draftData,
+      loading: loadingDraft,
+      error: errorLoadingDraft,
+      refetch: refetchDraft
+    }
+  ] = useLazyQuery(GET_DRAFT, {
+    notifyOnNetworkStatusChange: true
+  })
+  const draft = useMemo(() => draftData?.draft, [draftData])
   const [selectedDraft, setSelectedDraft] = useState<number>()
-  const [loadTemplateInfo, { loading: loadingDraft, data: draft }] =
-    useLazyQuery(GET_DRAFT, {
-      fetchPolicy: 'cache-and-network'
-    })
+
   const [_deleteDraft, { loading: deleting, reset: resetDeleteMutation }] =
     useMutation(DELETE_DRAFT)
 
   const deleteDraft = useCallback(() => {
     if (!draft) return
-    if (
-      !window.confirm(`임시 저장본 '${draft.draft.summary}'을(를) 삭제합니다.`)
-    )
+    if (!window.confirm(`임시 저장본 '${draft.summary}'을(를) 삭제합니다.`))
       return
 
     _deleteDraft({
-      variables: { id: Number(draft.draft.id) },
+      variables: { id: Number(draft.id) },
       refetchQueries: [
         {
           query: GET_DRAFTS
@@ -116,13 +94,13 @@ export const DraftManager: FC<DraftManagerProps> = ({
         <ThemedButton
           className='h-8 px-2'
           variant='hover-text'
-          disabled={loadingList || !drafts?.drafts.length}
+          disabled={loadingDrafts || !drafts?.length}
           color='primary'
         >
-          {loadingList ? (
+          {loadingDrafts ? (
             <Spinner size='xs' />
           ) : (
-            `임시 저장본 ${drafts?.drafts.length ? `(${drafts.drafts.length})` : '없음'}`
+            `임시 저장본 ${drafts?.length ? `(${drafts?.length})` : '없음'}`
           )}
         </ThemedButton>
       }
@@ -130,41 +108,61 @@ export const DraftManager: FC<DraftManagerProps> = ({
       onClose={() => setIsOpen(false)}
     >
       <div className='w-120 max-w-[90dvw] bg-neutral-50'>
-        <div className='flex h-40 flex-col border-b border-neutral-100'>
+        <div className='relative flex h-40 flex-col border-b border-neutral-100'>
           <div className='border-b border-neutral-100 bg-neutral-100 py-1 text-center'>
             임시 저장본 목록
           </div>
-          <ul className='min-h-0 grow overflow-y-auto'>
-            {drafts?.drafts.map((draft) => (
-              <li
-                className={clsx(
-                  'px-1 py-0.5',
-                  selectedDraft === draft.id
-                    ? 'bg-primary bg-opacity-25 hover:brightness-125'
-                    : 'hover:bg-background'
-                )}
-                key={draft.id}
-                onClick={() => {
-                  setSelectedDraft(draft.id)
-                  loadTemplateInfo({ variables: { id: draft.id } })
-                }}
-              >
-                {`${draft.summary} (${getRelativeTimeFromNow(draft.createdAt)})`}
-              </li>
-            ))}
-          </ul>
+          {loadingDrafts && <Spinner className='absolute inset-0' size='sm' />}
+          {errorLoadingDrafts && (
+            <div className='absolute inset-0'>
+              <Error
+                code={500}
+                hideDefaultAction
+                actions={[{ label: '다시 시도', handler: refetchDrafts }]}
+              />
+            </div>
+          )}
+          {drafts && (
+            <ul className='min-h-0 grow overflow-y-auto'>
+              {drafts.map((draft) => (
+                <li
+                  className={clsx(
+                    'px-1 py-0.5',
+                    selectedDraft === draft.id
+                      ? 'bg-primary bg-opacity-25 hover:brightness-125'
+                      : 'hover:bg-background'
+                  )}
+                  key={draft.id}
+                  onClick={() => {
+                    setSelectedDraft(draft.id)
+                    loadDraft({ variables: { id: draft.id } })
+                  }}
+                >
+                  {`${draft.summary} (${getRelativeTimeFromNow(draft.createdAt)})`}
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
 
         {selectedDraft && (
           <div className='relative flex h-100 flex-col'>
-            {loadingDraft || !draft ? (
-              <Spinner className='absolute inset-0 m-auto' />
-            ) : (
+            {loadingDraft && <Spinner className='absolute inset-0 m-auto' />}
+            {errorLoadingDraft && (
+              <div className='absolute inset-0'>
+                <Error
+                  code={500}
+                  hideDefaultAction
+                  actions={[{ label: '다시 시도', handler: refetchDraft }]}
+                />
+              </div>
+            )}
+            {draft && (
               <>
                 <Tiptap
                   className='-mx-2 my-2 flex-grow overflow-y-auto'
                   editable={false}
-                  content={draft.draft.content}
+                  content={draft.content}
                 />
                 <ThemedButton
                   className='h-8 shrink-0 rounded-none'
@@ -173,7 +171,7 @@ export const DraftManager: FC<DraftManagerProps> = ({
                   disabled={deleting}
                   onClick={() => {
                     setSelectedDraft(undefined)
-                    onSelect?.(draft.draft)
+                    onSelect?.(draft)
                     setIsOpen(false)
                   }}
                 >
@@ -197,3 +195,4 @@ export const DraftManager: FC<DraftManagerProps> = ({
     </PopoverMenu>
   )
 }
+export { GET_DRAFTS }

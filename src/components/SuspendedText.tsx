@@ -1,10 +1,12 @@
-import { FC, HTMLAttributes } from 'react'
-import { cn } from '../utils/handleClassName'
-import { PositiveInteger } from 'types/commonTypes'
-import { alignLiteral } from 'types/commonProps'
 import { cva } from 'class-variance-authority'
 
-export interface SuspendedTextProps extends HTMLAttributes<HTMLDivElement> {
+import { cn } from 'utils/handleClassName'
+
+import type { FC, HTMLAttributes } from 'react'
+import type { alignLiteral } from 'types/commonProps'
+import type { PositiveInteger } from 'types/commonTypes'
+
+interface SuspendedTextProps extends HTMLAttributes<HTMLDivElement> {
   /**
    * Size of the spinner
    */

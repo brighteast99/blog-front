@@ -1,8 +1,11 @@
-import { useAppDispatch, useAppSelector } from "app/hooks"
-import { FC } from "react"
-import { selectSidebarIsFolded, toggle } from "./sidebarSlice"
-import { cn } from "utils/handleClassName"
-import clsx from "clsx"
+import clsx from 'clsx'
+
+import { useAppDispatch, useAppSelector } from 'app/hooks'
+import { cn } from 'utils/handleClassName'
+
+import { selectSidebarIsFolded, toggle } from './sidebarSlice'
+
+import type { FC } from 'react'
 
 export const SidebarHandle: FC<{ className?: string }> = ({ className }) => {
   const dispatch = useAppDispatch()

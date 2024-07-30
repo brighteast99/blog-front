@@ -1,58 +1,42 @@
+import { useCallback, useEffect } from 'react'
+
+import { useMutation, useReadQuery } from '@apollo/client'
 import {
-  QueryReference,
-  TypedDocumentNode,
-  gql,
-  useMutation,
-  useReadQuery
-} from '@apollo/client'
+  DELETE_TEMPLATE,
+  GET_TEMPLATE,
+  GET_TEMPLATES,
+  UPDATE_TEMPLATE
+} from './api'
+
+import { usePostInput as useTemplateInput } from 'pages/post/Edit/hooks'
 import { ThemedButton } from 'components/Buttons/ThemedButton'
 import { Spinner } from 'components/Spinner'
-import { usePostInput } from 'pages/post/Edit'
-import { FC, MouseEvent, useCallback, useEffect } from 'react'
-import { Template } from 'types/data'
-import { GET_TEMPLATE, GET_TEMPLATES, TemplateInput } from '.'
 import { Tiptap } from 'components/Tiptap'
-import { NavigationBlocker } from 'components/NavigationBlocker'
+import { NavigationBlocker } from 'components/utils/NavigationBlocker'
 
-export const UPDATE_TEMPLATE: TypedDocumentNode<
-  { updateTemplate: { success: boolean } },
-  { id: number; data: TemplateInput }
-> = gql`
-  mutation UpdateTemplate($id: Int!, $data: TemplateInput!) {
-    updateTemplate(id: $id, data: $data) {
-      success
-    }
-  }
-`
-
-export const DELETE_TEMPLATE: TypedDocumentNode<
-  { updateTemplate: { success: boolean } },
-  { id: number }
-> = gql`
-  mutation DeleteTemplate($id: Int!) {
-    deleteTemplate(id: $id) {
-      success
-    }
-  }
-`
+import type { FC, MouseEvent } from 'react'
+import type { QueryRef } from '@apollo/client'
+import type { Template } from 'types/data'
 
 export const TemplateForm: FC<{
-  queryRef: QueryReference<{ template: Template }, { id: number }>
+  queryRef: QueryRef<{ template: Template }, { id: number }>
   onDelete?: () => any
 }> = ({ queryRef, onDelete }) => {
   const {
-    input: { title, content, thumbnail, images },
+    input: { title, content, textContent, thumbnail, images },
     isModified,
     initialize,
-    setTitle: setName,
+    setTitle,
     setContent,
+    setTextContent,
     setThumbnail,
     addImage,
     removeImage
-  } = usePostInput({
+  } = useTemplateInput({
     title: '',
     isHidden: false,
     content: '<p></p>',
+    textContent: '',
     images: []
   })
   const {
@@ -73,6 +57,7 @@ export const TemplateForm: FC<{
         data: {
           title,
           content,
+          textContent,
           thumbnail: thumbnail,
           images: images
         }
@@ -127,6 +112,7 @@ export const TemplateForm: FC<{
         {
           title: template.title,
           content: template.content,
+          textContent: template.textContent,
           isHidden: false,
           thumbnail: template.thumbnail,
           images: template.images
@@ -148,13 +134,16 @@ export const TemplateForm: FC<{
           type='text'
           value={title}
           placeholder={template.title}
-          onChange={(e) => setName(e.target.value)}
+          onChange={(e) => setTitle(e.target.value)}
         />
         <Tiptap
           content={content}
           thumbnail={thumbnail}
           images={images}
-          onChange={(editor) => setContent(editor.getHTML())}
+          onChange={(editor) => {
+            setContent(editor.getHTML())
+            setTextContent(editor.getText())
+          }}
           onChangeThumbnail={setThumbnail}
           onAddImage={addImage}
           onDeleteImage={removeImage}

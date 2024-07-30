@@ -1,36 +1,20 @@
+import { useCallback, useEffect, useState } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useAppDispatch, useAppSelector } from 'app/hooks'
+import { auth, AuthFailedError, NetworkError } from 'utils/Auth'
 import {
-  ChangeEvent,
-  FC,
-  FormEvent,
-  useCallback,
-  useEffect,
-  useState
-} from 'react'
+  selectIsAuthenticated,
+  setToken,
+  STORAGE_KEY
+} from 'features/auth/authSlice'
 import { ThemedButton } from 'components/Buttons/ThemedButton'
 import { Spinner } from 'components/Spinner'
-import { UserInfo } from 'types/auth'
-import {
-  STORAGE_KEY,
-  selectIsAuthenticated,
-  setToken
-} from 'features/auth/authSlice'
-import { useNavigate, useSearchParams } from 'react-router-dom'
-import { AuthFailedError, NetworkError, auth } from 'utils/Auth'
-import { useAppDispatch, useAppSelector } from 'app/hooks'
 
-export const useUserInfo = (initialValue: UserInfo) => {
-  const [info, setInfo] = useState<UserInfo>(initialValue)
+import type { ChangeEvent, FC, FormEvent } from 'react'
 
-  function updateInfo(e: ChangeEvent<HTMLInputElement>) {
-    setInfo((prev) => {
-      return {
-        ...prev,
-        [e.target.name]: e.target.value
-      }
-    })
-  }
-
-  return { info, updateInfo }
+export interface UserInfo {
+  username: string
+  password: string
 }
 
 export const LoginPage: FC = () => {
@@ -38,7 +22,7 @@ export const LoginPage: FC = () => {
   const navigate = useNavigate()
   const loggedIn = useAppSelector(selectIsAuthenticated)
   const [searchParams] = useSearchParams()
-  const { info, updateInfo } = useUserInfo({
+  const [{ username, password }, setInput] = useState<UserInfo>({
     username: '',
     password: ''
   })
@@ -50,12 +34,21 @@ export const LoginPage: FC = () => {
     if (loggedIn) navigate(searchParams.get('next') ?? '/', { replace: true })
   }, [navigate, loggedIn, searchParams])
 
+  const updateInfo = useCallback((e: ChangeEvent<HTMLInputElement>) => {
+    setInput((prev) => {
+      return {
+        ...prev,
+        [e.target.name]: e.target.value
+      }
+    })
+  }, [])
+
   const onSubmit = useCallback(
     (e: FormEvent) => {
       e.preventDefault()
       setLoading(true)
       setError(undefined)
-      auth(info.username, info.password)
+      auth(username, password)
         .then((token) => {
           if (keepLogin) localStorage.setItem(STORAGE_KEY, token.refreshToken)
           else sessionStorage.setItem(STORAGE_KEY, token.refreshToken)
@@ -70,7 +63,7 @@ export const LoginPage: FC = () => {
         })
         .finally(() => setLoading(false))
     },
-    [dispatch, info, keepLogin, navigate, searchParams]
+    [dispatch, username, password, keepLogin, navigate, searchParams]
   )
 
   return (
@@ -84,7 +77,7 @@ export const LoginPage: FC = () => {
           required
           name='username'
           placeholder='ID'
-          value={info.username}
+          value={username}
           onChange={updateInfo}
         />
         <input
@@ -93,7 +86,7 @@ export const LoginPage: FC = () => {
           required
           name='password'
           placeholder='PW'
-          value={info.password}
+          value={password}
           onChange={updateInfo}
         />
         <ThemedButton

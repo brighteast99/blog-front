@@ -1,15 +1,12 @@
-import {
-  DetailedHTMLProps,
-  HTMLAttributes,
-  ReactNode,
-  forwardRef,
-  useMemo
-} from 'react'
+import { forwardRef, useMemo } from 'react'
 import clsx from 'clsx'
-import { cn } from 'utils/handleClassName'
-import { NamedColors } from 'types/commonProps'
 
-export interface ThemedButtonProps {
+import { cn } from 'utils/handleClassName'
+
+import type { DetailedHTMLProps, HTMLAttributes, ReactNode } from 'react'
+import type { NamedColors } from 'types/commonProps'
+
+interface ThemedButtonProps {
   type?: 'submit' | 'button'
   color: NamedColors
   variant?:
