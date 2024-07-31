@@ -273,7 +273,7 @@ export const CategoryPage: FC = () => {
           filterArgs={{
             categoryId: categoryId ? Number(categoryId) : undefined,
             [searchParams.get('key') ?? 'titleAndContent']:
-              searchParams.get('value')
+              searchParams.get('value') || ''
           }}
           initialPagination={{
             offset: pageSize * pageIdx
