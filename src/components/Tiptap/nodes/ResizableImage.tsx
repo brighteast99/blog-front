@@ -2,7 +2,6 @@ import React, {
   useCallback,
   useEffect,
   useLayoutEffect,
-  useMemo,
   useRef,
   useState
 } from 'react'
@@ -140,6 +139,7 @@ const ResizableImageComponent = ({
       >
         <img
           {...node.attrs}
+          alt={node.attrs.src}
           ref={imgRef}
           style={{
             ...resizingStyle,

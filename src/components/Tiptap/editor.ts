@@ -9,7 +9,6 @@ import { TextAlign } from '@tiptap/extension-text-align'
 import { TextStyle } from '@tiptap/extension-text-style'
 import { Underline } from '@tiptap/extension-underline'
 import { StarterKit } from '@tiptap/starter-kit'
-import ImageResize from 'tiptap-extension-resize-image'
 
 import { FontSize } from './extensions/fontSize'
 import { lowlight } from './extensions/lowlight'

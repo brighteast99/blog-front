@@ -1,5 +1,3 @@
-import { useMemo } from 'react'
-
 import type { FC, HTMLProps, ReactElement } from 'react'
 
 interface HighlightedTextProps {
@@ -20,35 +18,31 @@ export const HighlightedText: FC<
   highlightClass = 'font-bold text-primary',
   ...props
 }) => {
-  const content = useMemo(() => {
-    let offset = 0
-    const splittedText = [...(text ?? '')]
-    let result: (string | ReactElement)[] = []
+  let offset = 0
+  const splittedText = [...(text ?? '')]
+  let content: (string | ReactElement)[] = []
 
-    if (
-      truncateStart &&
-      highlights?.length &&
-      highlights[0][0] > BeforeFirstHighlight
-    ) {
-      offset = highlights[0][0] - BeforeFirstHighlight
-      result.push('...')
-    }
+  if (
+    truncateStart &&
+    highlights?.length &&
+    highlights[0][0] > BeforeFirstHighlight
+  ) {
+    offset = highlights[0][0] - BeforeFirstHighlight
+    content.push('...')
+  }
 
-    for (const [start, end] of highlights ?? []) {
-      result.push(splittedText.slice(offset, start).join(''))
-      result.push(
-        <span className={highlightClass} key={start}>
-          {splittedText.slice(start, end).join('')}
-        </span>
-      )
-      offset = end
-    }
+  for (const [start, end] of highlights ?? []) {
+    content.push(splittedText.slice(offset, start).join(''))
+    content.push(
+      <span className={highlightClass} key={start}>
+        {splittedText.slice(start, end).join('')}
+      </span>
+    )
+    offset = end
+  }
 
-    const lastText = splittedText.slice(offset).join('')
-    if (lastText.length) result.push(lastText)
-
-    return result
-  }, [text, highlights])
+  const lastText = splittedText.slice(offset).join('')
+  if (lastText.length) content.push(lastText)
 
   return <p {...props}>{content}</p>
 }
