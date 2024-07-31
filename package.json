@@ -39,8 +39,7 @@
     "react-scripts": "5.0.1",
     "sass": "^1.71.1",
     "tailwind-merge": "^2.2.1",
-    "throttle-debounce": "^5.0.0",
-    "tiptap-extension-resize-image": "^1.1.8"
+    "throttle-debounce": "^5.0.0"
   },
   "scripts": {
     "start": "BROWSER=none react-scripts start",

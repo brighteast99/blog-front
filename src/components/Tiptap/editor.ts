@@ -14,6 +14,7 @@ import ImageResize from 'tiptap-extension-resize-image'
 import { FontSize } from './extensions/fontSize'
 import { lowlight } from './extensions/lowlight'
 import { BetterCodeBlock } from './nodes/BetterCodeblock'
+import { ResizableImage } from './nodes/ResizableImage'
 
 export function getExtensions(editable: boolean) {
   return [
@@ -45,7 +46,7 @@ export function getExtensions(editable: boolean) {
       openOnClick: editable,
       validate: (href) => /^https?:\/\//.test(href)
     }),
-    ImageResize,
+    ResizableImage,
     BetterCodeBlock.configure({
       lowlight
     }),
