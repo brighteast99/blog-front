@@ -91,7 +91,7 @@ export const CategoryPage: FC = () => {
         (searchParams.get('key') as PostSearchField) || 'titleAndContent',
       searchKeyword: searchParams.get('value') || ''
     })
-    setPageSize(Number(searchParams.get('pageSize')) || 5)
+    setPageSize(Number(searchParams.get('pageSize')) || 10)
   }, [searchParams])
 
   if (error) {
