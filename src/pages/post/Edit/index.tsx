@@ -223,7 +223,7 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
       },
       refetchQueries: [
         { query: GET_CATEGORY_HIERARCHY },
-        { query: GET_POST, variables: { id: Number(postId) } }
+        { query: GET_POST, variables: { id: postId } }
       ],
       onCompleted: () => {
         Promise.all(
