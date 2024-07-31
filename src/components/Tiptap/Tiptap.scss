@@ -11,12 +11,8 @@
     &:not(.Tiptap-viewer) {
       @apply rounded transition-colors;
 
-      > div:first-child {
-        @apply border border-b-0 border-neutral-100 bg-neutral-100 p-1;
-      }
-
       > div:not(:last-child):not(:first-child) {
-        @apply h-120 min-h-120 resize-y overflow-y-scroll rounded-b border border-t-0 border-neutral-100 bg-neutral-50;
+        @apply h-120 min-h-120 resize-y overflow-y-scroll border-x border-neutral-100 bg-neutral-50 bg-opacity-50;
       }
 
       img.ProseMirror-selectednode {

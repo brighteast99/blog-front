@@ -30,7 +30,7 @@ const BetterCodeBlockComponent: FC<CodeBlockComponentProps> = ({ node }) => {
 
   return (
     <NodeViewWrapper className='my-3 overflow-hidden rounded-lg'>
-      <div className='flex items-center justify-between bg-neutral-100 px-4 py-3'>
+      <div className='flex items-center justify-between bg-neutral-200 px-4 py-3'>
         <span className='capitalize'>{language}</span>
         <Tooltip>
           <TooltipTrigger asChild>

@@ -98,7 +98,7 @@ export const Toolbar: FC<{ className?: string }> = ({ className }) => {
   return (
     <div
       className={cn(
-        'flex flex-wrap items-center divide-x divide-neutral-400',
+        'flex flex-wrap items-center divide-x divide-neutral-400 border border-b-0 border-neutral-100 bg-neutral-100 bg-opacity-50 p-1',
         className
       )}
     >

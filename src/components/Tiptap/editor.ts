@@ -1,6 +1,8 @@
+import CharacterCount from '@tiptap/extension-character-count'
 import { Color } from '@tiptap/extension-color'
 import { Highlight } from '@tiptap/extension-highlight'
 import { Link } from '@tiptap/extension-link'
+import ListKeymap from '@tiptap/extension-list-keymap'
 import Subscript from '@tiptap/extension-subscript'
 import Superscript from '@tiptap/extension-superscript'
 import TaskItem from '@tiptap/extension-task-item'
@@ -52,6 +54,8 @@ export function getExtensions(editable: boolean) {
     TaskList,
     TaskItem.configure({
       nested: true
-    })
+    }),
+    ListKeymap,
+    CharacterCount
   ]
 }

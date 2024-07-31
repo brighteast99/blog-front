@@ -58,13 +58,20 @@ export const Tiptap: FC<EditorProps> = ({
         slotBefore={editable && <Toolbar className='rounded-t' />}
         slotAfter={
           editable && (
-            <ImageCatalogue
-              thumbnail={thumbnail}
-              images={images}
-              addImage={onAddImage}
-              deleteImage={onDeleteImage}
-              changeThumbnail={onChangeThumbnail}
-            />
+            <div className='contents'>
+              <div className='rounded-b border border-neutral-100 bg-neutral-100 bg-opacity-50 px-1 py-0.5'>
+                <p className='text-right text-sm text-neutral-600'>
+                  {`${editor?.storage.characterCount.words()} 단어 (${editor?.storage.characterCount.characters()} 자)`}
+                </p>
+              </div>
+              <ImageCatalogue
+                thumbnail={thumbnail}
+                images={images}
+                addImage={onAddImage}
+                deleteImage={onDeleteImage}
+                changeThumbnail={onChangeThumbnail}
+              />
+            </div>
           )
         }
         autofocus={autofocus}
