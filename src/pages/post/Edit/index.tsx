@@ -63,7 +63,7 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
     imagesToDelete
   } = usePostInput({
     title: '',
-    category: Number(searchParams.get('category')) || undefined,
+    category: Number(searchParams.get('category')) || 0,
     isHidden: false,
     content: '<p></p>',
     textContent: '',
@@ -343,7 +343,7 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
             value={input.category}
             onChange={(e) => setCategory(Number(e.target.value) || undefined)}
           >
-            <option>
+            <option value={0}>
               {errorLoadingCategories ? '게시판 정보 로드 실패' : '분류 미지정'}
             </option>
             {categories?.map((category) => (
