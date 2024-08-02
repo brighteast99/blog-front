@@ -1,15 +1,33 @@
-import { useEffect, useLayoutEffect, useMemo, useState } from 'react'
-import { Editor, EditorProvider } from '@tiptap/react'
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useState
+} from 'react'
+import { Editor as CoreEditor } from '@tiptap/core'
+import {
+  BubbleMenu,
+  EditorProvider,
+  Editor as ReactEditor
+} from '@tiptap/react'
 
 import { cn } from 'utils/handleClassName'
 
-import { getExtensions } from './editor'
+import { commonExtensions, editorExtensions, viewerExtensions } from './editor'
 import { ImageCatalogue } from './UI/ImageCatalogue'
 import { Toolbar } from './UI/Toolbar'
 
 import type { FC } from 'react'
 
 import './Tiptap.scss'
+
+import FileHandler from '@tiptap-pro/extension-file-handler'
+
+import { useMutation } from '@apollo/client'
+import { UPLOAD_IMAGE } from './api'
+
+import { TableTools } from './UI/TableTools'
 
 interface EditorProps {
   className?: string
@@ -18,9 +36,9 @@ interface EditorProps {
   images?: string[]
   editable?: boolean
   autofocus?: boolean
-  onChange?: (editor: Editor) => any
-  onAddImage?: (image: string) => any
-  onDeleteImage?: (image: string) => any
+  onChange?: (editor: ReactEditor) => any
+  onImageUploaded?: (image: string) => any
+  onImageDeleted?: (image: string) => any
   onChangeThumbnail?: (image: string | null) => any
 }
 
@@ -31,13 +49,111 @@ export const Tiptap: FC<EditorProps> = ({
   images = [],
   editable = true,
   autofocus = false,
-  onChange = () => {},
-  onAddImage,
-  onDeleteImage,
+  onChange,
+  onImageUploaded,
+  onImageDeleted,
   onChangeThumbnail
 }) => {
-  const [editor, setEditor] = useState<Editor>()
-  const extensions = useMemo(() => getExtensions(editable), [editable])
+  const [editor, setEditor] = useState<ReactEditor>()
+  const [uploadQueue, setUploadQueue] = useState<File[]>([])
+  const [_uploadImage] = useMutation(UPLOAD_IMAGE)
+
+  const uploadImage = useCallback(
+    (file: File) => {
+      setUploadQueue((prev) => [...prev, file])
+      return _uploadImage({
+        variables: { file },
+        onError: ({ networkError, graphQLErrors }) => {
+          if (networkError)
+            return alert(`${file.name}을 업로드하던 중 오류가 발생했습니다`)
+          if (graphQLErrors.length) return alert(graphQLErrors[0].message)
+        },
+        onCompleted: ({ uploadImage: { url } }) => {
+          onImageUploaded?.(url)
+          setUploadQueue((prev) => {
+            let idx = prev.findIndex((item) => item === file)
+            return prev.toSpliced(idx, 1)
+          })
+        }
+      })
+    },
+    [_uploadImage, setUploadQueue, onImageUploaded]
+  )
+
+  const onFileReceived = useCallback(
+    (files: File[], editor?: CoreEditor) => {
+      let largeFiles: string[] = []
+
+      const SIZE_LIMIT = 5 // MB
+      files.forEach((file, i) => {
+        if (file.size > 1024 * 1024 * SIZE_LIMIT)
+          return largeFiles.push(
+            `${file.name}: ${Math.round((file.size / 1024 / 1024) * 10) / 10}MB`
+          )
+
+        if (!editor) uploadImage(file)
+        else {
+          const fileReader = new FileReader()
+          const pos = editor.state.selection.anchor + i
+
+          fileReader.readAsDataURL(file)
+          fileReader.onload = () => {
+            editor
+              .chain()
+              .insertContentAt(pos, {
+                type: 'image',
+                attrs: {
+                  src: fileReader.result
+                }
+              })
+              .focus()
+              .run()
+          }
+          uploadImage(file)
+            .then(({ data }) => {
+              const url = data?.uploadImage.url as string
+              editor.chain().setNodeSelection(pos).setImage({ src: url }).run()
+            })
+            .catch((_) =>
+              editor.chain().setNodeSelection(pos).deleteNode('image')
+            )
+        }
+      })
+
+      if (largeFiles.length) {
+        let message = `${SIZE_LIMIT}MB를 초과하는 다음 ${largeFiles.length}개 파일은 업로드되지 않습니다.\n`
+        alert(message + largeFiles.join('\n'))
+      }
+    },
+    [uploadImage]
+  )
+
+  const extensions = useMemo(() => {
+    let extensions = [...commonExtensions]
+    if (!editable) extensions.push(...viewerExtensions)
+    else {
+      extensions.push(...editorExtensions)
+      extensions.push(
+        FileHandler.configure({
+          allowedMimeTypes: [
+            'image/jpg',
+            'image/jpeg',
+            'image/png',
+            'image/webp'
+          ],
+          onDrop: (editor, files) => {
+            onFileReceived(files, editor)
+          },
+          onPaste: (editor, files, htmlContent) => {
+            if (htmlContent) return
+            onFileReceived(files, editor)
+          }
+        })
+      )
+    }
+
+    return extensions
+  }, [editable, onFileReceived])
 
   useLayoutEffect(() => {
     editor?.setEditable(editable)
@@ -46,7 +162,8 @@ export const Tiptap: FC<EditorProps> = ({
   useEffect(() => {
     if (!editor) return
 
-    if (editor.getHTML() !== content) editor.commands.setContent(content)
+    if (editor.getHTML() !== content)
+      setTimeout(() => editor.commands.setContent(content))
   }, [editor, content])
 
   return (
@@ -61,14 +178,18 @@ export const Tiptap: FC<EditorProps> = ({
             <div className='contents'>
               <div className='rounded-b border border-neutral-100 bg-neutral-100 bg-opacity-50 px-1 py-0.5'>
                 <p className='text-right text-sm text-neutral-600'>
-                  {`${editor?.storage.characterCount.words()} 단어 (${editor?.storage.characterCount.characters()} 자)`}
+                  {editor?.state.selection.anchor}
+                </p>
+                <p className='text-right text-sm text-neutral-600'>
+                  {`${editor?.storage.characterCount.words() || 0} 단어 (${editor?.storage.characterCount.characters() || 0} 자)`}
                 </p>
               </div>
               <ImageCatalogue
                 thumbnail={thumbnail}
                 images={images}
-                addImage={onAddImage}
-                deleteImage={onDeleteImage}
+                uploadQueue={uploadQueue}
+                onFileReceived={onFileReceived}
+                onImageDeleted={onImageDeleted}
                 changeThumbnail={onChangeThumbnail}
               />
             </div>
@@ -77,13 +198,22 @@ export const Tiptap: FC<EditorProps> = ({
         autofocus={autofocus}
         onCreate={({ editor }) => {
           editor.commands.setContent(content)
-          setEditor(editor as Editor)
+          setEditor(editor as ReactEditor)
         }}
         onUpdate={({ editor }) => {
-          if (editor.getHTML() !== content) onChange(editor as Editor)
+          if (editor.getHTML() !== content) onChange?.(editor as ReactEditor)
         }}
-        children
-      />
+      >
+        {editable && (
+          <BubbleMenu
+            editor={null}
+            tippyOptions={{ placement: 'bottom', maxWidth: '100%' }}
+            shouldShow={({ editor }) => editor?.isActive('table')}
+          >
+            <TableTools />
+          </BubbleMenu>
+        )}
+      </EditorProvider>
     </div>
   )
 }

@@ -15,7 +15,7 @@
         @apply h-120 min-h-120 resize-y overflow-y-scroll border-x border-neutral-100 bg-neutral-50 bg-opacity-50;
       }
 
-      img.ProseMirror-selectednode {
+      span.ProseMirror-selectednode:not(:has(.img-selected)) {
         @apply outline outline-2 outline-primary;
       }
     }
@@ -79,6 +79,10 @@
       ul li,
       ol li {
         @apply list-item;
+      }
+
+      span.node-image {
+        @apply align-text-bottom;
       }
 
       img {
@@ -150,9 +154,76 @@
         }
       }
 
-      p[data-placeholder]:first-child::before {
-        @apply pointer-events-none float-left h-0 text-neutral-400;
-        content: attr(data-placeholder);
+      .details {
+        @apply mx-0 my-6 flex w-full gap-1 rounded-lg border border-neutral-100 p-3;
+
+        summary {
+          @apply list-none font-bold;
+        }
+
+        > button {
+          @apply mt-0.5 flex h-5 w-5 items-center justify-center rounded p-0 text-xs;
+          line-height: 1;
+
+          &:hover::before {
+            @apply text-primary;
+          }
+
+          &::before {
+            @apply transition-colors;
+            content: '\25B6';
+          }
+        }
+
+        &.is-open > button::before {
+          transform: rotate(90deg);
+        }
+
+        > div {
+          @apply flex min-w-0 flex-1 flex-col gap-4;
+
+          > [data-type='detailsContent'] {
+            @apply -ml-4 pr-1.5;
+
+            & > :last-child {
+              @apply mb-2;
+            }
+          }
+        }
+      }
+
+      .tableWrapper {
+        @apply my-6 overflow-x-auto;
+      }
+
+      table {
+        @apply m-0 mx-auto w-full max-w-full table-fixed border-collapse overflow-clip;
+
+        td,
+        th {
+          @apply relative min-w-4 border border-neutral-100 px-2 py-3 align-top;
+
+          > * {
+            @apply mb-0;
+          }
+        }
+
+        th {
+          @apply bg-neutral-50 text-left font-bold;
+        }
+
+        .selectedCell:after {
+          @apply pointer-events-none absolute inset-0 z-10 bg-primary bg-opacity-5;
+          content: '';
+        }
+
+        .column-resize-handle {
+          @apply pointer-events-none absolute -bottom-0.5 -right-0.5 top-0 w-0.5 bg-primary;
+        }
+      }
+
+      &.resize-cursor {
+        @apply cursor-col-resize;
       }
     }
   }

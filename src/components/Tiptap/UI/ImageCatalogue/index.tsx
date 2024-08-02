@@ -2,9 +2,6 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useCurrentEditor } from '@tiptap/react'
 import clsx from 'clsx'
 
-import { useMutation } from '@apollo/client'
-import { UPLOAD_IMAGE } from './api'
-
 import { mdiClose, mdiPlus } from '@mdi/js'
 import { IconButton } from 'components/Buttons/IconButton'
 import { ThemedButton } from 'components/Buttons/ThemedButton'
@@ -96,14 +93,20 @@ const ImagePreview: FC<{
 export const ImageCatalogue: FC<{
   thumbnail?: string
   images?: string[]
-  addImage?: (image: string) => any
-  deleteImage?: (image: string) => any
+  uploadQueue?: File[]
+  onFileReceived?: (files: File[]) => any
+  onImageDeleted?: (image: string) => any
   changeThumbnail?: (image: string | null) => any
-}> = ({ thumbnail, images = [], addImage, deleteImage, changeThumbnail }) => {
+}> = ({
+  thumbnail,
+  images = [],
+  uploadQueue = [],
+  onFileReceived,
+  onImageDeleted,
+  changeThumbnail
+}) => {
   const { editor } = useCurrentEditor()
   const imageInput = useRef<HTMLInputElement>(null)
-  const [_uploadImage] = useMutation(UPLOAD_IMAGE)
-  const [files, setFiles] = useState<File[]>([])
 
   const uploadImage = useCallback(
     (e: ChangeEvent<HTMLInputElement>) => {
@@ -111,56 +114,31 @@ export const ImageCatalogue: FC<{
 
       let files = Array.from(e.target.files)
       e.target.value = ''
-      let largeFiles: string[] = []
-
-      files.forEach((file, i) => {
-        const fileName =
-          file.name.length < 20 ? file.name : file.name.slice(0, 20) + '...'
-
-        if (file.size > 1024 * 1024 * 3) {
-          files.splice(i, 1)
-          largeFiles.push(
-            `${fileName}: ${Math.round((file.size / 1024 / 1024) * 10) / 10}MB`
-          )
-          return
-        }
-
-        setFiles((prev) => [...prev, file])
-        _uploadImage({
-          variables: { file: file },
-          onError: ({ networkError, graphQLErrors }) => {
-            if (networkError)
-              return alert(`${fileName}을 업로드하던 중 오류가 발생했습니다`)
-            if (graphQLErrors.length) return alert(graphQLErrors[0].message)
-          },
-          onCompleted: ({ uploadImage: { url } }) => {
-            addImage?.(url)
-            setFiles((prev) => {
-              let idx = prev.findIndex((item) => item === file)
-              return prev.toSpliced(idx, 1)
-            })
-          }
-        })
-      })
-
-      if (largeFiles.length) {
-        let message = `3MB를 초과하는 다음 ${largeFiles.length}개 파일은 업로드되지 않습니다.\n`
-        alert(message + largeFiles.join('\n'))
-      }
+      onFileReceived?.(files)
     },
-    [_uploadImage, addImage]
+    [onFileReceived]
   )
 
-  const useImage = useCallback(
+  const onInsertImage = useCallback(
     (image: string) => {
-      editor?.chain().focus().setImage({ src: image, alt: '' }).run()
+      editor
+        ?.chain()
+        .focus()
+        .insertContentAt(editor.state.selection.anchor, {
+          type: 'image',
+          attrs: {
+            src: image,
+            alt: ''
+          }
+        })
+        .run()
     },
     [editor]
   )
 
-  const deleteImageFromServer = useCallback(
+  const onDeleteImage = useCallback(
     (url: string) => {
-      deleteImage?.(url)
+      onImageDeleted?.(url)
 
       if (editor) {
         const { state } = editor
@@ -183,7 +161,7 @@ export const ImageCatalogue: FC<{
         }
       }
     },
-    [deleteImage, editor]
+    [onImageDeleted, editor]
   )
 
   return (
@@ -213,15 +191,18 @@ export const ImageCatalogue: FC<{
             gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 150px))'
           }}
         >
-          {[...images, ...files].map((image, i) => (
+          {images.map((image, i) => (
             <ImagePreview
               key={i}
               isThumbnail={thumbnail === image}
               image={image}
-              onSelect={useImage}
-              onDelete={deleteImageFromServer}
+              onSelect={onInsertImage}
+              onDelete={onDeleteImage}
               onChangeThumbnail={changeThumbnail}
             />
+          ))}
+          {uploadQueue.map((file, i) => (
+            <ImagePreview key={i} image={file} />
           ))}
         </div>
       </div>

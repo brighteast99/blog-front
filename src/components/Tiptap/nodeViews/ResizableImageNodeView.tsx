@@ -2,11 +2,12 @@ import React, {
   useCallback,
   useEffect,
   useLayoutEffect,
+  useMemo,
   useRef,
   useState
 } from 'react'
-import TipTapImage from '@tiptap/extension-image'
-import { NodeViewWrapper, ReactNodeViewRenderer } from '@tiptap/react'
+import { NodeViewWrapper } from '@tiptap/react'
+import clsx from 'clsx'
 
 import type { CSSProperties } from 'react'
 import type { NodeViewProps } from '@tiptap/react'
@@ -31,11 +32,10 @@ const useEvent = <T extends (...args: any[]) => any>(handler: T): T => {
   }, []) as T
 }
 
-const MIN_WIDTH = 60
-
-const ResizableImageComponent = ({
+export const ResizableImageNodeView = ({
   node,
   editor,
+  extension,
   updateAttributes
 }: NodeViewProps) => {
   const containerRef = useRef<HTMLDivElement>(null)
@@ -44,6 +44,10 @@ const ResizableImageComponent = ({
   const [resizingStyle, setResizingStyle] = useState<
     Pick<CSSProperties, 'width'> | undefined
   >()
+  const handleColor = useMemo(
+    () => `bg-${extension.options.handleColor || 'primary'}`,
+    [extension.options.handleColor]
+  )
 
   // Lots of work to handle "not" div click events.
   useEffect(() => {
@@ -82,7 +86,7 @@ const ResizableImageComponent = ({
       const mouseMoveHandler = (event: MouseEvent) => {
         newWidth = Math.max(
           currentWidth + transform * (event.clientX - initialXPosition),
-          MIN_WIDTH
+          extension.options.minWidth
         )
         setResizingStyle({ width: newWidth })
         // If mouse is up, remove event listeners
@@ -97,7 +101,7 @@ const ResizableImageComponent = ({
   const dragCornerButton = (direction: string) => (
     <div
       role='button'
-      className='bg-primary'
+      className={handleColor}
       tabIndex={0}
       onMouseDown={handleMouseDown}
       data-direction={direction}
@@ -128,8 +132,15 @@ const ResizableImageComponent = ({
         if (editor.isEditable) setEditing(true)
       }}
       onBlur={() => setEditing(false)}
+      style={
+        extension.options.inline && {
+          width: 'fit-content',
+          display: 'inline-block'
+        }
+      }
     >
       <div
+        className={clsx(editing && 'img-selected')}
         style={{
           overflow: 'visible',
           position: 'relative',
@@ -149,13 +160,13 @@ const ResizableImageComponent = ({
         {editing && (
           <>
             {[
-              { left: 0, top: 0, height: '100%', width: '1px' },
-              { right: 0, top: 0, height: '100%', width: '1px' },
-              { top: 0, left: 0, width: '100%', height: '1px' },
-              { bottom: 0, left: 0, width: '100%', height: '1px' }
+              { left: -2, top: 0, height: '100%', width: '2px' },
+              { right: -2, top: 0, height: '100%', width: '2px' },
+              { top: -2, left: 0, width: '100%', height: '2px' },
+              { bottom: -2, left: 0, width: '100%', height: '2px' }
             ].map((style, i) => (
               <div
-                className='bg-primary'
+                className={handleColor}
                 key={i}
                 style={{
                   position: 'absolute',
@@ -173,16 +184,3 @@ const ResizableImageComponent = ({
     </NodeViewWrapper>
   )
 }
-
-export const ResizableImage = TipTapImage.extend({
-  addAttributes() {
-    return {
-      ...this.parent?.(),
-      width: { renderHTML: ({ width }) => ({ width }) },
-      height: { renderHTML: ({ height }) => ({ height }) }
-    }
-  },
-  addNodeView() {
-    return ReactNodeViewRenderer(ResizableImageComponent)
-  }
-}).configure({ inline: true })

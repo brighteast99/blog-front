@@ -1988,6 +1988,26 @@
     "@svgr/plugin-svgo" "^5.5.0"
     loader-utils "^2.0.0"
 
+"@tiptap-pro/extension-details-content@^2.10.7":
+  version "2.10.7"
+  resolved "https://registry.tiptap.dev/@tiptap-pro%2fextension-details-content/-/extension-details-content-2.10.7.tgz#4316cd73ce50fd2172abf6d04c09370e537669c3"
+  integrity sha512-UN2PYTgX/yHoXIFnC8pe/NzBB97RYCoOXm8vFZxyZiu8wpwN48kD5FTGMHBDppLo96WlHhjVzCnOam7YKLFz1Q==
+
+"@tiptap-pro/extension-details-summary@^2.10.7":
+  version "2.10.7"
+  resolved "https://registry.tiptap.dev/@tiptap-pro%2fextension-details-summary/-/extension-details-summary-2.10.7.tgz#26564bdf316cf67ef9627b995dd95b136b2863f9"
+  integrity sha512-Tv9fwp8ATT3PEF3ephgTHZ8egzzAriqkivBcE7V36QyRR8am9rrkir7sipfS8oHyHMwHmCzNJ73SDWG0o9+qnQ==
+
+"@tiptap-pro/extension-details@^2.10.7":
+  version "2.10.7"
+  resolved "https://registry.tiptap.dev/@tiptap-pro%2fextension-details/-/extension-details-2.10.7.tgz#de31146bac476a74981b10c835e88928b2ae9974"
+  integrity sha512-PDzIPuHFouxQpWMlpOEQ1XdaS2akCwSK+d4xcyfmhtf5JqO8AgpCyVHXDuQChabwUlgS2TQkKIqtIS9CFruxpw==
+
+"@tiptap-pro/extension-file-handler@^2.10.7":
+  version "2.10.7"
+  resolved "https://registry.tiptap.dev/@tiptap-pro%2fextension-file-handler/-/extension-file-handler-2.10.7.tgz#1995ca0a90ebdd8d43ce52f3ab821789a1a2d3db"
+  integrity sha512-FCqmUkb1UT4KWt7NGnRbT0Ugq4Qo8xdf4hOTTLzlOBk7bqlyehih5sKC2hu1uL9UxC3jijugH4EJV3y1ITaDMQ==
+
 "@tiptap/core@^2.5.5":
   version "2.5.5"
   resolved "https://registry.yarnpkg.com/@tiptap/core/-/core-2.5.5.tgz#67301af399644a24a9f62b4309a9875794740a66"
@@ -2138,6 +2158,26 @@
   version "2.5.5"
   resolved "https://registry.yarnpkg.com/@tiptap/extension-superscript/-/extension-superscript-2.5.5.tgz#9e0455c044a4a9b0c5725fbc955c895b6a9b1897"
   integrity sha512-O9YKfctlf7o9k5EPy6OyC98GSGYvGUVsCHJKhLbQ/tkYZ9OuvZ8HtyXfRFWu1ZJ6P818rga3q5Cs5EcbLdcfJw==
+
+"@tiptap/extension-table-cell@^2.5.8":
+  version "2.5.8"
+  resolved "https://registry.yarnpkg.com/@tiptap/extension-table-cell/-/extension-table-cell-2.5.8.tgz#f9060f3cd9f156210eb21e4b467a3d3c22ae6306"
+  integrity sha512-t3fITH/sefWiOMSrqn34fhLRDSIZxTCwWvwvlrXnV0J5zaIjjJyP499JM3gAfB6Kb9+7Hd1VvdyDCeJbgEIgWQ==
+
+"@tiptap/extension-table-header@^2.5.8":
+  version "2.5.8"
+  resolved "https://registry.yarnpkg.com/@tiptap/extension-table-header/-/extension-table-header-2.5.8.tgz#a4902050952483be7452ad755a01cb00bc8f12e8"
+  integrity sha512-ehR/8IZpeAq8nRfkVMOlrClzTN9ZosGPz48SdhqN0V7aRaHe7MZcVOGbxrAXo9P6/3UTjh21qXFgatBVx8xoTA==
+
+"@tiptap/extension-table-row@^2.5.8":
+  version "2.5.8"
+  resolved "https://registry.yarnpkg.com/@tiptap/extension-table-row/-/extension-table-row-2.5.8.tgz#8ed9b0ac4fa86be674798fde5b13323c4d2963bb"
+  integrity sha512-AESSqAB2XI1X/V8nlJhcNMmzCUmXKM6K0suZPiwdK9LlhPcTrLe8q7V09fPB23ZNL5dEVxVGIREyrdKiZnshIA==
+
+"@tiptap/extension-table@^2.5.8":
+  version "2.5.8"
+  resolved "https://registry.yarnpkg.com/@tiptap/extension-table/-/extension-table-2.5.8.tgz#c992a1be20ce501e135fe042189db5c1da4477f6"
+  integrity sha512-91LTBn0tVfXYJsTcl8sOeqaoz3XNb2FUmyyQJmaLAoW8XbjnBLMk8V+BnSJdo9/RdhnujL9p9PfUvMdeUMIMJg==
 
 "@tiptap/extension-task-item@^2.3.2":
   version "2.5.5"

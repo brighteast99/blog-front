@@ -1,10 +1,5 @@
 import { useState } from 'react'
-import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight'
-import {
-  NodeViewContent,
-  NodeViewWrapper,
-  ReactNodeViewRenderer
-} from '@tiptap/react'
+import { NodeViewContent, NodeViewWrapper } from '@tiptap/react'
 
 import { mdiContentCopy } from '@mdi/js'
 import { IconButton } from 'components/Buttons/IconButton'
@@ -19,7 +14,9 @@ import type { NodeViewProps } from '@tiptap/react'
 
 interface CodeBlockComponentProps extends NodeViewProps {}
 
-const BetterCodeBlockComponent: FC<CodeBlockComponentProps> = ({ node }) => {
+export const BetterCodeBlockNodeView: FC<CodeBlockComponentProps> = ({
+  node
+}) => {
   const { language } = node.attrs
   const [alertTimer, setAlertTimer] = useState<ReturnType<typeof setTimeout>>()
 
@@ -52,9 +49,3 @@ const BetterCodeBlockComponent: FC<CodeBlockComponentProps> = ({ node }) => {
     </NodeViewWrapper>
   )
 }
-
-export const BetterCodeBlock = CodeBlockLowlight.extend({
-  addNodeView() {
-    return ReactNodeViewRenderer(BetterCodeBlockComponent)
-  }
-})

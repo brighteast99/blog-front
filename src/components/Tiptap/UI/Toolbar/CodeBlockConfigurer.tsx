@@ -2,7 +2,7 @@ import { useLayoutEffect, useState } from 'react'
 
 import { ThemedButton } from 'components/Buttons/ThemedButton'
 import { PopoverMenu } from 'components/PopoverMenu'
-import { languages } from 'components/Tiptap/extensions/lowlight'
+import { languages } from 'components/Tiptap/extensions/BetterCodeblock'
 
 import type { FC, FormEvent, ReactNode } from 'react'
 import type { Placement } from '@floating-ui/react'
@@ -24,7 +24,7 @@ export const CodeBlockConfigurer: FC<CodeBlockConfigurerProps> = ({
   active = false,
   placement = 'bottom-end',
   tooltipPlacement = 'bottom',
-  language: _language = '',
+  language: _language = 'bash',
   description = '',
   onChange = () => {},
   onDelete = () => {},
