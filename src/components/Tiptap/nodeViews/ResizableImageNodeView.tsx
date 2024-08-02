@@ -1,13 +1,11 @@
 import React, {
   useCallback,
-  useEffect,
   useLayoutEffect,
   useMemo,
   useRef,
   useState
 } from 'react'
 import { NodeViewWrapper } from '@tiptap/react'
-import clsx from 'clsx'
 
 import type { CSSProperties } from 'react'
 import type { NodeViewProps } from '@tiptap/react'
@@ -36,11 +34,15 @@ export const ResizableImageNodeView = ({
   node,
   editor,
   extension,
-  updateAttributes
+  updateAttributes,
+  selected
 }: NodeViewProps) => {
   const containerRef = useRef<HTMLDivElement>(null)
   const imgRef = useRef<HTMLImageElement>(null)
-  const [editing, setEditing] = useState(false)
+  const editing = useMemo(
+    () => editor.isEditable && selected,
+    [editor.isEditable, selected]
+  )
   const [resizingStyle, setResizingStyle] = useState<
     Pick<CSSProperties, 'width'> | undefined
   >()
@@ -48,23 +50,6 @@ export const ResizableImageNodeView = ({
     () => `bg-${extension.options.handleColor || 'primary'}`,
     [extension.options.handleColor]
   )
-
-  // Lots of work to handle "not" div click events.
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        containerRef.current &&
-        !containerRef.current.contains(event.target as Node)
-      ) {
-        setEditing(false)
-      }
-    }
-    // Add click event listener and remove on cleanup
-    document.addEventListener('click', handleClickOutside)
-    return () => {
-      document.removeEventListener('click', handleClickOutside)
-    }
-  }, [editing])
 
   const handleMouseDown = useEvent(
     (event: React.MouseEvent<HTMLDivElement>) => {
@@ -128,10 +113,6 @@ export const ResizableImageNodeView = ({
       as='div'
       draggable
       data-drag-handle
-      onClick={() => {
-        if (editor.isEditable) setEditing(true)
-      }}
-      onBlur={() => setEditing(false)}
       style={
         extension.options.inline && {
           width: 'fit-content',
@@ -140,7 +121,6 @@ export const ResizableImageNodeView = ({
       }
     >
       <div
-        className={clsx(editing && 'img-selected')}
         style={{
           overflow: 'visible',
           position: 'relative',
@@ -159,21 +139,6 @@ export const ResizableImageNodeView = ({
         />
         {editing && (
           <>
-            {[
-              { left: -2, top: 0, height: '100%', width: '2px' },
-              { right: -2, top: 0, height: '100%', width: '2px' },
-              { top: -2, left: 0, width: '100%', height: '2px' },
-              { bottom: -2, left: 0, width: '100%', height: '2px' }
-            ].map((style, i) => (
-              <div
-                className={handleColor}
-                key={i}
-                style={{
-                  position: 'absolute',
-                  ...style
-                }}
-              />
-            ))}
             {dragCornerButton('nw')}
             {dragCornerButton('ne')}
             {dragCornerButton('sw')}

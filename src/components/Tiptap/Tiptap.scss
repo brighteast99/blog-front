@@ -15,7 +15,7 @@
         @apply h-120 min-h-120 resize-y overflow-y-scroll border-x border-neutral-100 bg-neutral-50 bg-opacity-50;
       }
 
-      span.ProseMirror-selectednode:not(:has(.img-selected)) {
+      span.ProseMirror-selectednode {
         @apply outline outline-2 outline-primary;
       }
     }

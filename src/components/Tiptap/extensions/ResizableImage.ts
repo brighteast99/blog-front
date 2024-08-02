@@ -11,7 +11,6 @@ export const ResizableImage = TipTapImage.extend({
       height: { renderHTML: ({ height }) => ({ height }) }
     }
   },
-  // Todo: text align(vertical)
   addOptions() {
     return {
       ...this.parent?.(),
