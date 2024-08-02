@@ -47,8 +47,6 @@ export const PostPage: FC = () => {
     useMutation(DELETE_POST, { notifyOnNetworkStatusChange: true })
 
   const toggleIsHidden = useCallback(() => {
-    console.log('toggle')
-    console.log(post)
     if (
       !post ||
       !window.confirm(
@@ -56,8 +54,6 @@ export const PostPage: FC = () => {
       )
     )
       return
-
-    console.log('aaa')
 
     _toggleIsHidden({
       variables: {
