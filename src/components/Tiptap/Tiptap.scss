@@ -201,7 +201,7 @@
 
         td,
         th {
-          @apply relative min-w-4 border border-neutral-100 px-2 py-3 align-top;
+          @apply relative min-w-4 border border-neutral-100 px-2 py-3;
 
           > * {
             @apply mb-0;
