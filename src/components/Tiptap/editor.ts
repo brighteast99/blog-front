@@ -105,7 +105,11 @@ export const viewerExtensions = (() => {
 
 export const editorExtensions = (() => {
   const configuredStarterKit = StarterKit.configure({
-    codeBlock: false
+    codeBlock: false,
+    dropcursor: {
+      color:
+        'hsl(var(--twc-primary) / var(--twc-primary-opacity, var(--tw-bg-opacity)))'
+    }
   })
 
   const configuredLink = Link.configure({

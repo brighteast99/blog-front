@@ -25,7 +25,7 @@
     }
 
     div.ProseMirror {
-      @apply min-h-full p-5 focus:outline-0;
+      @apply min-h-full p-5 focus:outline-0 caret-primary;
 
       > * + * {
         @apply mt-1;
