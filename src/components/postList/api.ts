@@ -56,7 +56,9 @@ export const GET_POSTS: TypedDocumentNode<
         }
         id
         title
+        titleHighlights
         textContent
+        contentHighlights
         thumbnail
         isHidden
         createdAt

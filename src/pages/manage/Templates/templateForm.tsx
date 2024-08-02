@@ -145,8 +145,8 @@ export const TemplateForm: FC<{
             setTextContent(editor.getText())
           }}
           onChangeThumbnail={setThumbnail}
-          onAddImage={addImage}
-          onDeleteImage={removeImage}
+          onImageUploaded={addImage}
+          onImageDeleted={removeImage}
         />
         <ThemedButton
           className='h-12 w-full'

@@ -30,6 +30,8 @@ export interface Draft extends Template {
 
 export interface Post extends Omit<Draft, 'id' | 'summary'> {
   id: string
+  titleHighlights?: number[][]
+  contentHighlights?: number[][]
   isDeleted: boolean
   createdAt: Date
   updatedAt: Date

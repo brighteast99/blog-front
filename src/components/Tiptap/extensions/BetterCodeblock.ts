@@ -1,8 +1,12 @@
+import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight'
+import { ReactNodeViewRenderer } from '@tiptap/react'
 import django from 'highlight.js/lib/languages/django'
 import dockerfile from 'highlight.js/lib/languages/dockerfile'
 import nginx from 'highlight.js/lib/languages/nginx'
 import pgsql from 'highlight.js/lib/languages/pgsql'
 import { common, createLowlight } from 'lowlight'
+
+import { BetterCodeBlockNodeView } from '../nodeViews/BetterCodeblockNodeView'
 
 export const languages = [
   { name: 'Bash', value: 'bash' },
@@ -29,5 +33,11 @@ export const languages = [
   { name: 'YAML', value: 'yaml' }
 ]
 
-export const lowlight = createLowlight(common)
+const lowlight = createLowlight(common)
 lowlight.register({ django, dockerfile, nginx, pgsql })
+
+export const BetterCodeBlock = CodeBlockLowlight.extend({
+  addNodeView() {
+    return ReactNodeViewRenderer(BetterCodeBlockNodeView)
+  }
+}).configure({ lowlight })

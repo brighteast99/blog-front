@@ -406,8 +406,8 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
             }}
             thumbnail={input.thumbnail}
             images={input.images}
-            onAddImage={addImage}
-            onDeleteImage={removeImage}
+            onImageUploaded={addImage}
+            onImageDeleted={removeImage}
             onChangeThumbnail={setThumbnail}
           />
         )}

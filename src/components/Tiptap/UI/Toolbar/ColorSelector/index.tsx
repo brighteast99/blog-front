@@ -126,7 +126,7 @@ export const ColorSelector: FC<ColorSelectorProps> = ({
         <ThemedButton
           className={clsx(
             'mb-2 mt-1.5 w-full p-2 text-left',
-            !value && 'outline outline-primary'
+            !value && 'outline outline-2 outline-primary'
           )}
           color='primary'
           variant={value ? 'hover-text' : 'text'}

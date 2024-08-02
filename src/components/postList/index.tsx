@@ -12,6 +12,7 @@ import { mdiLock } from '@mdi/js'
 import { Error } from 'components/Error'
 import { Paginator } from 'components/Paginator'
 import { Spinner } from 'components/Spinner'
+import { HighlightedText } from 'components/utils/HighlightedText'
 
 import type { Post } from 'types/data'
 
@@ -46,25 +47,30 @@ export const PostItem: FC<{ post: Post; isActive?: boolean }> = ({
         </span>
 
         <Link to={`/post/${post.id}`}>
-          <p className='truncate text-2xl font-medium'>
-            {post.title}
-            {!post.category.isHidden && post.isHidden && (
-              <Icon
-                path={mdiLock}
-                size={0.6}
-                className='mb-0.5 ml-1 inline align-text-bottom text-neutral-700'
-              />
-            )}
-          </p>
+          <HighlightedText
+            className='truncate text-2xl font-medium'
+            text={post.title}
+            highlights={post.titleHighlights}
+          />
+          {!post.category.isHidden && post.isHidden && (
+            <Icon
+              path={mdiLock}
+              size={0.6}
+              className='mb-0.5 ml-1 inline align-text-bottom text-neutral-700'
+            />
+          )}
         </Link>
 
         <p className='mb-1 text-sm text-neutral-700'>
           {getRelativeTimeFromNow(post.createdAt)}
         </p>
 
-        <p className='line-clamp-4 font-thin text-neutral-800'>
-          {post.textContent}
-        </p>
+        <HighlightedText
+          className='line-clamp-4 font-thin text-neutral-800'
+          text={post.textContent}
+          highlights={post.contentHighlights}
+          truncateStart
+        />
       </div>
 
       {post.thumbnail && (

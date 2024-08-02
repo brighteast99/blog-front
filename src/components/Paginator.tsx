@@ -1,19 +1,39 @@
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import clsx from 'clsx'
+
+import {
+  mdiChevronLeft,
+  mdiChevronRight,
+  mdiPageFirst,
+  mdiPageLast
+} from '@mdi/js'
+import { IconButton } from './Buttons/IconButton'
 
 import type { FC, MouseEvent } from 'react'
 
 interface PaginatorProps {
   pages: number
   currentPage: number
+  pageSize?: number
   onPageChanged?: (page: number) => any
 }
 
 export const Paginator: FC<PaginatorProps> = ({
   pages,
   currentPage,
+  pageSize = 10,
   onPageChanged
 }) => {
+  const offset = currentPage - (currentPage % pageSize)
+  const hasPrevPageset = offset > 0
+  const hasNextPageset = pages > offset + pageSize
+  const pageset = useMemo(() => {
+    let result = []
+    for (let i = 0; i < pageSize && offset + i < pages; i++)
+      result.push(offset + i)
+    return result
+  }, [pageSize, offset, pages])
+
   const clickHandler = useCallback(
     (e: MouseEvent<HTMLButtonElement>) => {
       const pageIdx =
@@ -26,25 +46,61 @@ export const Paginator: FC<PaginatorProps> = ({
 
   return (
     <div className='flex justify-center gap-2 py-1'>
-      {Array.from({ length: pages }, (_, i) => {
-        const isActive = currentPage === i
+      <div className='flex'>
+        <IconButton
+          className='p-0'
+          variant='hover-text'
+          path={mdiPageFirst}
+          disabled={!hasPrevPageset}
+          data-page-idx={offset - 1}
+          onClick={clickHandler}
+        />
+        <IconButton
+          className='p-0'
+          variant='hover-text'
+          path={mdiChevronLeft}
+          disabled={!currentPage}
+          data-page-idx={currentPage - 1}
+          onClick={clickHandler}
+        />
+      </div>
+      {pageset.map((pageIdx) => {
+        const isActive = currentPage === pageIdx
         return (
           <button
-            key={i}
+            key={pageIdx}
             className={clsx(
-              'p-1',
+              'p-1 transition-colors',
               isActive
                 ? 'text-primary'
                 : 'text-neutral-500 hover:text-neutral-800'
             )}
             disabled={isActive}
             onClick={clickHandler}
-            data-page-idx={i}
+            data-page-idx={pageIdx}
           >
-            {i + 1}
+            {pageIdx + 1}
           </button>
         )
       })}
+      <div className='flex'>
+        <IconButton
+          className='p-0'
+          variant='hover-text'
+          path={mdiChevronRight}
+          disabled={currentPage === pages - 1}
+          data-page-idx={currentPage + 1}
+          onClick={clickHandler}
+        />
+        <IconButton
+          className='p-0'
+          variant='hover-text'
+          path={mdiPageLast}
+          disabled={!hasNextPageset}
+          data-page-idx={offset + pageSize}
+          onClick={clickHandler}
+        />
+      </div>
     </div>
   )
 }

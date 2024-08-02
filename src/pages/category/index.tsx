@@ -91,7 +91,7 @@ export const CategoryPage: FC = () => {
         (searchParams.get('key') as PostSearchField) || 'titleAndContent',
       searchKeyword: searchParams.get('value') || ''
     })
-    setPageSize(Number(searchParams.get('pageSize')) || 5)
+    setPageSize(Number(searchParams.get('pageSize')) || 10)
   }, [searchParams])
 
   if (error) {
@@ -273,7 +273,7 @@ export const CategoryPage: FC = () => {
           filterArgs={{
             categoryId: categoryId ? Number(categoryId) : undefined,
             [searchParams.get('key') ?? 'titleAndContent']:
-              searchParams.get('value')
+              searchParams.get('value') || ''
           }}
           initialPagination={{
             offset: pageSize * pageIdx

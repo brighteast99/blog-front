@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 
 import { useMutation, useQuery } from '@apollo/client'
 import { DELETE_POST, GET_POST } from './api'
+import { UPDATE_POST } from './Edit/api'
 
 import { useAppSelector } from 'app/hooks'
 import { getRelativeTimeFromNow } from 'utils/dayJS'
@@ -10,7 +11,7 @@ import { selectIsAuthenticated } from 'features/auth/authSlice'
 import { GET_CATEGORY_HIERARCHY } from 'features/sidebar/Sidebar'
 
 import Icon from '@mdi/react'
-import { mdiDelete, mdiLoading, mdiLock, mdiPencil } from '@mdi/js'
+import { mdiDelete, mdiLoading, mdiLock, mdiLockOff, mdiPencil } from '@mdi/js'
 import { Error } from 'components/Error'
 import { PopoverMenu } from 'components/PopoverMenu'
 import { PopoverMenuItem } from 'components/PopoverMenu/PopoverMenuItem'
@@ -39,8 +40,52 @@ export const PostPage: FC = () => {
   })
   const post = useMemo(() => postData?.post, [postData])
 
+  const [_toggleIsHidden, { loading: updating, reset: resetUpdateMutation }] =
+    useMutation(UPDATE_POST, { notifyOnNetworkStatusChange: true })
+
   const [_deletePost, { loading: deleting, reset: resetDeleteMutation }] =
-    useMutation(DELETE_POST)
+    useMutation(DELETE_POST, { notifyOnNetworkStatusChange: true })
+
+  const toggleIsHidden = useCallback(() => {
+    console.log('toggle')
+    console.log(post)
+    if (
+      !post ||
+      !window.confirm(
+        (post?.isHidden ? '공개 게시글' : '비공개 게시글') + '로 전환합니다.'
+      )
+    )
+      return
+
+    console.log('aaa')
+
+    _toggleIsHidden({
+      variables: {
+        id: postId as string,
+        data: {
+          title: post.title,
+          content: post.content,
+          textContent: post.textContent,
+          images: post.images,
+          thumbnail: post.thumbnail,
+          isHidden: !post.isHidden
+        }
+      },
+      refetchQueries: [
+        {
+          query: GET_POST,
+          variables: {
+            id: postId
+          }
+        }
+      ],
+      onError: ({ networkError, graphQLErrors }) => {
+        if (networkError) alert('게시글 수정 중 오류가 발생했습니다.')
+        else if (graphQLErrors.length) alert(graphQLErrors[0].message)
+        resetUpdateMutation()
+      }
+    })
+  }, [_toggleIsHidden, post, postId, resetUpdateMutation])
 
   const deletePost = useCallback(() => {
     if (!window.confirm('게시글을 삭제합니다.')) return
@@ -117,6 +162,14 @@ export const PostPage: FC = () => {
               icon={mdiPencil}
               title='수정'
               onClick={() => navigate(`/post/edit/${postId}`)}
+            />
+            <PopoverMenuItem
+              icon={
+                updating ? mdiLoading : post?.isHidden ? mdiLockOff : mdiLock
+              }
+              disabled={updating}
+              title={post?.isHidden ? '게시글 공개' : '게시글 숨기기'}
+              onClick={toggleIsHidden}
             />
             <PopoverMenuItem
               icon={deleting ? mdiLoading : mdiDelete}

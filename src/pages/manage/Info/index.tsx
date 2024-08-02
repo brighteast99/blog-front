@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
 
 import { useMutation, useQuery } from '@apollo/client'
 import { UPDATE_INFO } from './api'
@@ -94,7 +94,7 @@ export const ManageInfoPage: FC = () => {
         },
         false
       )
-  }, [blogInfoData, initialize])
+  }, [initialize, blogInfo])
 
   if (loadingBlogInfo) return <Spinner size='lg' />
   if (errorLoadingBlogInfo)
