@@ -48,7 +48,7 @@ export const PostItem: FC<{ post: Post; isActive?: boolean }> = ({
 
         <Link to={`/post/${post.id}`}>
           <HighlightedText
-            className='truncate text-2xl font-medium'
+            className='inline truncate text-2xl font-medium'
             text={post.title}
             highlights={post.titleHighlights}
           />

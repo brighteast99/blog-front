@@ -11,7 +11,7 @@ import { selectIsAuthenticated } from 'features/auth/authSlice'
 import { GET_CATEGORY_HIERARCHY } from 'features/sidebar/Sidebar'
 
 import Icon from '@mdi/react'
-import { mdiDelete, mdiLoading, mdiLock, mdiLockOff, mdiPencil } from '@mdi/js'
+import { mdiDelete, mdiLoading, mdiLock, mdiLockOpen, mdiPencil } from '@mdi/js'
 import { Error } from 'components/Error'
 import { PopoverMenu } from 'components/PopoverMenu'
 import { PopoverMenuItem } from 'components/PopoverMenu/PopoverMenuItem'
@@ -63,6 +63,7 @@ export const PostPage: FC = () => {
       variables: {
         id: postId as string,
         data: {
+          category: post.category.id,
           title: post.title,
           content: post.content,
           textContent: post.textContent,
@@ -165,10 +166,11 @@ export const PostPage: FC = () => {
             />
             <PopoverMenuItem
               icon={
-                updating ? mdiLoading : post?.isHidden ? mdiLockOff : mdiLock
+                updating ? mdiLoading : post?.isHidden ? mdiLock : mdiLockOpen
               }
               disabled={updating}
-              title={post?.isHidden ? '게시글 공개' : '게시글 숨기기'}
+              title={post?.isHidden ? '비공개 게시글' : '공개 게시글'}
+              description={post?.isHidden ? '게시글 보이기' : '게시글 숨기기'}
               onClick={toggleIsHidden}
             />
             <PopoverMenuItem
