@@ -21,6 +21,8 @@ import { useAppSelector } from 'app/hooks'
 import { selectIsAuthenticated } from 'features/auth/authSlice'
 import { GET_CATEGORY_HIERARCHY } from 'features/sidebar/Sidebar'
 
+import { mdiLock, mdiLockOpen } from '@mdi/js'
+import { IconButton } from 'components/Buttons/IconButton'
 import { ThemedButton } from 'components/Buttons/ThemedButton'
 import { Error } from 'components/Error'
 import { Spinner } from 'components/Spinner'
@@ -379,20 +381,21 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
           />
           <Tooltip>
             <TooltipTrigger asChild>
-              <label className='h-fit'>
-                <input
-                  className='mr-2 accent-primary'
-                  type='checkbox'
-                  disabled={selectedCategory?.isHidden}
-                  checked={input.isHidden || selectedCategory?.isHidden}
-                  onChange={(e) => setIsHidden(e.target.checked)}
-                />
-                비밀글
-              </label>
+              <IconButton
+                path={input.isHidden ? mdiLock : mdiLockOpen}
+                variant='hover-text-toggle'
+                color='primary'
+                disabled={selectedCategory?.isHidden}
+                active={input.isHidden}
+                onClick={() => setIsHidden(!input.isHidden)}
+              />
             </TooltipTrigger>
-            {selectedCategory.isHidden && (
-              <TooltipContent>비공개 분류에 속하는 게시글입니다</TooltipContent>
-            )}
+            <TooltipContent>
+              {selectedCategory.isHidden
+                ? '비공개 분류에 속하는 게시글입니다'
+                : (input.isHidden ? '공개 게시글' : '비공개 게시글') +
+                  '로 전환'}
+            </TooltipContent>
           </Tooltip>
         </div>
 
