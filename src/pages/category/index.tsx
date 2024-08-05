@@ -267,7 +267,7 @@ export const CategoryPage: FC = () => {
           />
         </form>
       </div>
-      <div className='mx-auto w-5/6'>
+      <div className='mx-auto w-5/6 bg-background'>
         <PostList
           pageSize={pageSize}
           filterArgs={{

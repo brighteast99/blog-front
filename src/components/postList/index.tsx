@@ -23,7 +23,7 @@ export const PostItem: FC<{ post: Post; isActive?: boolean }> = ({
   return (
     <li
       className={clsx(
-        'flex h-72 items-center gap-10 px-2 py-4',
+        'flex h-72 items-center gap-10 px-2 py-4 last-of-type:!border-b-0',
         isActive && 'bg-secondary bg-opacity-10'
       )}
     >
@@ -182,7 +182,7 @@ export const PostList: FC<PostListProps> = ({
     <>
       <ul
         ref={listRef}
-        className='divide-y border-y-2 border-neutral-600 *:border-neutral-600'
+        className='divide-y border-neutral-600 *:border-neutral-600'
       >
         {posts.map((post) => (
           <PostItem
@@ -193,6 +193,7 @@ export const PostList: FC<PostListProps> = ({
         ))}
       </ul>
       <Paginator
+        className='sticky inset-x-0 bottom-0 mx-auto border-t-2 border-neutral-600 bg-inherit'
         currentPage={pageInfo?.currentPage || 0}
         pages={pageInfo?.pages || 1}
         onPageChanged={handlePageChange}

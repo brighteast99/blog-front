@@ -256,8 +256,8 @@ export const PostPage: FC = () => {
 
       {post && (
         <div className='border-t border-neutral-300 bg-neutral-50'>
-          <div className='mx-auto w-full max-w-[1280px] p-10'>
-            <p className='mb-2 text-2xl'>
+          <div className='mx-auto w-full max-w-[1280px] bg-inherit p-10 pb-0'>
+            <p className='border-b-[3px] border-neutral-600 pb-2 text-2xl'>
               <Link to={`/category/${post.category?.id || 0}`}>
                 {post.category.name}
               </Link>

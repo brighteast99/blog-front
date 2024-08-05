@@ -12,6 +12,7 @@ import { IconButton } from './Buttons/IconButton'
 import type { FC, MouseEvent } from 'react'
 
 interface PaginatorProps {
+  className?: string
   pages: number
   currentPage: number
   pageSize?: number
@@ -19,6 +20,7 @@ interface PaginatorProps {
 }
 
 export const Paginator: FC<PaginatorProps> = ({
+  className,
   pages,
   currentPage,
   pageSize = 10,
@@ -45,7 +47,7 @@ export const Paginator: FC<PaginatorProps> = ({
   )
 
   return (
-    <div className='flex justify-center gap-2 py-1'>
+    <div className={clsx('flex justify-center gap-3 py-4', className)}>
       <div className='flex'>
         <IconButton
           className='p-0'
@@ -70,7 +72,7 @@ export const Paginator: FC<PaginatorProps> = ({
           <button
             key={pageIdx}
             className={clsx(
-              'p-1 transition-colors',
+              'p-1 text-xl transition-colors',
               isActive
                 ? 'text-primary'
                 : 'text-neutral-500 hover:text-neutral-800'
