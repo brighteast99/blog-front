@@ -4,11 +4,11 @@ import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { useMutation, useQuery } from '@apollo/client'
 import { DELETE_POST, GET_POST } from './api'
 import { UPDATE_POST } from './Edit/api'
+import { GET_CATEGORY_HIERARCHY } from 'pages/manage/Categories/api'
 
 import { useAppSelector } from 'app/hooks'
 import { getRelativeTimeFromNow } from 'utils/dayJS'
 import { selectIsAuthenticated } from 'features/auth/authSlice'
-import { GET_CATEGORY_HIERARCHY } from 'features/sidebar/Sidebar'
 
 import Icon from '@mdi/react'
 import { mdiDelete, mdiLoading, mdiLock, mdiLockOpen, mdiPencil } from '@mdi/js'

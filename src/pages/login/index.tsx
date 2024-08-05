@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
+
 import { useAppDispatch, useAppSelector } from 'app/hooks'
 import { auth, AuthFailedError, NetworkError } from 'utils/Auth'
 import {
@@ -7,6 +8,7 @@ import {
   setToken,
   STORAGE_KEY
 } from 'features/auth/authSlice'
+
 import { ThemedButton } from 'components/Buttons/ThemedButton'
 import { Spinner } from 'components/Spinner'
 
@@ -67,7 +69,7 @@ export const LoginPage: FC = () => {
   )
 
   return (
-    <div className='flex size-full flex-col items-center justify-center gap-5'>
+    <div className='flex h-lvh min-h-fit w-dvw flex-col items-center justify-center gap-5'>
       <p className='text-center text-3xl'>관리자 로그인</p>
       <form onSubmit={onSubmit}>
         <input

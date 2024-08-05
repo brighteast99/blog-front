@@ -4,11 +4,10 @@ import { useMutation, useQuery, useReadQuery } from '@apollo/client'
 import {
   CATEGORY_FULL_INFO,
   CategoryInput,
+  GET_CATEGORY_HIERARCHY,
   UPDATE_CATEGORY,
   VALID_SUPERCATEGORIES
 } from './api'
-
-import { GET_CATEGORY_HIERARCHY } from 'features/sidebar/Sidebar'
 
 import { mdiClose, mdiRefresh } from '@mdi/js'
 import { IconButton } from 'components/Buttons/IconButton'

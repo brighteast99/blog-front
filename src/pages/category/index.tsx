@@ -135,7 +135,7 @@ export const CategoryPage: FC = () => {
     }
   }
   return (
-    <>
+    <div className='relative h-fit'>
       {(loading || category?.coverImage) && (
         <div
           className={clsx(
@@ -282,6 +282,6 @@ export const CategoryPage: FC = () => {
           logHistory
         />
       </div>
-    </>
+    </div>
   )
 }

@@ -4,9 +4,12 @@ import type { RootState } from 'app/store'
 
 export type breakpoint = 'mobile' | 'tablet' | 'desktop'
 
+export const BREAKPOINT_TABLET = 1280
+export const BREAKPOINT_MOBILE = 720
+
 function getBreakpoint(width: number): breakpoint {
-  if (width > 1280) return 'desktop'
-  if (width > 720) return 'tablet'
+  if (width > BREAKPOINT_TABLET) return 'desktop'
+  if (width > BREAKPOINT_MOBILE) return 'tablet'
   return 'mobile'
 }
 

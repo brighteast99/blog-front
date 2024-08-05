@@ -127,7 +127,8 @@ export const PostList: FC<PostListProps> = ({
     fetchPolicy: 'cache-and-network',
     notifyOnNetworkStatusChange: true
   })
-  const posts = useMemo(() => postsData?.posts, [postsData])
+  const posts = useMemo(() => postsData?.posts.posts, [postsData])
+  const pageInfo = useMemo(() => postsData?.posts.pageInfo, [postsData])
 
   const handlePageChange = useCallback(
     (page: number) => {
@@ -166,11 +167,11 @@ export const PostList: FC<PostListProps> = ({
       />
     )
 
-  if (loading) return <Spinner />
+  if (loading) return <Spinner className='my-10' />
 
   if (!posts) return
 
-  if (!posts.posts?.length)
+  if (!posts.length)
     return (
       <div className='max-h-full w-full py-5 text-center text-neutral-400'>
         아직 게시물이 없습니다
@@ -183,7 +184,7 @@ export const PostList: FC<PostListProps> = ({
         ref={listRef}
         className='divide-y border-y-2 border-neutral-600 *:border-neutral-600'
       >
-        {posts.posts.map((post) => (
+        {posts.map((post) => (
           <PostItem
             key={post.id}
             post={post}
@@ -192,8 +193,8 @@ export const PostList: FC<PostListProps> = ({
         ))}
       </ul>
       <Paginator
-        currentPage={posts.pageInfo?.currentPage}
-        pages={posts.pageInfo?.pages}
+        currentPage={pageInfo?.currentPage || 0}
+        pages={pageInfo?.pages || 1}
         onPageChanged={handlePageChange}
       />
     </>

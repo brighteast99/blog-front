@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
-import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import clsx from 'clsx'
+import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
+
 import { useAppSelector } from 'app/hooks'
 import { selectIsAuthenticated } from 'features/auth/authSlice'
 
@@ -21,7 +22,7 @@ export const ManagePage: FC = () => {
   }, [location.pathname, navigate])
 
   return (
-    <div className='p-5'>
+    <div className='flex h-dvh min-h-[720px] flex-col p-5'>
       <p className='mb-12 text-center text-4xl'>블로그 관리</p>
       <div className='flex border-b border-primary *:cursor-pointer *:rounded-t-sm *:px-3 *:py-1 *:text-xl'>
         <div
@@ -48,7 +49,7 @@ export const ManagePage: FC = () => {
           <Link to='templates'>게시글 템플릿</Link>
         </div>
       </div>
-      <div className='p-2'>
+      <div className='grow p-2 *:h-full'>
         <Outlet />
       </div>
     </div>

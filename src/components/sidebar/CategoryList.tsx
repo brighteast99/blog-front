@@ -2,6 +2,7 @@ import clsx from 'clsx'
 import { Link } from 'react-router-dom'
 
 import { useReadQuery } from '@apollo/client'
+import { CategoryHierarchyQueryResult } from 'pages/manage/Categories/api'
 
 import Icon from '@mdi/react'
 import { mdiLock } from '@mdi/js'
@@ -9,7 +10,6 @@ import { mdiLock } from '@mdi/js'
 import type { FC } from 'react'
 import type { QueryRef } from '@apollo/client'
 import type { Category } from 'types/data'
-import type { CategoryHierarchyQueryResult } from './Sidebar'
 
 export const CategoryItem: FC<{ category: Category }> = ({ category }) => {
   const hasId = category.id !== undefined

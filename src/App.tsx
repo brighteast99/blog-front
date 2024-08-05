@@ -1,15 +1,16 @@
-import { useCallback, useLayoutEffect, useState } from 'react'
+import { useCallback, useLayoutEffect, useMemo, useState } from 'react'
+import clsx from 'clsx'
 import { ErrorBoundary } from 'react-error-boundary'
 import { Outlet } from 'react-router-dom'
 import { throttle } from 'throttle-debounce'
 
 import { useAppDispatch, useAppSelector } from 'app/hooks'
 import { refreshToken, selectIsAuthenticated } from 'features/auth/authSlice'
-import { Sidebar } from 'features/sidebar/Sidebar'
-import { SidebarHandle } from 'features/sidebar/SidebarHandle'
 import { selectBreakpoint, updateSize } from 'features/window/windowSlice'
 
 import { Error } from 'components/Error'
+import { Sidebar } from 'components/sidebar'
+import { SidebarHandle } from 'components/sidebar/SidebarHandle'
 
 function App() {
   const dispatch = useAppDispatch()
@@ -17,11 +18,24 @@ function App() {
   const [refreshLoginTimer, setRefreshLoginTimer] =
     useState<ReturnType<typeof setInterval>>()
   const breakpoint = useAppSelector(selectBreakpoint)
+  const [sidebarFolded, setSidebarFolded] = useState<boolean>(
+    breakpoint === 'mobile'
+  )
+  const sidebarFoldable = useMemo(() => breakpoint !== 'desktop', [breakpoint])
+
+  const fold = useCallback(() => {
+    setSidebarFolded(true)
+  }, [setSidebarFolded])
+
+  const toggle = useCallback(() => {
+    setSidebarFolded((prev) => !prev)
+  }, [setSidebarFolded])
 
   const refreshLoginToken = useCallback(() => {
     dispatch(refreshToken(null))
   }, [dispatch])
 
+  // * Update window size
   useLayoutEffect(() => {
     const dispatchSizeUpdate = throttle(250, () => {
       dispatch(
@@ -38,11 +52,16 @@ function App() {
     }
   }, [dispatch])
 
+  // * Update font size & sidebar state according to breakpoint
   useLayoutEffect(() => {
     document.documentElement.style.fontSize =
       breakpoint === 'mobile' ? '12px' : '16px'
-  }, [breakpoint])
 
+    if (sidebarFoldable) setSidebarFolded(true)
+    else setSidebarFolded(false)
+  }, [breakpoint, sidebarFoldable, setSidebarFolded])
+
+  // * Refresh login token periodically
   useLayoutEffect(() => {
     if (!isLoggedIn) {
       if (refreshLoginTimer) clearInterval(refreshLoginTimer)
@@ -54,9 +73,12 @@ function App() {
       setRefreshLoginTimer(setInterval(refreshLoginToken, 1000 * 290))
   }, [dispatch, isLoggedIn, refreshLoginTimer, refreshLoginToken])
 
+  // * Set eventListener that refreshes login token when user has left and returned to the page
   useLayoutEffect(() => {
+    if (!isLoggedIn) return
+
     const refreshLogin = () => {
-      if (!document.hidden && isLoggedIn) return refreshLoginToken()
+      if (!document.hidden) return refreshLoginToken()
     }
     document.addEventListener('visibilitychange', refreshLogin)
 
@@ -64,16 +86,30 @@ function App() {
   }, [isLoggedIn, refreshLoginToken])
 
   return (
-    <div className='flex size-full min-h-[720px] bg-background text-foreground'>
+    <div className='min-w-dvw flex min-h-dvh bg-background text-foreground'>
       <Sidebar
-        foldable={breakpoint !== 'desktop'}
-        float={breakpoint === 'mobile'}
+        foldable={sidebarFoldable}
+        isFolded={sidebarFolded}
+        useScrim={breakpoint === 'mobile'}
+        foldOnLocationChange={breakpoint === 'mobile'}
+        fold={fold}
+      />
+      <div
+        id='spacer'
+        className={clsx(
+          'transition-size',
+          breakpoint === 'mobile' || sidebarFolded ? 'w-0' : 'w-72'
+        )}
       />
 
-      <div className='relative size-full min-w-0 flex-1 overflow-y-auto bg-background'>
-        <div className='fixed z-40 h-full'>
-          {breakpoint !== 'desktop' && (
-            <SidebarHandle className='absolute inset-y-0 left-4 my-auto' />
+      <div className='relative min-w-0 flex-1 bg-background'>
+        <div className='fixed z-40 h-lvh'>
+          {sidebarFoldable && (
+            <SidebarHandle
+              className='absolute inset-y-0 left-4 my-auto'
+              sidebarFolded={sidebarFolded}
+              toggle={toggle}
+            />
           )}
         </div>
 
