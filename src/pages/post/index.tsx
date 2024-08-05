@@ -1,14 +1,16 @@
-import { useCallback, useMemo } from 'react'
+import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
+import { throttle } from 'throttle-debounce'
 
 import { useMutation, useQuery } from '@apollo/client'
 import { DELETE_POST, GET_POST } from './api'
 import { UPDATE_POST } from './Edit/api'
+import { GET_CATEGORY_HIERARCHY } from 'pages/manage/Categories/api'
 
 import { useAppSelector } from 'app/hooks'
 import { getRelativeTimeFromNow } from 'utils/dayJS'
+import { progress } from 'utils/useProgress'
 import { selectIsAuthenticated } from 'features/auth/authSlice'
-import { GET_CATEGORY_HIERARCHY } from 'features/sidebar/Sidebar'
 
 import Icon from '@mdi/react'
 import { mdiDelete, mdiLoading, mdiLock, mdiLockOpen, mdiPencil } from '@mdi/js'
@@ -23,10 +25,14 @@ import type { FC } from 'react'
 import type { Action } from 'components/Error'
 
 export const PostPage: FC = () => {
+  const titlebar = useRef<HTMLDivElement>(null)
+  const contentArea = useRef<HTMLDivElement>(null)
   const isLoggedIn = useAppSelector(selectIsAuthenticated)
   const location = useLocation()
   const navigate = useNavigate()
   const { postId } = useParams()
+  const [titlebarTransform, setTitlebarTransform] = useState<number>(-100)
+  const [contentProgress, setContentProgress] = useState<number>(0)
 
   const {
     data: postData,
@@ -47,8 +53,6 @@ export const PostPage: FC = () => {
     useMutation(DELETE_POST, { notifyOnNetworkStatusChange: true })
 
   const toggleIsHidden = useCallback(() => {
-    console.log('toggle')
-    console.log(post)
     if (
       !post ||
       !window.confirm(
@@ -56,8 +60,6 @@ export const PostPage: FC = () => {
       )
     )
       return
-
-    console.log('aaa')
 
     _toggleIsHidden({
       variables: {
@@ -107,6 +109,47 @@ export const PostPage: FC = () => {
     })
   }, [_deletePost, post?.category.id, navigate, postId, resetDeleteMutation])
 
+  useLayoutEffect(() => {
+    const handler = throttle(30, (e: Event) => {
+      const target = (e.target as Document)?.documentElement
+      const scrollPosition = target?.scrollTop || 0
+
+      const CONTENT_START = Number(contentArea.current?.offsetTop)
+      const CONTENT_END =
+        Number(contentArea.current?.offsetTop) +
+        Number(contentArea.current?.clientHeight)
+      setContentProgress(
+        progress(0, CONTENT_END - Number(target?.clientHeight), scrollPosition)
+      )
+
+      const TITLE_TRANSITION_AMOUNT = titlebar.current?.clientHeight || 0
+      const TITLE_SHOW_POINT = CONTENT_START - TITLE_TRANSITION_AMOUNT
+      const TITLE_HIDE_POINT = CONTENT_END - TITLE_TRANSITION_AMOUNT
+
+      if (scrollPosition < TITLE_SHOW_POINT || scrollPosition > CONTENT_END)
+        setTitlebarTransform(-100)
+      else if (scrollPosition < TITLE_HIDE_POINT)
+        setTitlebarTransform(
+          (progress(
+            TITLE_SHOW_POINT,
+            TITLE_SHOW_POINT + TITLE_TRANSITION_AMOUNT,
+            scrollPosition
+          ) -
+            1) *
+            100
+        )
+      else if (scrollPosition < CONTENT_END)
+        setTitlebarTransform(
+          -progress(TITLE_HIDE_POINT, CONTENT_END, scrollPosition) * 100
+        )
+    })
+
+    document.addEventListener('scroll', handler)
+    return () => {
+      document.removeEventListener('scroll', handler)
+    }
+  }, [setTitlebarTransform, setContentProgress])
+
   if (error) {
     if (error.networkError)
       return (
@@ -151,6 +194,34 @@ export const PostPage: FC = () => {
 
   return (
     <>
+      <div
+        ref={titlebar}
+        className={
+          'fixed z-10 bg-neutral-100 bg-opacity-75 shadow-lg backdrop-blur-sm will-change-transform'
+        }
+        style={{
+          width: contentArea.current?.clientWidth,
+          transform: `translateY(${titlebarTransform}%)`
+        }}
+      >
+        <div className='relative h-0.5 bg-neutral-50'>
+          <div
+            className='absolute h-full w-full bg-primary will-change-transform'
+            style={{
+              transform: `scaleX(${contentProgress})`,
+              transformOrigin: 'left',
+              transition: 'transform cubic-bezier(0.4, 0, 0.2, 1) 100ms'
+            }}
+          />
+        </div>
+
+        <div className='pb-2 pt-1.5 text-center'>
+          <Link className='text-sm' to={`/category/${post?.category?.id || 0}`}>
+            {post?.category?.name}
+          </Link>
+          <p className='text-lg'>{post?.title}</p>
+        </div>
+      </div>
       <div
         className='relative h-56 border-b border-neutral-300 bg-neutral-500 bg-cover bg-center bg-no-repeat'
         style={{
@@ -240,28 +311,30 @@ export const PostPage: FC = () => {
         </div>
       </div>
 
-      <div className='mx-auto w-full max-w-[1280px] px-5 py-10'>
-        {loading ? (
-          <SuspendedText
-            className='font-thin'
-            loading={true}
-            align='left'
-            lines={5}
-            length={100}
-          />
-        ) : (
-          <Tiptap
-            className='bg-transparent'
-            editable={false}
-            content={post?.content}
-          />
-        )}
+      <div ref={contentArea} className='w-full px-5 py-12'>
+        <div className='mx-auto w-full max-w-[1280px]'>
+          {loading ? (
+            <SuspendedText
+              className='font-thin'
+              loading={true}
+              align='left'
+              lines={5}
+              length={100}
+            />
+          ) : (
+            <Tiptap
+              className='bg-transparent'
+              editable={false}
+              content={post?.content}
+            />
+          )}
+        </div>
       </div>
 
       {post && (
         <div className='border-t border-neutral-300 bg-neutral-50'>
-          <div className='mx-auto w-full max-w-[1280px] p-10'>
-            <p className='mb-2 text-2xl'>
+          <div className='relative mx-auto w-full max-w-[1280px] bg-inherit p-8 pb-0'>
+            <p className='sticky top-0 z-10 border-b-2 border-neutral-600 bg-inherit py-2 text-2xl'>
               <Link to={`/category/${post.category?.id || 0}`}>
                 {post.category.name}
               </Link>

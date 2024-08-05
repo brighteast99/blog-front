@@ -1,9 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 
 import { useMutation, useQuery } from '@apollo/client'
-import { UPDATE_INFO } from './api'
-
-import { GET_INFO } from 'features/sidebar/Sidebar'
+import { GET_INFO, UPDATE_INFO } from './api'
 
 import { mdiClose, mdiRefresh } from '@mdi/js'
 import { Avatar } from 'components/Avatar'
@@ -111,9 +109,9 @@ export const ManageInfoPage: FC = () => {
         enabled={isModified}
         message={'변경점이 있습니다.\n페이지를 벗어나시겠습니까?'}
       />
-      <div className='p-5'>
+      <div className='relative p-5'>
         <form
-          className='mx-auto flex w-120 flex-col gap-3'
+          className='absolute inset-0 m-auto flex h-fit w-120 flex-col gap-3'
           onSubmit={updateInfo}
         >
           <div className='relative mx-auto rounded-full'>

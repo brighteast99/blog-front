@@ -3,6 +3,8 @@ import { gql } from '@apollo/client'
 import type { TypedDocumentNode } from '@apollo/client'
 import type { Category } from 'types/data'
 
+export type CategoryHierarchyQueryResult = { categoryHierarchy: string }
+
 export interface CategoryInput {
   coverImage?: File | null
   name: string
@@ -21,6 +23,12 @@ export const CREATE_CATEGORY: TypedDocumentNode<
         id
       }
     }
+  }
+`
+
+export const GET_CATEGORY_HIERARCHY: TypedDocumentNode<CategoryHierarchyQueryResult> = gql`
+  query categoryHierarchy {
+    categoryHierarchy
   }
 `
 

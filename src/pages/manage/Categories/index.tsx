@@ -4,9 +4,12 @@ import { ErrorBoundary } from 'react-error-boundary'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 
 import { useLoadableQuery, useMutation, useQuery } from '@apollo/client'
-import { CATEGORY_FULL_INFO, CREATE_CATEGORY, DELETE_CATEGORY } from './api'
-
-import { GET_CATEGORY_HIERARCHY } from 'features/sidebar/Sidebar'
+import {
+  CATEGORY_FULL_INFO,
+  CREATE_CATEGORY,
+  DELETE_CATEGORY,
+  GET_CATEGORY_HIERARCHY
+} from './api'
 
 import Icon from '@mdi/react'
 import { mdiLoading, mdiLock, mdiMinus, mdiPlus } from '@mdi/js'
@@ -174,7 +177,7 @@ export const ManageCategoryPage: FC = () => {
   }, [selectedCategory])
 
   return (
-    <div className='flex gap-2 p-5 *:h-120'>
+    <div className='flex gap-2 p-5'>
       <div className='w-1/3'>
         <div
           className='relative h-full overflow-y-auto rounded border border-neutral-200 bg-neutral-50 pb-10'

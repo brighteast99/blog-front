@@ -7,6 +7,16 @@ export interface BlogInfoInput extends Omit<BlogInfo, 'avatar'> {
   avatar?: File | null
 }
 
+export const GET_INFO: TypedDocumentNode<{ blogInfo: BlogInfo }> = gql`
+  query BlogInfo {
+    blogInfo {
+      title
+      description
+      avatar
+    }
+  }
+`
+
 export const UPDATE_INFO: TypedDocumentNode<
   { updateInfo: { updatedInfo: BlogInfo } },
   { data: BlogInfoInput }

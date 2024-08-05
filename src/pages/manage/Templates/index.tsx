@@ -90,7 +90,7 @@ export const ManageTemplatePage: FC = () => {
   }, [selectedTemplate])
 
   return (
-    <div className='flex justify-center gap-2 p-5 *:h-[55rem]'>
+    <div className='flex justify-center gap-2 p-5'>
       <div className='w-1/3'>
         <div
           className='relative h-full overflow-y-auto rounded border border-neutral-200 bg-neutral-50'

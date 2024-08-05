@@ -135,7 +135,7 @@ export const CategoryPage: FC = () => {
     }
   }
   return (
-    <>
+    <div className='relative h-fit'>
       {(loading || category?.coverImage) && (
         <div
           className={clsx(
@@ -267,7 +267,7 @@ export const CategoryPage: FC = () => {
           />
         </form>
       </div>
-      <div className='mx-auto w-5/6'>
+      <div className='mx-auto w-5/6 bg-background'>
         <PostList
           pageSize={pageSize}
           filterArgs={{
@@ -282,6 +282,6 @@ export const CategoryPage: FC = () => {
           logHistory
         />
       </div>
-    </>
+    </div>
   )
 }
