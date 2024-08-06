@@ -119,7 +119,11 @@ export const PostPage: FC = () => {
         Number(contentArea.current?.offsetTop) +
         Number(contentArea.current?.clientHeight)
       setContentProgress(
-        progress(0, CONTENT_END - Number(target?.clientHeight), scrollPosition)
+        progress(
+          0,
+          Math.max(0, CONTENT_END - Number(target?.clientHeight)),
+          scrollPosition
+        )
       )
 
       const TITLE_TRANSITION_AMOUNT = titlebar.current?.clientHeight || 0
@@ -311,7 +315,7 @@ export const PostPage: FC = () => {
         </div>
       </div>
 
-      <div ref={contentArea} className='w-full px-5 py-12'>
+      <div ref={contentArea} className='min-h-[30dvh] w-full px-5 py-12'>
         <div className='mx-auto w-full max-w-[1280px]'>
           {loading ? (
             <SuspendedText
