@@ -14,7 +14,7 @@ import { Spinner } from 'components/Spinner'
 import { TemplateForm } from './templateForm'
 
 import type { FC } from 'react'
-import type { BlogInfo as _BlogInfo } from 'types/data'
+import type { BlogInfo as _BlogInfo } from 'features/blog/blogSlice'
 
 export const ManageTemplatePage: FC = () => {
   const [searchParams, setSearchParams] = useSearchParams()

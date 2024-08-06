@@ -1,4 +1,4 @@
-import { Suspense, useCallback, useLayoutEffect } from 'react'
+import { Suspense, useCallback, useLayoutEffect, useMemo } from 'react'
 import { client } from 'ApolloContext'
 import clsx from 'clsx'
 import { ErrorBoundary } from 'react-error-boundary'
@@ -10,6 +10,7 @@ import { GET_INFO } from 'pages/manage/Info/api'
 
 import { useAppDispatch, useAppSelector } from 'app/hooks'
 import { revokeToken, selectIsAuthenticated } from 'features/auth/authSlice'
+import { updateBlogInfo } from 'features/blog/blogSlice'
 
 import { mdiCog, mdiLogin, mdiLogout, mdiMenu } from '@mdi/js'
 import { Avatar } from 'components/Avatar'
@@ -47,9 +48,13 @@ export const Sidebar: FC<SidebarProps> = ({
   const navigate = useNavigate()
   const location = useLocation()
   const isLoggedIn = useAppSelector(selectIsAuthenticated)
-  const { data, loading: loadingInfo } = useQuery(GET_INFO, {
-    notifyOnNetworkStatusChange: true
+  const { data: blogInfoData, loading: loadingInfo } = useQuery(GET_INFO, {
+    notifyOnNetworkStatusChange: true,
+    onCompleted: (blogInfo) => {
+      dispatch(updateBlogInfo(blogInfo))
+    }
   })
+  const blogInfo = useMemo(() => blogInfoData?.blogInfo, [blogInfoData])
   const [loadCategories, queryRef, { refetch: refetchCategories }] =
     useLoadableQuery(GET_CATEGORY_HIERARCHY)
 
@@ -97,13 +102,13 @@ export const Sidebar: FC<SidebarProps> = ({
             loadingInfo && 'animate-pulse'
           )}
           size='2xl'
-          src={data?.blogInfo?.avatar}
+          src={blogInfo?.avatar}
         />
         <Link className='self-center' to='/'>
           <SuspendedText
             className='mb-1 text-lg font-semibold'
             loading={loadingInfo}
-            text={data?.blogInfo?.title}
+            text={blogInfo?.title}
             align='center'
             length={10}
           />
@@ -111,7 +116,7 @@ export const Sidebar: FC<SidebarProps> = ({
         <SuspendedText
           className='self-center'
           loading={loadingInfo}
-          text={data?.blogInfo?.description}
+          text={blogInfo?.description}
           align='center'
           length={70}
           lines={2}

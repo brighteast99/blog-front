@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 
 import type { TypedDocumentNode } from '@apollo/client'
-import type { BlogInfo } from 'types/data'
+import type { BlogInfo } from 'features/blog/blogSlice'
 
 export interface BlogInfoInput extends Omit<BlogInfo, 'avatar' | 'favicon'> {
   avatar?: File | null

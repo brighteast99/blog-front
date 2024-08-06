@@ -3,6 +3,9 @@ import { useCallback, useEffect, useMemo } from 'react'
 import { useMutation, useQuery } from '@apollo/client'
 import { GET_INFO, UPDATE_INFO } from './api'
 
+import { useAppDispatch } from 'app/hooks'
+import { updateBlogInfo } from 'features/blog/blogSlice'
+
 import { Avatar } from 'components/Avatar'
 import { ThemedButton } from 'components/Buttons/ThemedButton'
 import { Error } from 'components/Error'
@@ -14,6 +17,7 @@ import { useBlogInfo } from './hooks'
 import type { FC, FormEvent } from 'react'
 
 export const ManageInfoPage: FC = () => {
+  const dispatch = useAppDispatch()
   const {
     info: { title, description, avatar, favicon },
     initialize,
@@ -55,6 +59,9 @@ export const ManageInfoPage: FC = () => {
             favicon
           }
         },
+        onCompleted: ({ updateInfo: { updatedInfo } }) => {
+          dispatch(updateBlogInfo({ blogInfo: updatedInfo }))
+        },
         onError: ({ networkError, graphQLErrors }) => {
           if (networkError)
             if (networkError) alert('정보 수정 중 오류가 발생했습니다.')
@@ -64,6 +71,7 @@ export const ManageInfoPage: FC = () => {
       })
     },
     [
+      dispatch,
       _updateInfo,
       title,
       description,
