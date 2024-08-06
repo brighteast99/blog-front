@@ -11,6 +11,10 @@
 }
 
 @layer components {
+  a {
+    @apply transition-colors hover:text-primary;
+  }
+
   select,
   input {
     @apply border-b border-neutral-400 bg-transparent;
