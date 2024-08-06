@@ -13,7 +13,7 @@ interface AvatarProps extends HTMLAttributes<HTMLDivElement> {
   /**
    * Source of the avatar image
    */
-  imgSrc?: string
+  src?: string
 }
 
 export const AvatarVariants = cva('aspect-square overflow-clip rounded-full', {
@@ -38,13 +38,13 @@ const DEFAULT_IMAGE =
 export const Avatar: FC<AvatarProps> = ({
   className = '',
   size = 'md',
-  imgSrc,
+  src,
   ...props
 }) => {
   return (
     <div className={cn(AvatarVariants({ size }), className)} {...props}>
       <img
-        src={imgSrc || DEFAULT_IMAGE}
+        src={src || DEFAULT_IMAGE}
         alt='Profile'
         className='block size-full object-cover object-center'
         onError={(e) => {

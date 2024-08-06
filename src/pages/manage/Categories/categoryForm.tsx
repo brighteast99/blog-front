@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from 'react'
+import { useEffect, useMemo } from 'react'
 
 import { useMutation, useQuery, useReadQuery } from '@apollo/client'
 import {
@@ -9,9 +9,8 @@ import {
   VALID_SUPERCATEGORIES
 } from './api'
 
-import { mdiClose, mdiRefresh } from '@mdi/js'
-import { IconButton } from 'components/Buttons/IconButton'
 import { ThemedButton } from 'components/Buttons/ThemedButton'
+import { ImageInput } from 'components/ImageInput'
 import { Spinner } from 'components/Spinner'
 import { NavigationBlocker } from 'components/utils/NavigationBlocker'
 import {
@@ -28,12 +27,9 @@ import type { Category } from 'types/data'
 export const CategoryForm: FC<{
   queryRef: QueryRef<{ category: Category }, { id: number }>
 }> = ({ queryRef }) => {
-  const ImageInput = useRef<HTMLInputElement>(null)
-
   const {
     info: { coverImage, name, description, subcategoryOf, isHidden },
     isModified,
-    coverPreview,
     initialize,
     setCoverImage,
     setName,
@@ -61,8 +57,6 @@ export const CategoryForm: FC<{
 
   const [_updateCategory, { loading: updating, reset: resetUpdateMutation }] =
     useMutation(UPDATE_CATEGORY)
-
-  const coverChanged = coverImage || coverImage === null
 
   const parentIsHidden = useMemo(
     () =>
@@ -106,6 +100,7 @@ export const CategoryForm: FC<{
   useEffect(() => {
     if (category) {
       let categoryData: CategoryInput = {
+        coverImage: undefined,
         name: category.name,
         description: category.description,
         isHidden: category.isHidden
@@ -125,7 +120,16 @@ export const CategoryForm: FC<{
         message={'변경점이 있습니다.\n계속하시겠습니까?'}
       />
       <form className='flex size-full flex-col gap-3' onSubmit={updateCategory}>
-        <div
+        <ImageInput
+          key={category.id}
+          initialImage={category.coverImage}
+          sizeLimit={3}
+          onInput={(file) => setCoverImage(file)}
+          Viewer={
+            <div className='relative h-50 w-full bg-neutral-100 bg-cover bg-center' />
+          }
+        />
+        {/* <div
           className='relative h-50 w-full bg-neutral-100 bg-cover bg-center'
           style={{
             backgroundImage:
@@ -196,7 +200,7 @@ export const CategoryForm: FC<{
               setCoverImage(file)
             }}
           />
-        </div>
+        </div> */}
 
         <div className='flex gap-3'>
           <span className='text-neutral-700'>상위 분류</span>
@@ -281,7 +285,11 @@ export const CategoryForm: FC<{
           />
         </div>
 
-        <ThemedButton className='h-10 w-full py-0.5 text-lg' color='primary'>
+        <ThemedButton
+          className='h-10 w-full py-0.5 text-lg'
+          color='primary'
+          disabled={updating || !isModified}
+        >
           {updating ? <Spinner size='xs' /> : '저장'}
         </ThemedButton>
       </form>

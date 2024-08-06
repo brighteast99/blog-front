@@ -97,7 +97,7 @@ export const Sidebar: FC<SidebarProps> = ({
             loadingInfo && 'animate-pulse'
           )}
           size='2xl'
-          imgSrc={data?.blogInfo?.avatar}
+          src={data?.blogInfo?.avatar}
         />
         <Link className='self-center' to='/'>
           <SuspendedText
