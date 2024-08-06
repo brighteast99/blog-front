@@ -33,6 +33,10 @@ export const useBlogInfo = (_initialValue: BlogInfoInput) => {
     setAvatar: createSetter<File | null | undefined, BlogInfoInput>(
       setValue,
       'avatar'
+    ),
+    setFavicon: createSetter<File | null | undefined, BlogInfoInput>(
+      setValue,
+      'favicon'
     )
   }
 }

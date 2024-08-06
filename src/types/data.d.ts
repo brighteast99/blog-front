@@ -42,4 +42,5 @@ export interface BlogInfo {
   title: string
   description: string
   avatar?: string
+  favicon?: string
 }

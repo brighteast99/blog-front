@@ -3,8 +3,9 @@ import { gql } from '@apollo/client'
 import type { TypedDocumentNode } from '@apollo/client'
 import type { BlogInfo } from 'types/data'
 
-export interface BlogInfoInput extends Omit<BlogInfo, 'avatar'> {
+export interface BlogInfoInput extends Omit<BlogInfo, 'avatar' | 'favicon'> {
   avatar?: File | null
+  favicon?: File | null
 }
 
 export const GET_INFO: TypedDocumentNode<{ blogInfo: BlogInfo }> = gql`
@@ -13,6 +14,7 @@ export const GET_INFO: TypedDocumentNode<{ blogInfo: BlogInfo }> = gql`
       title
       description
       avatar
+      favicon
     }
   }
 `
@@ -27,6 +29,7 @@ export const UPDATE_INFO: TypedDocumentNode<
         title
         description
         avatar
+        favicon
       }
     }
   }

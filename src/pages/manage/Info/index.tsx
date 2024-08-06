@@ -15,12 +15,13 @@ import type { FC, FormEvent } from 'react'
 
 export const ManageInfoPage: FC = () => {
   const {
-    info: { title, description, avatar },
+    info: { title, description, avatar, favicon },
     initialize,
     isModified,
     setTitle,
     setDescription,
-    setAvatar
+    setAvatar,
+    setFavicon
   } = useBlogInfo({
     title: '',
     description: ''
@@ -50,7 +51,8 @@ export const ManageInfoPage: FC = () => {
           data: {
             title: title || blogInfo?.title || '',
             description: description || blogInfo?.description || '',
-            avatar
+            avatar,
+            favicon
           }
         },
         onError: ({ networkError, graphQLErrors }) => {
@@ -66,6 +68,7 @@ export const ManageInfoPage: FC = () => {
       title,
       description,
       avatar,
+      favicon,
       blogInfo?.title,
       blogInfo?.description,
       resetUpdateMutation
@@ -78,7 +81,8 @@ export const ManageInfoPage: FC = () => {
         {
           title: blogInfo.title,
           description: blogInfo.description,
-          avatar: undefined
+          avatar: undefined,
+          favicon: undefined
         },
         false
       )
@@ -111,14 +115,23 @@ export const ManageInfoPage: FC = () => {
             onInput={(file) => setAvatar(file)}
           />
 
-          <input
-            className='h-8 grow px-1.5'
-            type='text'
-            required
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder={blogInfo?.title || '블로그 제목'}
-          />
+          <div className='flex gap-2'>
+            <ImageInput
+              className='size-8'
+              initialImage={blogInfo?.favicon}
+              menuPlacement='left-start'
+              sizeLimit={1}
+              onInput={(file) => setFavicon(file)}
+            />
+            <input
+              className='h-8 grow px-1.5'
+              type='text'
+              required
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder={blogInfo?.title || '블로그 제목'}
+            />
+          </div>
 
           <textarea
             className='min-h-32 p-2'
