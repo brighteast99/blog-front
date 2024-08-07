@@ -7,6 +7,7 @@ import { throttle } from 'throttle-debounce'
 import { useAppDispatch, useAppSelector } from 'app/hooks'
 import { useToggle } from 'hooks/useToggle'
 import { refreshToken, selectIsAuthenticated } from 'features/auth/authSlice'
+import { selectBlogInfo } from 'features/blog/blogSlice'
 import { selectBreakpoint, updateSize } from 'features/window/windowSlice'
 
 import { Error } from 'components/Error'
@@ -15,6 +16,7 @@ import { SidebarHandle } from 'components/sidebar/SidebarHandle'
 
 function App() {
   const dispatch = useAppDispatch()
+  const { title, favicon } = useAppSelector(selectBlogInfo)
   const isLoggedIn = useAppSelector(selectIsAuthenticated)
   const [refreshLoginTimer, setRefreshLoginTimer] =
     useState<ReturnType<typeof setInterval>>()
@@ -32,6 +34,26 @@ function App() {
     [dispatch]
   )
 
+  // * Update title
+  // Todo: Update title acording to current location
+  useLayoutEffect(() => {
+    document.title = title
+  }, [title])
+
+  // * Set favicon
+  useLayoutEffect(() => {
+    let link = document.querySelector("link[rel ~= 'icon']") as HTMLLinkElement
+
+    if (favicon) {
+      if (!link) {
+        link = document.createElement('link')
+        link.rel = 'icon'
+        document.head.appendChild(link)
+      }
+      link.href = favicon
+    } else if (link) link.remove()
+  }, [favicon])
+
   // * Update window size
   useLayoutEffect(() => {
     const dispatchSizeUpdate = throttle(250, () => {
@@ -46,8 +68,6 @@ function App() {
 
     return () => window.removeEventListener('resize', dispatchSizeUpdate)
   }, [dispatch])
-
-  useLayoutEffect(() => {}, [])
 
   // * Update font size & sidebar state according to breakpoint
   useLayoutEffect(() => {
