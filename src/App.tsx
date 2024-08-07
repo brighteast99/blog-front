@@ -102,7 +102,7 @@ function App() {
   }, [isLoggedIn, refreshLoginToken])
 
   return (
-    <div className='min-w-dvw flex min-h-dvh bg-background text-foreground'>
+    <div className='min-w-dvw flex min-h-dvh'>
       <Sidebar
         foldable={sidebarFoldable}
         isFolded={sidebarFolded}
