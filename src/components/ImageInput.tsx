@@ -1,7 +1,7 @@
 import { cloneElement, useCallback, useEffect, useRef, useState } from 'react'
 import { Placement } from '@floating-ui/react'
-import { useDiffState } from 'hooks/useDiffState'
 
+import { useDiffState } from 'hooks/useDiffState'
 import { cn } from 'utils/handleClassName'
 
 import { mdiClose, mdiImage, mdiImageSearch, mdiRefresh } from '@mdi/js'

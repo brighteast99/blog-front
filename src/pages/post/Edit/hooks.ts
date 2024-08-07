@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { useDiffState } from 'hooks/useDiffState'
 
+import { useDiffState } from 'hooks/useDiffState'
 import { createSetter } from 'utils/stateSetter'
 
 import type { PostInput } from './api'

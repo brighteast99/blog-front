@@ -1,5 +1,4 @@
 import { useDiffState } from 'hooks/useDiffState'
-
 import { createSetter } from 'utils/stateSetter'
 
 import type { CategoryInput } from './api'

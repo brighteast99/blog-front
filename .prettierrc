@@ -16,6 +16,7 @@
     "api$",
     "",
     "^app/*",
+    "^hooks/*",
     "^utils/*",
     "^features/*",
     "",
