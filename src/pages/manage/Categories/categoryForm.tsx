@@ -18,7 +18,7 @@ import {
   TooltipContent,
   TooltipTrigger
 } from 'components/utils/Tooltip'
-import { useCategory } from './hooks'
+import { useCategoryInput } from './hooks'
 
 import type { FC, FormEvent } from 'react'
 import type { QueryRef } from '@apollo/client'
@@ -28,15 +28,15 @@ export const CategoryForm: FC<{
   queryRef: QueryRef<{ category: Category }, { id: number }>
 }> = ({ queryRef }) => {
   const {
-    info: { coverImage, name, description, subcategoryOf, isHidden },
-    isModified,
+    categoryInput: { coverImage, name, description, subcategoryOf, isHidden },
+    hasChange,
     initialize,
     setCoverImage,
     setName,
     setDescription,
     setSubcategoryOf,
     setIsHidden
-  } = useCategory({
+  } = useCategoryInput({
     name: '',
     description: '',
     isHidden: false
@@ -103,14 +103,14 @@ export const CategoryForm: FC<{
       if (category.subcategoryOf?.id)
         categoryData.subcategoryOf = category.subcategoryOf?.id
 
-      initialize(categoryData, false)
+      initialize(categoryData)
     }
   }, [category, initialize])
 
   return (
     <>
       <NavigationBlocker
-        enabled={isModified}
+        enabled={hasChange}
         localAlert
         message={'변경점이 있습니다.\n계속하시겠습니까?'}
       />
@@ -283,7 +283,7 @@ export const CategoryForm: FC<{
         <ThemedButton
           className='h-10 w-full py-0.5 text-lg'
           color='primary'
-          disabled={updating || !isModified}
+          disabled={updating || !hasChange}
         >
           {updating ? <Spinner size='xs' /> : '저장'}
         </ThemedButton>

@@ -1,34 +1,26 @@
-import { useCallback, useState } from 'react'
+import { useState } from 'react'
+import { useDiffState } from 'hooks/useDiffState'
 
 import { createSetter } from 'utils/stateSetter'
 
 import type { PostInput } from './api'
 
-export const usePostInput = (_initialValue: PostInput) => {
-  const [initialValue, setInitialValue] = useState<PostInput>(_initialValue)
-  const [value, setValue] = useState<PostInput>(_initialValue)
+export const usePostInput = (initialValue: PostInput) => {
+  const {
+    value: postInput,
+    hasChange,
+    setValue: setPostInput,
+    initialize
+  } = useDiffState<PostInput>(initialValue)
   const [imagesToDelete, setImagesToDelete] = useState<string[]>([])
 
-  const isModified = JSON.stringify(initialValue) !== JSON.stringify(value)
-
-  const initialize = useCallback(
-    (
-      value: PostInput | ((prev: PostInput) => PostInput),
-      keepInitialValue: boolean = false
-    ) => {
-      if (!keepInitialValue) setInitialValue(value)
-      setValue(value)
-    },
-    [setInitialValue, setValue]
-  )
-
   function addImage(image: string) {
-    setValue((prev) => ({ ...prev, images: [...prev.images, image] }))
+    setPostInput((prev) => ({ ...prev, images: [...prev.images, image] }))
   }
 
   function removeImage(image: string) {
-    setValue((prev) => {
-      const idx = prev.images.findIndex((_image) => _image === image)
+    setPostInput((prev: PostInput) => {
+      const idx = prev.images.findIndex((_image: string) => _image === image)
       if (idx === -1) return prev
 
       prev.images = prev.images.toSpliced(idx, 1)
@@ -42,21 +34,28 @@ export const usePostInput = (_initialValue: PostInput) => {
   }
 
   return {
-    input: value,
-    isModified,
+    postInput,
+    hasChange,
     imagesToDelete,
     initialize,
+    setPostInput,
     setCategory: createSetter<number | undefined, PostInput>(
-      setValue,
+      setPostInput,
       'category'
     ),
-    setTitle: createSetter<string, PostInput>(setValue, 'title'),
-    setContent: createSetter<string, PostInput>(setValue, 'content'),
-    setTextContent: createSetter<string, PostInput>(setValue, 'textContent'),
-    setIsHidden: createSetter<boolean, PostInput>(setValue, 'isHidden'),
-    setImages: createSetter<string[], PostInput>(setValue, 'images'),
+    setTitle: createSetter<string, PostInput>(setPostInput, 'title'),
+    setContent: createSetter<string, PostInput>(setPostInput, 'content'),
+    setTextContent: createSetter<string, PostInput>(
+      setPostInput,
+      'textContent'
+    ),
+    setIsHidden: createSetter<boolean, PostInput>(setPostInput, 'isHidden'),
+    setImages: createSetter<string[], PostInput>(setPostInput, 'images'),
     // Todo: test
-    setThumbnail: createSetter<string | null, PostInput>(setValue, 'thumbnail'),
+    setThumbnail: createSetter<string | null, PostInput>(
+      setPostInput,
+      'thumbnail'
+    ),
     addImage,
     removeImage
   }

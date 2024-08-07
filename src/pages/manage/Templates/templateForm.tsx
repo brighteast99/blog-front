@@ -23,8 +23,8 @@ export const TemplateForm: FC<{
   onDelete?: () => any
 }> = ({ queryRef, onDelete }) => {
   const {
-    input: { title, content, textContent, thumbnail, images },
-    isModified,
+    postInput: { title, content, textContent, thumbnail, images },
+    hasChange,
     initialize,
     setTitle,
     setContent,
@@ -99,23 +99,20 @@ export const TemplateForm: FC<{
 
   useEffect(() => {
     if (template)
-      initialize(
-        {
-          title: template.title,
-          content: template.content,
-          textContent: template.textContent,
-          isHidden: false,
-          thumbnail: template.thumbnail,
-          images: template.images
-        },
-        false
-      )
+      initialize({
+        title: template.title,
+        content: template.content,
+        textContent: template.textContent,
+        isHidden: false,
+        thumbnail: template.thumbnail,
+        images: template.images
+      })
   }, [template, initialize])
 
   return (
     <>
       <NavigationBlocker
-        enabled={isModified}
+        enabled={hasChange}
         localAlert
         message={'수정 중인 내용이 있습니다.\n계속하시겠습니까?'}
       />

@@ -1,5 +1,6 @@
 import { cloneElement, useCallback, useEffect, useRef, useState } from 'react'
 import { Placement } from '@floating-ui/react'
+import { useDiffState } from 'hooks/useDiffState'
 
 import { cn } from 'utils/handleClassName'
 
@@ -27,9 +28,13 @@ export const ImageInput: FC<{
 }) => {
   const InputElement = useRef<HTMLInputElement>(null)
   const [file, setFile] = useState<File | null | undefined>()
-  const [preview, setPreview] = useState<string | undefined>(initialImage)
-
-  const hasChange = file || (initialImage && !preview)
+  const {
+    value: preview,
+    setValue: setPreview,
+    initialize: initializePreview,
+    resetValue: resetPreview,
+    hasChange
+  } = useDiffState<string | undefined>(initialImage)
 
   const handleInput = useCallback(
     (e: ChangeEvent<HTMLInputElement>) => {
@@ -48,7 +53,12 @@ export const ImageInput: FC<{
   )
 
   useEffect(() => {
-    if (!file) {
+    if (file === undefined) {
+      resetPreview()
+      return
+    }
+
+    if (file === null) {
       setPreview(undefined)
       return
     }
@@ -56,12 +66,12 @@ export const ImageInput: FC<{
     const url = URL.createObjectURL(file)
     setPreview(url)
     return () => URL.revokeObjectURL(url)
-  }, [file])
+  }, [file, setPreview, resetPreview])
 
   useEffect(() => {
-    setPreview(initialImage)
+    initializePreview(initialImage)
     setFile(undefined)
-  }, [initialImage, setPreview, setFile])
+  }, [initialImage, initializePreview, setFile])
 
   return (
     <>
@@ -99,21 +109,15 @@ export const ImageInput: FC<{
           icon={mdiImageSearch}
           onClick={() => InputElement.current?.click()}
         />
-        {(initialImage || file) && (
+        {(preview || hasChange) && (
           <PopoverMenuItem
             className={hasChange ? 'text-unset' : 'text-error'}
             title={hasChange ? '되돌리기' : '기본 이미지로 변경'}
             icon={hasChange ? mdiRefresh : mdiClose}
             onClick={() => {
-              if (file || !preview) {
-                setFile(undefined)
-                onInput?.(undefined)
-                setPreview(initialImage)
-              } else {
-                setFile(null)
-                onInput?.(null)
-                setPreview(undefined)
-              }
+              const value = hasChange ? undefined : null
+              setFile(value)
+              onInput?.(value)
               if (InputElement.current) InputElement.current.value = ''
             }}
           />

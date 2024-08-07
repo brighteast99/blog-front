@@ -12,21 +12,21 @@ import { Error } from 'components/Error'
 import { ImageInput } from 'components/ImageInput'
 import { Spinner } from 'components/Spinner'
 import { NavigationBlocker } from 'components/utils/NavigationBlocker'
-import { useBlogInfo } from './hooks'
+import { useBlogInfoInput } from './hooks'
 
 import type { FC, FormEvent } from 'react'
 
 export const ManageInfoPage: FC = () => {
   const dispatch = useAppDispatch()
   const {
-    info: { title, description, avatar, favicon },
+    blogInfoInput: { title, description, avatar, favicon },
     initialize,
-    isModified,
+    hasChange,
     setTitle,
     setDescription,
     setAvatar,
     setFavicon
-  } = useBlogInfo({
+  } = useBlogInfoInput({
     title: '',
     description: ''
   })
@@ -79,16 +79,13 @@ export const ManageInfoPage: FC = () => {
 
   useEffect(() => {
     if (blogInfo)
-      initialize(
-        {
-          title: blogInfo.title,
-          description: blogInfo.description,
-          avatar: undefined,
-          favicon: undefined
-        },
-        false
-      )
-  }, [initialize, blogInfo])
+      initialize({
+        title: blogInfo.title,
+        description: blogInfo.description,
+        avatar: undefined,
+        favicon: undefined
+      })
+  }, [blogInfo, initialize])
 
   if (loadingBlogInfo) return <Spinner size='lg' />
   if (errorLoadingBlogInfo)
@@ -102,7 +99,7 @@ export const ManageInfoPage: FC = () => {
   return (
     <>
       <NavigationBlocker
-        enabled={isModified}
+        enabled={hasChange}
         message={'변경점이 있습니다.\n페이지를 벗어나시겠습니까?'}
       />
       <div className='relative p-5'>
@@ -146,7 +143,7 @@ export const ManageInfoPage: FC = () => {
           <ThemedButton
             className='h-10 w-full py-0.5 text-lg'
             color='primary'
-            disabled={!title.length || !description.length || !isModified}
+            disabled={!title.length || !description.length || !hasChange}
           >
             {updating ? <Spinner size='xs' /> : '저장'}
           </ThemedButton>

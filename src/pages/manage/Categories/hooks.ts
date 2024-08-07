@@ -1,43 +1,38 @@
-import { useCallback, useState } from 'react'
+import { useDiffState } from 'hooks/useDiffState'
 
 import { createSetter } from 'utils/stateSetter'
 
 import type { CategoryInput } from './api'
 
-export const useCategory = (_initialValue: CategoryInput) => {
-  const [initialValue, setInitialValue] = useState<CategoryInput>(_initialValue)
-  const [value, setValue] = useState<CategoryInput>(_initialValue)
-
-  const isModified = JSON.stringify(initialValue) !== JSON.stringify(value)
-
-  const initialize = useCallback(
-    (
-      value: CategoryInput | ((prev: CategoryInput) => CategoryInput),
-      keepInitialValue: boolean = false
-    ) => {
-      if (!keepInitialValue) setInitialValue(value)
-      setValue(value)
-    },
-    [setInitialValue, setValue]
-  )
+export const useCategoryInput = (initialValue: CategoryInput) => {
+  const {
+    value: categoryInput,
+    hasChange,
+    setValue: setCategoryInput,
+    initialize
+  } = useDiffState<CategoryInput>(initialValue)
 
   return {
-    info: value,
-    isModified,
+    categoryInput,
+    hasChange,
     initialize,
+    setCategoryInput,
     setCoverImage: createSetter<File | null | undefined, CategoryInput>(
-      setValue,
+      setCategoryInput,
       'coverImage'
     ),
-    setName: createSetter<string, CategoryInput>(setValue, 'name'),
+    setName: createSetter<string, CategoryInput>(setCategoryInput, 'name'),
     setDescription: createSetter<string, CategoryInput>(
-      setValue,
+      setCategoryInput,
       'description'
     ),
     setSubcategoryOf: createSetter<number, CategoryInput>(
-      setValue,
+      setCategoryInput,
       'subcategoryOf'
     ),
-    setIsHidden: createSetter<boolean, CategoryInput>(setValue, 'isHidden')
+    setIsHidden: createSetter<boolean, CategoryInput>(
+      setCategoryInput,
+      'isHidden'
+    )
   }
 }

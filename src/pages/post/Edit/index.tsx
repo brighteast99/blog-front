@@ -51,9 +51,10 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
   const [searchParams] = useSearchParams()
 
   const {
-    input,
-    isModified,
+    postInput,
+    hasChange,
     initialize,
+    setPostInput,
     setCategory,
     setTitle,
     setContent,
@@ -172,8 +173,8 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
       _createDraft({
         variables: {
           data: {
-            ...input,
-            isHidden: input.isHidden || selectedCategory.isHidden
+            ...postInput,
+            isHidden: postInput.isHidden || selectedCategory.isHidden
           }
         },
         refetchQueries: [{ query: GET_DRAFTS }],
@@ -184,7 +185,12 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
           resetCreateDraftMutation()
         }
       }),
-    [_createDraft, input, resetCreateDraftMutation, selectedCategory.isHidden]
+    [
+      _createDraft,
+      postInput,
+      resetCreateDraftMutation,
+      selectedCategory.isHidden
+    ]
   )
 
   const createPost = useCallback(
@@ -192,8 +198,8 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
       _createPost({
         variables: {
           data: {
-            ...input,
-            isHidden: input.isHidden || selectedCategory.isHidden
+            ...postInput,
+            isHidden: postInput.isHidden || selectedCategory.isHidden
           }
         },
         refetchQueries: [{ query: GET_CATEGORY_HIERARCHY }],
@@ -207,7 +213,7 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
       }),
     [
       _createPost,
-      input,
+      postInput,
       navigate,
       resetCreatePostMutation,
       selectedCategory.isHidden
@@ -220,8 +226,8 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
         variables: {
           id: postId as string,
           data: {
-            ...input,
-            isHidden: input.isHidden || selectedCategory.isHidden
+            ...postInput,
+            isHidden: postInput.isHidden || selectedCategory.isHidden
           }
         },
         refetchQueries: [
@@ -250,7 +256,7 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
     [
       _updatePost,
       postId,
-      input,
+      postInput,
       selectedCategory.isHidden,
       imagesToDelete,
       resetUpdateMutation,
@@ -266,25 +272,25 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
 
   useLayoutEffect(() => {
     const selectedCategory = categoriesData?.categories.find(
-      (category) => category.id === input.category
+      (category) => category.id === postInput.category
     )
     setSelectedCategory({
       id: selectedCategory?.id,
       isHidden: Boolean(selectedCategory?.isHidden)
     })
-  }, [categoriesData?.categories, input.category])
+  }, [categoriesData?.categories, postInput.category])
 
   useLayoutEffect(() => {
     const stashDraft = () => {
       if (document.hidden)
-        return sessionStorage.setItem('draft', JSON.stringify(input))
+        return sessionStorage.setItem('draft', JSON.stringify(postInput))
 
       try {
         const draft = JSON.parse(
           sessionStorage.getItem('draft') ?? '{}'
         ) as PostInput
         sessionStorage.removeItem('draft')
-        initialize(draft, true)
+        setPostInput(draft)
       } catch {
         //
       }
@@ -292,7 +298,7 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
     document.addEventListener('visibilitychange', stashDraft)
 
     return () => document.removeEventListener('visibilitychange', stashDraft)
-  }, [initialize, input])
+  }, [postInput, setPostInput])
 
   if (errorLoadingPost?.graphQLErrors[0]?.extensions?.code === 404)
     return (
@@ -328,7 +334,7 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
       <div className='mx-auto w-full max-w-[1280px] px-5 py-10'>
         <NavigationBlocker
           enabled={
-            isModified && !creatingPost && !updatingPost && !deletingImages
+            hasChange && !creatingPost && !updatingPost && !deletingImages
           }
           message={`${newPost ? '작성' : '수정'}중인 내용이 있습니다.\n페이지를 벗어나시겠습니까?`}
         />
@@ -342,7 +348,7 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
           <select
             className='grow py-1'
             disabled={loadingCategories || Boolean(errorLoadingCategories)}
-            value={input.category}
+            value={postInput.category}
             onChange={(e) => setCategory(Number(e.target.value) || undefined)}
           >
             <option value={0}>
@@ -374,7 +380,7 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
             className='min-w-0 grow text-2xl'
             type='text'
             placeholder='게시글 제목'
-            value={input.title}
+            value={postInput.title}
             onChange={(e) => setTitle(e.target.value)}
             onBlur={(e) => setTitle(e.target.value.trim())}
             required
@@ -382,18 +388,18 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
           <Tooltip>
             <TooltipTrigger asChild>
               <IconButton
-                path={input.isHidden ? mdiLock : mdiLockOpen}
+                path={postInput.isHidden ? mdiLock : mdiLockOpen}
                 variant='hover-text-toggle'
                 color='primary'
                 disabled={selectedCategory?.isHidden}
-                active={input.isHidden}
-                onClick={() => setIsHidden(!input.isHidden)}
+                active={postInput.isHidden}
+                onClick={() => setIsHidden(!postInput.isHidden)}
               />
             </TooltipTrigger>
             <TooltipContent>
               {selectedCategory.isHidden
                 ? '비공개 분류에 속하는 게시글입니다'
-                : (input.isHidden ? '공개 게시글' : '비공개 게시글') +
+                : (postInput.isHidden ? '공개 게시글' : '비공개 게시글') +
                   '로 전환'}
             </TooltipContent>
           </Tooltip>
@@ -402,13 +408,13 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
         {!loadingPost && !errorLoadingPost && (
           <Tiptap
             className='mb-5 min-h-40 grow'
-            content={input.content}
+            content={postInput.content}
             onChange={(editor) => {
               setContent(editor.getHTML())
               setTextContent(editor.getText())
             }}
-            thumbnail={input.thumbnail}
-            images={input.images}
+            thumbnail={postInput.thumbnail}
+            images={postInput.images}
             onImageUploaded={addImage}
             onImageDeleted={removeImage}
             onChangeThumbnail={setThumbnail}
@@ -420,7 +426,7 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
           variant='flat'
           color='primary'
           disabled={
-            !input.title ||
+            !postInput.title ||
             creatingDraft ||
             creatingPost ||
             updatingPost ||
@@ -441,7 +447,7 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
           variant='text'
           color='secondary'
           disabled={
-            !input.title ||
+            !postInput.title ||
             creatingDraft ||
             creatingPost ||
             updatingPost ||
