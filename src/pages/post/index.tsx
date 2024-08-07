@@ -31,7 +31,7 @@ export const PostPage: FC = () => {
   const location = useLocation()
   const navigate = useNavigate()
   const { postId } = useParams()
-  const [titlebarTransform, setTitlebarTransform] = useState<number>(-100)
+  const [titlebarTransform, setTitlebarTransform] = useState<number>(-1000)
   const [contentProgress, setContentProgress] = useState<number>(0)
 
   const {
@@ -99,7 +99,7 @@ export const PostPage: FC = () => {
   }, [_deletePost, post?.category.id, navigate, postId, resetDeleteMutation])
 
   useLayoutEffect(() => {
-    const handler = throttle(30, (e: Event) => {
+    const handler = throttle(20, (e: Event) => {
       const target = (e.target as Document)?.documentElement
       const scrollPosition = target?.scrollTop || 0
 
@@ -120,7 +120,7 @@ export const PostPage: FC = () => {
       const TITLE_HIDE_POINT = CONTENT_END - TITLE_TRANSITION_AMOUNT
 
       if (scrollPosition < TITLE_SHOW_POINT || scrollPosition > CONTENT_END)
-        setTitlebarTransform(-100)
+        setTitlebarTransform(-1000)
       else if (scrollPosition < TITLE_HIDE_POINT)
         setTitlebarTransform(
           (progress(
@@ -187,12 +187,10 @@ export const PostPage: FC = () => {
     <>
       <div
         ref={titlebar}
-        className={
-          'fixed z-10 bg-neutral-100 bg-opacity-75 shadow-lg backdrop-blur-sm will-change-transform'
-        }
+        className='sticky top-0 z-10 w-full bg-neutral-100 bg-opacity-75 shadow-lg backdrop-blur-sm will-change-auto'
         style={{
-          width: contentArea.current?.clientWidth,
-          transform: `translateY(${titlebarTransform}%)`
+          transform: `translateY(${titlebarTransform}%)`,
+          marginTop: '-4.125rem'
         }}
       >
         <div className='relative h-0.5 bg-neutral-50'>
@@ -206,7 +204,7 @@ export const PostPage: FC = () => {
           />
         </div>
 
-        <div className='pb-2 pt-1.5 text-center'>
+        <div className='h-16 pt-1.5 text-center'>
           <Link className='text-sm' to={`/category/${post?.category?.id || 0}`}>
             {post?.category?.name}
           </Link>
