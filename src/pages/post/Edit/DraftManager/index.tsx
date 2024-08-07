@@ -39,9 +39,7 @@ export const DraftManager: FC<DraftManagerProps> = ({
     loading: loadingDrafts,
     error: errorLoadingDrafts,
     refetch: refetchDrafts
-  } = useQuery(GET_DRAFTS, {
-    notifyOnNetworkStatusChange: true
-  })
+  } = useQuery(GET_DRAFTS, { notifyOnNetworkStatusChange: true })
   const drafts = useMemo(() => draftsData?.drafts, [draftsData])
 
   const [
@@ -52,9 +50,7 @@ export const DraftManager: FC<DraftManagerProps> = ({
       error: errorLoadingDraft,
       refetch: refetchDraft
     }
-  ] = useLazyQuery(GET_DRAFT, {
-    notifyOnNetworkStatusChange: true
-  })
+  ] = useLazyQuery(GET_DRAFT, { notifyOnNetworkStatusChange: true })
   const draft = useMemo(() => draftData?.draft, [draftData])
   const [selectedDraft, setSelectedDraft] = useState<number>()
 
@@ -68,11 +64,7 @@ export const DraftManager: FC<DraftManagerProps> = ({
 
     _deleteDraft({
       variables: { id: Number(draft.id) },
-      refetchQueries: [
-        {
-          query: GET_DRAFTS
-        }
-      ],
+      refetchQueries: [{ query: GET_DRAFTS }],
       onCompleted: () => setSelectedDraft(undefined),
       onError: ({ networkError, graphQLErrors }) => {
         if (networkError) alert('임시 저장본 삭제 중 오류가 발생했습니다.')

@@ -111,39 +111,37 @@ export const ManageCategoryPage: FC = () => {
     [navigate, searchParams, setSearchParams]
   )
 
-  const createCategory = useCallback(() => {
-    _createCategory({
-      variables: {
-        data: {
-          name: '새 분류',
-          description: '',
-          isHidden: Boolean(
-            categories?.find((category) => category.id === selectedCategory)
-              ?.isHidden
-          ),
-          subcategoryOf: selectedCategory
+  const createCategory = useCallback(
+    () =>
+      _createCategory({
+        variables: {
+          data: {
+            name: '새 분류',
+            description: '',
+            isHidden: Boolean(
+              categories?.find((category) => category.id === selectedCategory)
+                ?.isHidden
+            ),
+            subcategoryOf: selectedCategory
+          }
+        },
+        refetchQueries: [{ query: GET_CATEGORY_HIERARCHY }],
+        onCompleted: ({ createCategory: { createdCategory } }) =>
+          selectCategory(createdCategory.id),
+        onError: ({ networkError, graphQLErrors }) => {
+          if (networkError) alert('분류 생성 중 오류가 발생했습니다.')
+          else if (graphQLErrors.length) alert(graphQLErrors[0].message)
+          resetCreateMutation()
         }
-      },
-      refetchQueries: [
-        {
-          query: GET_CATEGORY_HIERARCHY
-        }
-      ],
-      onCompleted: ({ createCategory: { createdCategory } }) =>
-        selectCategory(createdCategory.id),
-      onError: ({ networkError, graphQLErrors }) => {
-        if (networkError) alert('분류 생성 중 오류가 발생했습니다.')
-        else if (graphQLErrors.length) alert(graphQLErrors[0].message)
-        resetCreateMutation()
-      }
-    })
-  }, [
-    _createCategory,
-    categories,
-    resetCreateMutation,
-    selectCategory,
-    selectedCategory
-  ])
+      }),
+    [
+      _createCategory,
+      categories,
+      resetCreateMutation,
+      selectCategory,
+      selectedCategory
+    ]
+  )
 
   const deleteCategory = useCallback(() => {
     if (!selectedCategory) return

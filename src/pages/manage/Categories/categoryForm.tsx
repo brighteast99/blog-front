@@ -81,17 +81,12 @@ export const CategoryForm: FC<{
         }
       },
       refetchQueries: [
-        {
-          query: GET_CATEGORY_HIERARCHY
-        },
-        {
-          query: CATEGORY_FULL_INFO,
-          variables: { id }
-        }
+        { query: GET_CATEGORY_HIERARCHY },
+        { query: CATEGORY_FULL_INFO, variables: { id } }
       ],
       onError: ({ networkError, graphQLErrors }) => {
         if (networkError) alert('분류 수정 중 오류가 발생했습니다.')
-        else if (graphQLErrors.length) alert(graphQLErrors[0].message)
+        if (graphQLErrors.length) alert(graphQLErrors[0].message)
         resetUpdateMutation()
       }
     })

@@ -46,11 +46,7 @@ export const ManageInfoPage: FC = () => {
     (e: FormEvent<HTMLFormElement>) => {
       e.preventDefault()
       _updateInfo({
-        refetchQueries: [
-          {
-            query: GET_INFO
-          }
-        ],
+        refetchQueries: [{ query: GET_INFO }],
         variables: {
           data: {
             title: title || blogInfo?.title || '',
@@ -59,13 +55,11 @@ export const ManageInfoPage: FC = () => {
             favicon
           }
         },
-        onCompleted: ({ updateInfo: { updatedInfo } }) => {
-          dispatch(updateBlogInfo({ blogInfo: updatedInfo }))
-        },
+        onCompleted: ({ updateInfo: { updatedInfo } }) =>
+          dispatch(updateBlogInfo({ blogInfo: updatedInfo })),
         onError: ({ networkError, graphQLErrors }) => {
-          if (networkError)
-            if (networkError) alert('정보 수정 중 오류가 발생했습니다.')
-            else if (graphQLErrors.length) alert(graphQLErrors[0].message)
+          if (networkError) alert('정보 수정 중 오류가 발생했습니다.')
+          if (graphQLErrors.length) alert(graphQLErrors[0].message)
           resetUpdateMutation()
         }
       })

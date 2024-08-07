@@ -16,36 +16,18 @@ export const router = createBrowserRouter([
   {
     element: <App />,
     children: [
-      {
-        path: '/',
-        element: <MainPage />
-      },
-      {
-        path: '/login',
-        element: <LoginPage />
-      },
+      { path: '/', element: <MainPage /> },
+      { path: '/login', element: <LoginPage /> },
       {
         path: '/manage',
         element: <ManagePage />,
         children: [
-          {
-            path: '/manage/info',
-            element: <ManageInfoPage />
-          },
-          {
-            path: '/manage/categories',
-            element: <ManageCategoryPage />
-          },
-          {
-            path: '/manage/templates',
-            element: <ManageTemplatePage />
-          }
+          { path: '/manage/info', element: <ManageInfoPage /> },
+          { path: '/manage/categories', element: <ManageCategoryPage /> },
+          { path: '/manage/templates', element: <ManageTemplatePage /> }
         ]
       },
-      {
-        path: '/category/:categoryId?',
-        element: <CategoryPage />
-      },
+      { path: '/category/:categoryId?', element: <CategoryPage /> },
       { path: '/post/new', element: <EditPostPage newPost /> },
       { path: '/post/edit/:postId', element: <EditPostPage /> },
       { path: '/post/:postId?', element: <PostPage /> },

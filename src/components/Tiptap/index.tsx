@@ -70,10 +70,12 @@ export const Tiptap: FC<EditorProps> = ({
         },
         onCompleted: ({ uploadImage: { url } }) => {
           onImageUploaded?.(url)
-          setUploadQueue((prev) => {
-            let idx = prev.findIndex((item) => item === file)
-            return prev.toSpliced(idx, 1)
-          })
+          setUploadQueue((prev) =>
+            prev.toSpliced(
+              prev.findIndex((item) => item === file),
+              1
+            )
+          )
         }
       })
     },
@@ -91,39 +93,42 @@ export const Tiptap: FC<EditorProps> = ({
             `${file.name}: ${Math.round((file.size / 1024 / 1024) * 10) / 10}MB`
           )
 
-        if (!editor) uploadImage(file)
-        else {
-          const fileReader = new FileReader()
-          const pos = editor.state.selection.anchor + i
+        if (!editor) return uploadImage(file)
 
-          fileReader.readAsDataURL(file)
-          fileReader.onload = () => {
+        const fileReader = new FileReader()
+        const pos = editor.state.selection.anchor + i
+
+        fileReader.readAsDataURL(file)
+        fileReader.onload = () => {
+          editor
+            .chain()
+            .insertContentAt(pos, {
+              type: 'image',
+              attrs: {
+                src: fileReader.result
+              }
+            })
+            .focus()
+            .run()
+        }
+        uploadImage(file)
+          .then(({ data }) =>
             editor
               .chain()
-              .insertContentAt(pos, {
-                type: 'image',
-                attrs: {
-                  src: fileReader.result
-                }
-              })
-              .focus()
+              .setNodeSelection(pos)
+              .setImage({ src: data?.uploadImage.url as string })
               .run()
-          }
-          uploadImage(file)
-            .then(({ data }) => {
-              const url = data?.uploadImage.url as string
-              editor.chain().setNodeSelection(pos).setImage({ src: url }).run()
-            })
-            .catch((_) =>
-              editor.chain().setNodeSelection(pos).deleteNode('image')
-            )
-        }
+          )
+          .catch((_) =>
+            editor.chain().setNodeSelection(pos).deleteNode('image')
+          )
       })
 
-      if (largeFiles.length) {
-        let message = `${SIZE_LIMIT}MB를 초과하는 다음 ${largeFiles.length}개 파일은 업로드되지 않습니다.\n`
-        alert(message + largeFiles.join('\n'))
-      }
+      if (largeFiles.length)
+        alert(
+          `${SIZE_LIMIT}MB를 초과하는 다음 ${largeFiles.length}개 파일은 업로드되지 않습니다.\n` +
+            largeFiles.join('\n')
+        )
     },
     [uploadImage]
   )
@@ -141,9 +146,7 @@ export const Tiptap: FC<EditorProps> = ({
             'image/png',
             'image/webp'
           ],
-          onDrop: (editor, files) => {
-            onFileReceived(files, editor)
-          },
+          onDrop: (editor, files) => onFileReceived(files, editor),
           onPaste: (editor, files, htmlContent) => {
             if (htmlContent) return
             onFileReceived(files, editor)

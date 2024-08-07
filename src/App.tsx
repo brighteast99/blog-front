@@ -23,17 +23,17 @@ function App() {
   )
   const sidebarFoldable = useMemo(() => breakpoint !== 'desktop', [breakpoint])
 
-  const fold = useCallback(() => {
-    setSidebarFolded(true)
-  }, [setSidebarFolded])
+  const fold = useCallback(() => setSidebarFolded(true), [setSidebarFolded])
 
-  const toggle = useCallback(() => {
-    setSidebarFolded((prev) => !prev)
-  }, [setSidebarFolded])
+  const toggle = useCallback(
+    () => setSidebarFolded((prev) => !prev),
+    [setSidebarFolded]
+  )
 
-  const refreshLoginToken = useCallback(() => {
-    dispatch(refreshToken(null))
-  }, [dispatch])
+  const refreshLoginToken = useCallback(
+    () => dispatch(refreshToken(null)),
+    [dispatch]
+  )
 
   // * Update window size
   useLayoutEffect(() => {
@@ -47,9 +47,7 @@ function App() {
 
     window.addEventListener('resize', dispatchSizeUpdate)
 
-    return () => {
-      window.removeEventListener('resize', dispatchSizeUpdate)
-    }
+    return () => window.removeEventListener('resize', dispatchSizeUpdate)
   }, [dispatch])
 
   // * Update font size & sidebar state according to breakpoint

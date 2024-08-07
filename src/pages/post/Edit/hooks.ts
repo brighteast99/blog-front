@@ -22,30 +22,8 @@ export const usePostInput = (_initialValue: PostInput) => {
     [setInitialValue, setValue]
   )
 
-  function setThumbnail(thumbnail: string | null) {
-    if (thumbnail)
-      setValue((prev) => {
-        return {
-          ...prev,
-          thumbnail
-        }
-      })
-    else
-      setValue((prev) => {
-        let copy = { ...prev }
-        delete copy.thumbnail
-
-        return copy
-      })
-  }
-
   function addImage(image: string) {
-    setValue((prev) => {
-      return {
-        ...prev,
-        images: [...prev.images, image]
-      }
-    })
+    setValue((prev) => ({ ...prev, images: [...prev.images, image] }))
   }
 
   function removeImage(image: string) {
@@ -77,7 +55,8 @@ export const usePostInput = (_initialValue: PostInput) => {
     setTextContent: createSetter<string, PostInput>(setValue, 'textContent'),
     setIsHidden: createSetter<boolean, PostInput>(setValue, 'isHidden'),
     setImages: createSetter<string[], PostInput>(setValue, 'images'),
-    setThumbnail,
+    // Todo: test
+    setThumbnail: createSetter<string | null, PostInput>(setValue, 'thumbnail'),
     addImage,
     removeImage
   }

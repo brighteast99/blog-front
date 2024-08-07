@@ -48,9 +48,7 @@ export const TemplateSelector: FC<TemplateSelectorProps> = ({
       error: errorLoadingTemplate,
       refetch: refetchTemplate
     }
-  ] = useLazyQuery(GET_TEMPLATE, {
-    notifyOnNetworkStatusChange: true
-  })
+  ] = useLazyQuery(GET_TEMPLATE, { notifyOnNetworkStatusChange: true })
   const template = useMemo(() => templateData?.template, [templateData])
 
   const [selectedTemplate, setSelectedTemplate] = useState<number>()

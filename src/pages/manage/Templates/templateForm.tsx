@@ -63,17 +63,12 @@ export const TemplateForm: FC<{
         }
       },
       refetchQueries: [
-        {
-          query: GET_TEMPLATES
-        },
-        {
-          query: GET_TEMPLATE,
-          variables: { id: template.id }
-        }
+        { query: GET_TEMPLATE },
+        { query: GET_TEMPLATE, variables: { id: template.id } }
       ],
       onError: ({ networkError, graphQLErrors }) => {
         if (networkError) alert('템플릿 수정 중 오류가 발생했습니다.')
-        else if (graphQLErrors.length) alert(graphQLErrors[0].message)
+        if (graphQLErrors.length) alert(graphQLErrors[0].message)
         resetUpdateMutation()
       }
     })
@@ -86,11 +81,7 @@ export const TemplateForm: FC<{
       variables: {
         id: template.id
       },
-      refetchQueries: [
-        {
-          query: GET_TEMPLATES
-        }
-      ],
+      refetchQueries: [{ query: GET_TEMPLATES }],
       onCompleted: () => onDelete?.(),
       onError: ({ networkError, graphQLErrors }) => {
         if (networkError) alert('템플릿 삭제 중 오류가 발생했습니다.')

@@ -233,12 +233,10 @@ export const CategoryPage: FC = () => {
             name='filterBy'
             value={searchBy}
             onChange={(e) =>
-              setSearchCondition((prev) => {
-                return {
-                  ...prev,
-                  searchBy: e.target.value as PostSearchField
-                }
-              })
+              setSearchCondition((prev) => ({
+                ...prev,
+                searchBy: e.target.value as PostSearchField
+              }))
             }
           >
             <option value='titleAndContent'>제목+내용</option>
@@ -250,12 +248,10 @@ export const CategoryPage: FC = () => {
             type='text'
             value={searchKeyword}
             onChange={(e) =>
-              setSearchCondition((prev) => {
-                return {
-                  ...prev,
-                  searchKeyword: e.target.value
-                }
-              })
+              setSearchCondition((prev) => ({
+                ...prev,
+                searchKeyword: e.target.value
+              }))
             }
           />
 

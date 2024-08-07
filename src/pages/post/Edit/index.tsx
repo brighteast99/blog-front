@@ -119,9 +119,7 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
   const [selectedCategory, setSelectedCategory] = useState<{
     id?: number
     isHidden: boolean
-  }>({
-    isHidden: false
-  })
+  }>({ isHidden: false })
 
   const importDraft = useCallback(
     (draft: Draft) => {
@@ -156,108 +154,110 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
       )
         return
 
-      initialize((prev) => {
-        return {
-          category: prev.category,
-          title: prev.title,
-          content: template.content,
-          textContent: template.textContent,
-          isHidden: prev.isHidden,
-          thumbnail: template.thumbnail,
-          images: template.images
-        }
-      })
+      initialize((prev) => ({
+        category: prev.category,
+        title: prev.title,
+        content: template.content,
+        textContent: template.textContent,
+        isHidden: prev.isHidden,
+        thumbnail: template.thumbnail,
+        images: template.images
+      }))
     },
     [initialize]
   )
 
-  const createDraft = useCallback(() => {
-    _createDraft({
-      variables: {
-        data: {
-          ...input,
-          isHidden: input.isHidden || selectedCategory.isHidden
+  const createDraft = useCallback(
+    () =>
+      _createDraft({
+        variables: {
+          data: {
+            ...input,
+            isHidden: input.isHidden || selectedCategory.isHidden
+          }
+        },
+        refetchQueries: [{ query: GET_DRAFTS }],
+        onCompleted: () => window.alert('임시 저장되었습니다.'),
+        onError: ({ networkError, graphQLErrors }) => {
+          if (networkError) alert('임시 저장 중 오류가 발생했습니다.')
+          else if (graphQLErrors?.length) alert(graphQLErrors[0].message)
+          resetCreateDraftMutation()
         }
-      },
-      refetchQueries: [{ query: GET_DRAFTS }],
-      onCompleted: () => window.alert('임시 저장되었습니다.'),
-      onError: ({ networkError, graphQLErrors }) => {
-        if (networkError) alert('임시 저장 중 오류가 발생했습니다.')
-        else if (graphQLErrors?.length) alert(graphQLErrors[0].message)
-        resetCreateDraftMutation()
-      }
-    })
-  }, [_createDraft, input, resetCreateDraftMutation, selectedCategory.isHidden])
+      }),
+    [_createDraft, input, resetCreateDraftMutation, selectedCategory.isHidden]
+  )
 
-  const createPost = useCallback(() => {
-    _createPost({
-      variables: {
-        data: {
-          ...input,
-          isHidden: input.isHidden || selectedCategory.isHidden
+  const createPost = useCallback(
+    () =>
+      _createPost({
+        variables: {
+          data: {
+            ...input,
+            isHidden: input.isHidden || selectedCategory.isHidden
+          }
+        },
+        refetchQueries: [{ query: GET_CATEGORY_HIERARCHY }],
+        onCompleted: ({ createPost: { createdPost } }) =>
+          navigate(`/post/${createdPost.id}`),
+        onError: ({ graphQLErrors, networkError }) => {
+          if (networkError) alert('게시글 업로드 중 오류가 발생했습니다.')
+          else if (graphQLErrors?.length) alert(graphQLErrors[0].message)
+          resetCreatePostMutation()
         }
-      },
-      refetchQueries: [{ query: GET_CATEGORY_HIERARCHY }],
-      onCompleted: ({ createPost: { createdPost } }) =>
-        navigate(`/post/${createdPost.id}`),
-      onError: ({ graphQLErrors, networkError }) => {
-        if (networkError) alert('게시글 업로드 중 오류가 발생했습니다.')
-        else if (graphQLErrors?.length) alert(graphQLErrors[0].message)
-        resetCreatePostMutation()
-      }
-    })
-  }, [
-    _createPost,
-    input,
-    navigate,
-    resetCreatePostMutation,
-    selectedCategory.isHidden
-  ])
+      }),
+    [
+      _createPost,
+      input,
+      navigate,
+      resetCreatePostMutation,
+      selectedCategory.isHidden
+    ]
+  )
 
-  const updatePost = useCallback(() => {
-    _updatePost({
-      variables: {
-        id: postId as string,
-        data: {
-          ...input,
-          isHidden: input.isHidden || selectedCategory.isHidden
-        }
-      },
-      refetchQueries: [
-        { query: GET_CATEGORY_HIERARCHY },
-        { query: GET_POST, variables: { id: postId } }
-      ],
-      onCompleted: () => {
-        Promise.all(
-          imagesToDelete.map((image) => {
-            return new Promise((resolve) => {
-              deleteImage({
-                variables: {
-                  url: image
-                },
-                onCompleted: () => resolve(null),
-                onError: () => resolve(null)
+  const updatePost = useCallback(
+    () =>
+      _updatePost({
+        variables: {
+          id: postId as string,
+          data: {
+            ...input,
+            isHidden: input.isHidden || selectedCategory.isHidden
+          }
+        },
+        refetchQueries: [
+          { query: GET_CATEGORY_HIERARCHY },
+          { query: GET_POST, variables: { id: postId } }
+        ],
+        onCompleted: () => {
+          Promise.all(
+            imagesToDelete.map((image) => {
+              return new Promise((resolve) => {
+                deleteImage({
+                  variables: { url: image },
+                  onCompleted: () => resolve(null),
+                  onError: () => resolve(null)
+                })
               })
             })
-          })
-        ).then(() => navigate(`/post/${postId}`))
-      },
-      onError: ({ networkError, graphQLErrors }) => {
-        if (networkError) alert('게시글 수정 중 오류가 발생했습니다.')
-        else if (graphQLErrors.length) alert(graphQLErrors[0].message)
-        resetUpdateMutation()
-      }
-    })
-  }, [
-    _updatePost,
-    postId,
-    input,
-    selectedCategory.isHidden,
-    imagesToDelete,
-    resetUpdateMutation,
-    deleteImage,
-    navigate
-  ])
+          ).then(() => navigate(`/post/${postId}`))
+        },
+        onError: ({ networkError, graphQLErrors }) => {
+          if (networkError) alert('게시글 수정 중 오류가 발생했습니다.')
+          else if (graphQLErrors.length) alert(graphQLErrors[0].message)
+          resetUpdateMutation()
+        }
+      }),
+    [
+      _updatePost,
+      postId,
+      input,
+      selectedCategory.isHidden,
+      imagesToDelete,
+      resetUpdateMutation,
+      deleteImage,
+      navigate
+    ]
+  )
 
   useLayoutEffect(() => {
     if (!isLoggedIn)

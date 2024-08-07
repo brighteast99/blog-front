@@ -50,23 +50,20 @@ export const Sidebar: FC<SidebarProps> = ({
   const isLoggedIn = useAppSelector(selectIsAuthenticated)
   const { data: blogInfoData, loading: loadingInfo } = useQuery(GET_INFO, {
     notifyOnNetworkStatusChange: true,
-    onCompleted: (blogInfo) => {
-      dispatch(updateBlogInfo(blogInfo))
-    }
+    onCompleted: (blogInfo) => dispatch(updateBlogInfo(blogInfo))
   })
   const blogInfo = useMemo(() => blogInfoData?.blogInfo, [blogInfoData])
   const [loadCategories, queryRef, { refetch: refetchCategories }] =
     useLoadableQuery(GET_CATEGORY_HIERARCHY)
 
-  const logIn = useCallback(() => {
-    navigate(`/login?next=${location.pathname}`)
-  }, [location.pathname, navigate])
+  const logIn = useCallback(
+    () => navigate(`/login?next=${location.pathname}`),
+    [location.pathname, navigate]
+  )
 
   const logOut = useCallback(() => {
     if (window.confirm('로그아웃하시겠습니까?')) {
-      dispatch(revokeToken(null)).then(() => {
-        client.resetStore()
-      })
+      dispatch(revokeToken(null)).then(() => client.resetStore())
     }
   }, [dispatch])
 

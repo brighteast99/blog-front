@@ -6,38 +6,19 @@ import Icon from '@mdi/react'
 import { mdiWaterOff } from '@mdi/js'
 import { ThemedButton } from 'components/Buttons/ThemedButton'
 import { PopoverMenu } from 'components/PopoverMenu'
+import { ColorPreview } from './ColorPreview'
 import styles from './ColorSelector.module.scss'
 import Palette from './palette'
 
 import type {
   ChangeEvent,
-  DetailedHTMLProps,
   FC,
-  HTMLAttributes,
   KeyboardEvent,
   MouseEvent,
   ReactNode,
   StyleHTMLAttributes
 } from 'react'
 import type { Placement } from '@floating-ui/react'
-
-const ColorPreview: FC<
-  DetailedHTMLProps<HTMLAttributes<HTMLButtonElement>, HTMLButtonElement> & {
-    active: boolean
-  }
-> = ({ color, active, ...props }) => {
-  return (
-    <button
-      {...props}
-      className={clsx(
-        styles['color-preview'],
-        active ? 'ring ring-primary' : 'hover:border-2 hover:border-primary'
-      )}
-      data-color={color}
-      style={{ backgroundColor: color }}
-    />
-  )
-}
 
 interface ColorSelectorProps {
   className?: string
@@ -96,12 +77,10 @@ export const ColorSelector: FC<ColorSelectorProps> = ({
     if (value.startsWith('#')) value = value.substring(1)
     value = value.substring(0, 6)
 
-    setCustomColor((prevState) => {
-      return {
-        input: validFormat.test(value) ? value : prevState.input,
-        color: value.length === 6 ? '#' + value : '#000000'
-      }
-    })
+    setCustomColor((prevState) => ({
+      input: validFormat.test(value) ? value : prevState.input,
+      color: value.length === 6 ? '#' + value : '#000000'
+    }))
   }
 
   return (

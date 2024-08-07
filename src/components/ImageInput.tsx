@@ -48,15 +48,14 @@ export const ImageInput: FC<{
   )
 
   useEffect(() => {
-    let url: string
-    if (file) {
-      url = URL.createObjectURL(file)
-      setPreview(url)
-    } else if (file === null) setPreview(undefined)
-
-    return () => {
-      if (url) URL.revokeObjectURL(url)
+    if (!file) {
+      setPreview(undefined)
+      return
     }
+
+    const url = URL.createObjectURL(file)
+    setPreview(url)
+    return () => URL.revokeObjectURL(url)
   }, [file])
 
   useEffect(() => {

@@ -36,14 +36,14 @@ export const LoginPage: FC = () => {
     if (loggedIn) navigate(searchParams.get('next') ?? '/', { replace: true })
   }, [navigate, loggedIn, searchParams])
 
-  const updateInfo = useCallback((e: ChangeEvent<HTMLInputElement>) => {
-    setInput((prev) => {
-      return {
+  const updateInfo = useCallback(
+    (e: ChangeEvent<HTMLInputElement>) =>
+      setInput((prev) => ({
         ...prev,
         [e.target.name]: e.target.value
-      }
-    })
-  }, [])
+      })),
+    []
+  )
 
   const onSubmit = useCallback(
     (e: FormEvent) => {
