@@ -51,9 +51,10 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
   const [searchParams] = useSearchParams()
 
   const {
-    input,
-    isModified,
+    postInput,
+    hasChange,
     initialize,
+    setPostInput,
     setCategory,
     setTitle,
     setContent,
@@ -119,9 +120,7 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
   const [selectedCategory, setSelectedCategory] = useState<{
     id?: number
     isHidden: boolean
-  }>({
-    isHidden: false
-  })
+  }>({ isHidden: false })
 
   const importDraft = useCallback(
     (draft: Draft) => {
@@ -156,108 +155,115 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
       )
         return
 
-      initialize((prev) => {
-        return {
-          category: prev.category,
-          title: prev.title,
-          content: template.content,
-          textContent: template.textContent,
-          isHidden: prev.isHidden,
-          thumbnail: template.thumbnail,
-          images: template.images
-        }
-      })
+      initialize((prev) => ({
+        category: prev.category,
+        title: prev.title,
+        content: template.content,
+        textContent: template.textContent,
+        isHidden: prev.isHidden,
+        thumbnail: template.thumbnail,
+        images: template.images
+      }))
     },
     [initialize]
   )
 
-  const createDraft = useCallback(() => {
-    _createDraft({
-      variables: {
-        data: {
-          ...input,
-          isHidden: input.isHidden || selectedCategory.isHidden
+  const createDraft = useCallback(
+    () =>
+      _createDraft({
+        variables: {
+          data: {
+            ...postInput,
+            isHidden: postInput.isHidden || selectedCategory.isHidden
+          }
+        },
+        refetchQueries: [{ query: GET_DRAFTS }],
+        onCompleted: () => window.alert('임시 저장되었습니다.'),
+        onError: ({ networkError, graphQLErrors }) => {
+          if (networkError) alert('임시 저장 중 오류가 발생했습니다.')
+          else if (graphQLErrors?.length) alert(graphQLErrors[0].message)
+          resetCreateDraftMutation()
         }
-      },
-      refetchQueries: [{ query: GET_DRAFTS }],
-      onCompleted: () => window.alert('임시 저장되었습니다.'),
-      onError: ({ networkError, graphQLErrors }) => {
-        if (networkError) alert('임시 저장 중 오류가 발생했습니다.')
-        else if (graphQLErrors?.length) alert(graphQLErrors[0].message)
-        resetCreateDraftMutation()
-      }
-    })
-  }, [_createDraft, input, resetCreateDraftMutation, selectedCategory.isHidden])
+      }),
+    [
+      _createDraft,
+      postInput,
+      resetCreateDraftMutation,
+      selectedCategory.isHidden
+    ]
+  )
 
-  const createPost = useCallback(() => {
-    _createPost({
-      variables: {
-        data: {
-          ...input,
-          isHidden: input.isHidden || selectedCategory.isHidden
+  const createPost = useCallback(
+    () =>
+      _createPost({
+        variables: {
+          data: {
+            ...postInput,
+            isHidden: postInput.isHidden || selectedCategory.isHidden
+          }
+        },
+        refetchQueries: [{ query: GET_CATEGORY_HIERARCHY }],
+        onCompleted: ({ createPost: { createdPost } }) =>
+          navigate(`/post/${createdPost.id}`),
+        onError: ({ graphQLErrors, networkError }) => {
+          if (networkError) alert('게시글 업로드 중 오류가 발생했습니다.')
+          else if (graphQLErrors?.length) alert(graphQLErrors[0].message)
+          resetCreatePostMutation()
         }
-      },
-      refetchQueries: [{ query: GET_CATEGORY_HIERARCHY }],
-      onCompleted: ({ createPost: { createdPost } }) =>
-        navigate(`/post/${createdPost.id}`),
-      onError: ({ graphQLErrors, networkError }) => {
-        if (networkError) alert('게시글 업로드 중 오류가 발생했습니다.')
-        else if (graphQLErrors?.length) alert(graphQLErrors[0].message)
-        resetCreatePostMutation()
-      }
-    })
-  }, [
-    _createPost,
-    input,
-    navigate,
-    resetCreatePostMutation,
-    selectedCategory.isHidden
-  ])
+      }),
+    [
+      _createPost,
+      postInput,
+      navigate,
+      resetCreatePostMutation,
+      selectedCategory.isHidden
+    ]
+  )
 
-  const updatePost = useCallback(() => {
-    _updatePost({
-      variables: {
-        id: postId as string,
-        data: {
-          ...input,
-          isHidden: input.isHidden || selectedCategory.isHidden
-        }
-      },
-      refetchQueries: [
-        { query: GET_CATEGORY_HIERARCHY },
-        { query: GET_POST, variables: { id: postId } }
-      ],
-      onCompleted: () => {
-        Promise.all(
-          imagesToDelete.map((image) => {
-            return new Promise((resolve) => {
-              deleteImage({
-                variables: {
-                  url: image
-                },
-                onCompleted: () => resolve(null),
-                onError: () => resolve(null)
+  const updatePost = useCallback(
+    () =>
+      _updatePost({
+        variables: {
+          id: postId as string,
+          data: {
+            ...postInput,
+            isHidden: postInput.isHidden || selectedCategory.isHidden
+          }
+        },
+        refetchQueries: [
+          { query: GET_CATEGORY_HIERARCHY },
+          { query: GET_POST, variables: { id: postId } }
+        ],
+        onCompleted: () => {
+          Promise.all(
+            imagesToDelete.map((image) => {
+              return new Promise((resolve) => {
+                deleteImage({
+                  variables: { url: image },
+                  onCompleted: () => resolve(null),
+                  onError: () => resolve(null)
+                })
               })
             })
-          })
-        ).then(() => navigate(`/post/${postId}`))
-      },
-      onError: ({ networkError, graphQLErrors }) => {
-        if (networkError) alert('게시글 수정 중 오류가 발생했습니다.')
-        else if (graphQLErrors.length) alert(graphQLErrors[0].message)
-        resetUpdateMutation()
-      }
-    })
-  }, [
-    _updatePost,
-    postId,
-    input,
-    selectedCategory.isHidden,
-    imagesToDelete,
-    resetUpdateMutation,
-    deleteImage,
-    navigate
-  ])
+          ).then(() => navigate(`/post/${postId}`))
+        },
+        onError: ({ networkError, graphQLErrors }) => {
+          if (networkError) alert('게시글 수정 중 오류가 발생했습니다.')
+          else if (graphQLErrors.length) alert(graphQLErrors[0].message)
+          resetUpdateMutation()
+        }
+      }),
+    [
+      _updatePost,
+      postId,
+      postInput,
+      selectedCategory.isHidden,
+      imagesToDelete,
+      resetUpdateMutation,
+      deleteImage,
+      navigate
+    ]
+  )
 
   useLayoutEffect(() => {
     if (!isLoggedIn)
@@ -266,25 +272,25 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
 
   useLayoutEffect(() => {
     const selectedCategory = categoriesData?.categories.find(
-      (category) => category.id === input.category
+      (category) => category.id === postInput.category
     )
     setSelectedCategory({
       id: selectedCategory?.id,
       isHidden: Boolean(selectedCategory?.isHidden)
     })
-  }, [categoriesData?.categories, input.category])
+  }, [categoriesData?.categories, postInput.category])
 
   useLayoutEffect(() => {
     const stashDraft = () => {
       if (document.hidden)
-        return sessionStorage.setItem('draft', JSON.stringify(input))
+        return sessionStorage.setItem('draft', JSON.stringify(postInput))
 
       try {
         const draft = JSON.parse(
           sessionStorage.getItem('draft') ?? '{}'
         ) as PostInput
         sessionStorage.removeItem('draft')
-        initialize(draft, true)
+        setPostInput(draft)
       } catch {
         //
       }
@@ -292,7 +298,7 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
     document.addEventListener('visibilitychange', stashDraft)
 
     return () => document.removeEventListener('visibilitychange', stashDraft)
-  }, [initialize, input])
+  }, [postInput, setPostInput])
 
   if (errorLoadingPost?.graphQLErrors[0]?.extensions?.code === 404)
     return (
@@ -328,7 +334,7 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
       <div className='mx-auto w-full max-w-[1280px] px-5 py-10'>
         <NavigationBlocker
           enabled={
-            isModified && !creatingPost && !updatingPost && !deletingImages
+            hasChange && !creatingPost && !updatingPost && !deletingImages
           }
           message={`${newPost ? '작성' : '수정'}중인 내용이 있습니다.\n페이지를 벗어나시겠습니까?`}
         />
@@ -342,7 +348,7 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
           <select
             className='grow py-1'
             disabled={loadingCategories || Boolean(errorLoadingCategories)}
-            value={input.category}
+            value={postInput.category}
             onChange={(e) => setCategory(Number(e.target.value) || undefined)}
           >
             <option value={0}>
@@ -374,7 +380,7 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
             className='min-w-0 grow text-2xl'
             type='text'
             placeholder='게시글 제목'
-            value={input.title}
+            value={postInput.title}
             onChange={(e) => setTitle(e.target.value)}
             onBlur={(e) => setTitle(e.target.value.trim())}
             required
@@ -382,18 +388,18 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
           <Tooltip>
             <TooltipTrigger asChild>
               <IconButton
-                path={input.isHidden ? mdiLock : mdiLockOpen}
+                path={postInput.isHidden ? mdiLock : mdiLockOpen}
                 variant='hover-text-toggle'
                 color='primary'
                 disabled={selectedCategory?.isHidden}
-                active={input.isHidden}
-                onClick={() => setIsHidden(!input.isHidden)}
+                active={postInput.isHidden}
+                onClick={() => setIsHidden(!postInput.isHidden)}
               />
             </TooltipTrigger>
             <TooltipContent>
               {selectedCategory.isHidden
                 ? '비공개 분류에 속하는 게시글입니다'
-                : (input.isHidden ? '공개 게시글' : '비공개 게시글') +
+                : (postInput.isHidden ? '공개 게시글' : '비공개 게시글') +
                   '로 전환'}
             </TooltipContent>
           </Tooltip>
@@ -402,13 +408,13 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
         {!loadingPost && !errorLoadingPost && (
           <Tiptap
             className='mb-5 min-h-40 grow'
-            content={input.content}
+            content={postInput.content}
             onChange={(editor) => {
               setContent(editor.getHTML())
               setTextContent(editor.getText())
             }}
-            thumbnail={input.thumbnail}
-            images={input.images}
+            thumbnail={postInput.thumbnail}
+            images={postInput.images}
             onImageUploaded={addImage}
             onImageDeleted={removeImage}
             onChangeThumbnail={setThumbnail}
@@ -420,7 +426,7 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
           variant='flat'
           color='primary'
           disabled={
-            !input.title ||
+            !postInput.title ||
             creatingDraft ||
             creatingPost ||
             updatingPost ||
@@ -441,7 +447,7 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
           variant='text'
           color='secondary'
           disabled={
-            !input.title ||
+            !postInput.title ||
             creatingDraft ||
             creatingPost ||
             updatingPost ||

@@ -15,7 +15,7 @@ export const SidebarHandle: FC<{
         'group size-fit p-1 opacity-25 transition-opacity *:h-7 *:w-1.5 *:rounded-full *:bg-neutral-800 *:transition-transform hover:opacity-50',
         className
       )}
-      onClick={() => toggle?.()}
+      onClick={toggle}
     >
       <div
         className={clsx(sidebarFolded ? '-rotate-12' : 'group-hover:rotate-12')}

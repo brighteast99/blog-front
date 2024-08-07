@@ -14,7 +14,7 @@ import { Spinner } from 'components/Spinner'
 import { TemplateForm } from './templateForm'
 
 import type { FC } from 'react'
-import type { BlogInfo as _BlogInfo } from 'types/data'
+import type { BlogInfo as _BlogInfo } from 'features/blog/blogSlice'
 
 export const ManageTemplatePage: FC = () => {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -55,30 +55,28 @@ export const ManageTemplatePage: FC = () => {
     [navigate, searchParams, setSearchParams]
   )
 
-  const createTemplate = useCallback(() => {
-    _createTemplate({
-      variables: {
-        data: {
-          title: '새 템플릿',
-          content: '<p></p>',
-          textContent: '',
-          images: []
+  const createTemplate = useCallback(
+    () =>
+      _createTemplate({
+        variables: {
+          data: {
+            title: '새 템플릿',
+            content: '<p></p>',
+            textContent: '',
+            images: []
+          }
+        },
+        refetchQueries: [{ query: GET_TEMPLATES }],
+        onCompleted: ({ createTemplate: { createdTemplate } }) =>
+          selectTemplate(createdTemplate.id),
+        onError: ({ networkError, graphQLErrors }) => {
+          if (networkError) alert('템플릿 생성 중 오류가 발생했습니다.')
+          if (graphQLErrors.length) alert(graphQLErrors[0].message)
+          resetCreateMutation()
         }
-      },
-      refetchQueries: [
-        {
-          query: GET_TEMPLATES
-        }
-      ],
-      onCompleted: ({ createTemplate: { createdTemplate } }) =>
-        selectTemplate(createdTemplate.id),
-      onError: ({ networkError, graphQLErrors }) => {
-        if (networkError) alert('템플릿 생성 중 오류가 발생했습니다.')
-        else if (graphQLErrors.length) alert(graphQLErrors[0].message)
-        resetCreateMutation()
-      }
-    })
-  }, [_createTemplate, resetCreateMutation, selectTemplate])
+      }),
+    [_createTemplate, resetCreateMutation, selectTemplate]
+  )
 
   useLayoutEffect(() => {
     if (!selectedTemplate) resetTemplate()

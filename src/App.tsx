@@ -5,7 +5,9 @@ import { Outlet } from 'react-router-dom'
 import { throttle } from 'throttle-debounce'
 
 import { useAppDispatch, useAppSelector } from 'app/hooks'
+import { useToggle } from 'hooks/useToggle'
 import { refreshToken, selectIsAuthenticated } from 'features/auth/authSlice'
+import { selectBlogInfo } from 'features/blog/blogSlice'
 import { selectBreakpoint, updateSize } from 'features/window/windowSlice'
 
 import { Error } from 'components/Error'
@@ -14,26 +16,43 @@ import { SidebarHandle } from 'components/sidebar/SidebarHandle'
 
 function App() {
   const dispatch = useAppDispatch()
+  const { title, favicon } = useAppSelector(selectBlogInfo)
   const isLoggedIn = useAppSelector(selectIsAuthenticated)
   const [refreshLoginTimer, setRefreshLoginTimer] =
     useState<ReturnType<typeof setInterval>>()
   const breakpoint = useAppSelector(selectBreakpoint)
-  const [sidebarFolded, setSidebarFolded] = useState<boolean>(
-    breakpoint === 'mobile'
-  )
+  const {
+    value: sidebarFolded,
+    setValue: setSidebarFolded,
+    setTrue: fold,
+    toggle
+  } = useToggle(breakpoint === 'mobile')
   const sidebarFoldable = useMemo(() => breakpoint !== 'desktop', [breakpoint])
 
-  const fold = useCallback(() => {
-    setSidebarFolded(true)
-  }, [setSidebarFolded])
+  const refreshLoginToken = useCallback(
+    () => dispatch(refreshToken(null)),
+    [dispatch]
+  )
 
-  const toggle = useCallback(() => {
-    setSidebarFolded((prev) => !prev)
-  }, [setSidebarFolded])
+  // * Update title
+  // Todo: Update title acording to current location
+  useLayoutEffect(() => {
+    document.title = title
+  }, [title])
 
-  const refreshLoginToken = useCallback(() => {
-    dispatch(refreshToken(null))
-  }, [dispatch])
+  // * Set favicon
+  useLayoutEffect(() => {
+    let link = document.querySelector("link[rel ~= 'icon']") as HTMLLinkElement
+
+    if (favicon) {
+      if (!link) {
+        link = document.createElement('link')
+        link.rel = 'icon'
+        document.head.appendChild(link)
+      }
+      link.href = favicon
+    } else if (link) link.remove()
+  }, [favicon])
 
   // * Update window size
   useLayoutEffect(() => {
@@ -47,9 +66,7 @@ function App() {
 
     window.addEventListener('resize', dispatchSizeUpdate)
 
-    return () => {
-      window.removeEventListener('resize', dispatchSizeUpdate)
-    }
+    return () => window.removeEventListener('resize', dispatchSizeUpdate)
   }, [dispatch])
 
   // * Update font size & sidebar state according to breakpoint
@@ -57,8 +74,7 @@ function App() {
     document.documentElement.style.fontSize =
       breakpoint === 'mobile' ? '12px' : '16px'
 
-    if (sidebarFoldable) setSidebarFolded(true)
-    else setSidebarFolded(false)
+    setSidebarFolded(sidebarFoldable)
   }, [breakpoint, sidebarFoldable, setSidebarFolded])
 
   // * Refresh login token periodically

@@ -42,6 +42,7 @@ export const PopoverMenuItem: FC<PopoverMenuItemProps> = ({
       <TooltipTrigger asChild>
         <li>
           <button
+            type="button"
             className={clsx(
               'flex size-full select-none items-center text-nowrap !bg-opacity-0 px-2 py-1 text-left',
               disabled || loading

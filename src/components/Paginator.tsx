@@ -37,12 +37,10 @@ export const Paginator: FC<PaginatorProps> = ({
   }, [pageSize, offset, pages])
 
   const clickHandler = useCallback(
-    (e: MouseEvent<HTMLButtonElement>) => {
-      const pageIdx =
+    (e: MouseEvent<HTMLButtonElement>) =>
+      onPageChanged?.(
         Number.parseInt(e.currentTarget.dataset.pageIdx as string) || 0
-
-      return onPageChanged?.(pageIdx)
-    },
+      ),
     [onPageChanged]
   )
 

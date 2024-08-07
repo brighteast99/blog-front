@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from 'react'
+import { useEffect, useMemo } from 'react'
 
 import { useMutation, useQuery, useReadQuery } from '@apollo/client'
 import {
@@ -9,9 +9,8 @@ import {
   VALID_SUPERCATEGORIES
 } from './api'
 
-import { mdiClose, mdiRefresh } from '@mdi/js'
-import { IconButton } from 'components/Buttons/IconButton'
 import { ThemedButton } from 'components/Buttons/ThemedButton'
+import { ImageInput } from 'components/ImageInput'
 import { Spinner } from 'components/Spinner'
 import { NavigationBlocker } from 'components/utils/NavigationBlocker'
 import {
@@ -19,7 +18,7 @@ import {
   TooltipContent,
   TooltipTrigger
 } from 'components/utils/Tooltip'
-import { useCategory } from './hooks'
+import { useCategoryInput } from './hooks'
 
 import type { FC, FormEvent } from 'react'
 import type { QueryRef } from '@apollo/client'
@@ -28,19 +27,16 @@ import type { Category } from 'types/data'
 export const CategoryForm: FC<{
   queryRef: QueryRef<{ category: Category }, { id: number }>
 }> = ({ queryRef }) => {
-  const ImageInput = useRef<HTMLInputElement>(null)
-
   const {
-    info: { coverImage, name, description, subcategoryOf, isHidden },
-    isModified,
-    coverPreview,
+    categoryInput: { coverImage, name, description, subcategoryOf, isHidden },
+    hasChange,
     initialize,
     setCoverImage,
     setName,
     setDescription,
     setSubcategoryOf,
     setIsHidden
-  } = useCategory({
+  } = useCategoryInput({
     name: '',
     description: '',
     isHidden: false
@@ -61,8 +57,6 @@ export const CategoryForm: FC<{
 
   const [_updateCategory, { loading: updating, reset: resetUpdateMutation }] =
     useMutation(UPDATE_CATEGORY)
-
-  const coverChanged = coverImage || coverImage === null
 
   const parentIsHidden = useMemo(
     () =>
@@ -87,17 +81,12 @@ export const CategoryForm: FC<{
         }
       },
       refetchQueries: [
-        {
-          query: GET_CATEGORY_HIERARCHY
-        },
-        {
-          query: CATEGORY_FULL_INFO,
-          variables: { id }
-        }
+        { query: GET_CATEGORY_HIERARCHY },
+        { query: CATEGORY_FULL_INFO, variables: { id } }
       ],
       onError: ({ networkError, graphQLErrors }) => {
         if (networkError) alert('분류 수정 중 오류가 발생했습니다.')
-        else if (graphQLErrors.length) alert(graphQLErrors[0].message)
+        if (graphQLErrors.length) alert(graphQLErrors[0].message)
         resetUpdateMutation()
       }
     })
@@ -106,6 +95,7 @@ export const CategoryForm: FC<{
   useEffect(() => {
     if (category) {
       let categoryData: CategoryInput = {
+        coverImage: undefined,
         name: category.name,
         description: category.description,
         isHidden: category.isHidden
@@ -113,90 +103,30 @@ export const CategoryForm: FC<{
       if (category.subcategoryOf?.id)
         categoryData.subcategoryOf = category.subcategoryOf?.id
 
-      initialize(categoryData, false)
+      initialize(categoryData)
     }
   }, [category, initialize])
 
   return (
     <>
       <NavigationBlocker
-        enabled={isModified}
+        enabled={hasChange}
         localAlert
         message={'변경점이 있습니다.\n계속하시겠습니까?'}
       />
       <form className='flex size-full flex-col gap-3' onSubmit={updateCategory}>
-        <div
-          className='relative h-50 w-full bg-neutral-100 bg-cover bg-center'
-          style={{
-            backgroundImage:
-              coverImage === null
-                ? undefined
-                : `url(${coverPreview ?? category.coverImage})`
-          }}
-        >
-          {!coverImage && !category.coverImage && (
-            <span className='absolute inset-0 z-0 m-auto block size-fit select-none text-lg font-semibold text-neutral-400'>
+        <ImageInput
+          key={category.id}
+          className='h-50 w-full'
+          initialImage={category.coverImage}
+          sizeLimit={3}
+          placeholder={
+            <span className='block size-fit select-none text-lg font-semibold text-neutral-400'>
               커버 이미지
             </span>
-          )}
-          <div
-            className='absolute flex size-full cursor-pointer flex-col items-center justify-center bg-background bg-opacity-80 transition-colors [&:not(:hover)]:opacity-0'
-            onClick={() => {
-              ImageInput.current?.click()
-            }}
-          >
-            <span className='block text-xl text-foreground'>변경</span>
-            {(coverImage || category.coverImage) && (
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <IconButton
-                    className='absolute right-0 top-0 !bg-transparent p-1'
-                    path={
-                      coverChanged && category.coverImage
-                        ? mdiRefresh
-                        : mdiClose
-                    }
-                    variant='text'
-                    type='button'
-                    color={
-                      coverChanged && category.coverImage ? 'unset' : 'error'
-                    }
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      setCoverImage(
-                        coverChanged && category.coverImage ? undefined : null
-                      )
-                      if (ImageInput.current) ImageInput.current.value = ''
-                    }}
-                  />
-                </TooltipTrigger>
-                <TooltipContent>
-                  {coverChanged && category.coverImage
-                    ? '되돌리기'
-                    : '기본 이미지로 변경'}
-                </TooltipContent>
-              </Tooltip>
-            )}
-          </div>
-          <input
-            ref={ImageInput}
-            type='file'
-            className='invisible absolute'
-            accept='image/*'
-            onChange={(e) => {
-              const file = e.target.files?.[0]
-              if (!file) return setCoverImage(null)
-
-              // Maximum file size 3MB
-              if (file.size > 1024 * 1024 * 3)
-                return alert(
-                  `파일 크기는 3MB를 넘을 수 없습니다.\n선택한 파일 크기: ${Math.round((file.size / 1024 / 1024) * 10) / 10}MB`
-                )
-
-              setCoverImage(file)
-            }}
-          />
-        </div>
+          }
+          onInput={(file) => setCoverImage(file)}
+        />
 
         <div className='flex gap-3'>
           <span className='text-neutral-700'>상위 분류</span>
@@ -281,7 +211,11 @@ export const CategoryForm: FC<{
           />
         </div>
 
-        <ThemedButton className='h-10 w-full py-0.5 text-lg' color='primary'>
+        <ThemedButton
+          className='h-10 w-full py-0.5 text-lg'
+          color='primary'
+          disabled={updating || !hasChange}
+        >
           {updating ? <Spinner size='xs' /> : '저장'}
         </ThemedButton>
       </form>

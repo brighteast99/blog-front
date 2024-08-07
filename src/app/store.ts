@@ -1,12 +1,14 @@
 import { configureStore } from '@reduxjs/toolkit'
 
 import authReducer from 'features/auth/authSlice'
+import blogInfoReducer from 'features/blog/blogSlice'
 import windowReducer from 'features/window/windowSlice'
 
 export const store = configureStore({
   reducer: {
+    auth: authReducer,
     window: windowReducer,
-    auth: authReducer
+    blog: blogInfoReducer
   }
 })
 

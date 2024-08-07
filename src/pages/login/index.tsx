@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 
 import { useAppDispatch, useAppSelector } from 'app/hooks'
+import { useToggle } from 'hooks/useToggle'
 import { auth, AuthFailedError, NetworkError } from 'utils/Auth'
 import {
   selectIsAuthenticated,
@@ -28,22 +29,22 @@ export const LoginPage: FC = () => {
     username: '',
     password: ''
   })
-  const [keepLogin, setKeepLogin] = useState<boolean>(false)
-  const [loading, setLoading] = useState<boolean>(false)
+  const { value: keepLogin, toggle: toggleKeepLogin } = useToggle(true)
+  const { value: loading, setValue: setLoading } = useToggle(false)
   const [error, setError] = useState<string>()
 
   useEffect(() => {
     if (loggedIn) navigate(searchParams.get('next') ?? '/', { replace: true })
   }, [navigate, loggedIn, searchParams])
 
-  const updateInfo = useCallback((e: ChangeEvent<HTMLInputElement>) => {
-    setInput((prev) => {
-      return {
+  const updateInfo = useCallback(
+    (e: ChangeEvent<HTMLInputElement>) =>
+      setInput((prev) => ({
         ...prev,
         [e.target.name]: e.target.value
-      }
-    })
-  }, [])
+      })),
+    []
+  )
 
   const onSubmit = useCallback(
     (e: FormEvent) => {
@@ -65,7 +66,15 @@ export const LoginPage: FC = () => {
         })
         .finally(() => setLoading(false))
     },
-    [dispatch, username, password, keepLogin, navigate, searchParams]
+    [
+      dispatch,
+      keepLogin,
+      navigate,
+      password,
+      searchParams,
+      setLoading,
+      username
+    ]
   )
 
   return (
@@ -105,7 +114,7 @@ export const LoginPage: FC = () => {
             className='mr-1 accent-primary'
             type='checkbox'
             checked={keepLogin}
-            onChange={(e) => setKeepLogin(e.target.checked)}
+            onChange={toggleKeepLogin}
           />
           로그인 유지
         </label>

@@ -51,37 +51,36 @@ export const ResizableImageNodeView = ({
     [extension.options.handleColor]
   )
 
-  const handleMouseDown = useEvent(
-    (event: React.MouseEvent<HTMLDivElement>) => {
-      if (!imgRef.current) return
-      event.preventDefault()
-      const direction = event.currentTarget.dataset.direction || '--'
-      const initialXPosition = event.clientX
-      const currentWidth = imgRef.current.width
-      let newWidth = currentWidth
-      const transform = direction[1] === 'w' ? -1 : 1
+  const handleMouseDown = useEvent((e: React.MouseEvent<HTMLDivElement>) => {
+    if (!imgRef.current) return
 
-      const removeListeners = () => {
-        window.removeEventListener('mousemove', mouseMoveHandler)
-        window.removeEventListener('mouseup', removeListeners)
-        updateAttributes({ width: newWidth })
-        setResizingStyle(undefined)
-      }
+    e.preventDefault()
+    const direction = e.currentTarget.dataset.direction || '--'
+    const initialXPosition = e.clientX
+    const currentWidth = imgRef.current.width
+    let newWidth = currentWidth
+    const transform = direction[1] === 'w' ? -1 : 1
 
-      const mouseMoveHandler = (event: MouseEvent) => {
-        newWidth = Math.max(
-          currentWidth + transform * (event.clientX - initialXPosition),
-          extension.options.minWidth
-        )
-        setResizingStyle({ width: newWidth })
-        // If mouse is up, remove event listeners
-        if (!event.buttons) removeListeners()
-      }
-
-      window.addEventListener('mousemove', mouseMoveHandler)
-      window.addEventListener('mouseup', removeListeners)
+    const removeListeners = () => {
+      window.removeEventListener('mousemove', mouseMoveHandler)
+      window.removeEventListener('mouseup', removeListeners)
+      updateAttributes({ width: newWidth })
+      setResizingStyle(undefined)
     }
-  )
+
+    const mouseMoveHandler = (event: MouseEvent) => {
+      newWidth = Math.max(
+        currentWidth + transform * (event.clientX - initialXPosition),
+        extension.options.minWidth
+      )
+      setResizingStyle({ width: newWidth })
+      // If mouse is up, remove event listeners
+      if (!event.buttons) removeListeners()
+    }
+
+    window.addEventListener('mousemove', mouseMoveHandler)
+    window.addEventListener('mouseup', removeListeners)
+  })
 
   const dragCornerButton = (direction: string) => (
     <div

@@ -20,11 +20,7 @@ const authMiddleware = new ApolloLink((operation, forward) => {
   const info = store.getState().auth.info
 
   if (info && isFuture(info.payload.exp * 1000))
-    operation.setContext({
-      headers: {
-        Authorization: `JWT ${info.token}`
-      }
-    })
+    operation.setContext({ headers: { Authorization: `JWT ${info.token}` } })
 
   return forward(operation)
 })

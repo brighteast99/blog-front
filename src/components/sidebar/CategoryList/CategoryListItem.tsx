@@ -1,17 +1,13 @@
 import clsx from 'clsx'
 import { Link } from 'react-router-dom'
 
-import { useReadQuery } from '@apollo/client'
-import { CategoryHierarchyQueryResult } from 'pages/manage/Categories/api'
-
 import Icon from '@mdi/react'
 import { mdiLock } from '@mdi/js'
 
 import type { FC } from 'react'
-import type { QueryRef } from '@apollo/client'
 import type { Category } from 'types/data'
 
-export const CategoryItem: FC<{ category: Category }> = ({ category }) => {
+export const CategoryListItem: FC<{ category: Category }> = ({ category }) => {
   const hasId = category.id !== undefined
 
   return (
@@ -40,26 +36,10 @@ export const CategoryItem: FC<{ category: Category }> = ({ category }) => {
       {category.subcategories.length > 0 && (
         <ul className='ml-4'>
           {category.subcategories.map((subcategory) => (
-            <CategoryItem key={subcategory.id} category={subcategory} />
+            <CategoryListItem key={subcategory.id} category={subcategory} />
           ))}
         </ul>
       )}
     </li>
-  )
-}
-
-export const CategoryList: FC<{
-  queryRef: QueryRef<CategoryHierarchyQueryResult>
-}> = ({ queryRef }) => {
-  const { data } = useReadQuery(queryRef)
-
-  return (
-    <ul>
-      {(JSON.parse(JSON.parse(data.categoryHierarchy)) as Category[]).map(
-        (category) => (
-          <CategoryItem key={category.id ?? null} category={category} />
-        )
-      )}
-    </ul>
   )
 }

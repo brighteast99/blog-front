@@ -74,14 +74,7 @@ export const PostPage: FC = () => {
           isHidden: !post.isHidden
         }
       },
-      refetchQueries: [
-        {
-          query: GET_POST,
-          variables: {
-            id: postId
-          }
-        }
-      ],
+      refetchQueries: [{ query: GET_POST, variables: { id: postId } }],
       onError: ({ networkError, graphQLErrors }) => {
         if (networkError) alert('게시글 수정 중 오류가 발생했습니다.')
         else if (graphQLErrors.length) alert(graphQLErrors[0].message)
@@ -95,11 +88,7 @@ export const PostPage: FC = () => {
 
     _deletePost({
       variables: { id: postId as string },
-      refetchQueries: [
-        {
-          query: GET_CATEGORY_HIERARCHY
-        }
-      ],
+      refetchQueries: [{ query: GET_CATEGORY_HIERARCHY }],
       onCompleted: () => navigate(`/category/${post?.category.id}`),
       onError: ({ networkError, graphQLErrors }) => {
         if (networkError) alert('게시글 삭제 중 오류가 발생했습니다.')
@@ -119,7 +108,11 @@ export const PostPage: FC = () => {
         Number(contentArea.current?.offsetTop) +
         Number(contentArea.current?.clientHeight)
       setContentProgress(
-        progress(0, CONTENT_END - Number(target?.clientHeight), scrollPosition)
+        progress(
+          0,
+          Math.max(0, CONTENT_END - Number(target?.clientHeight)),
+          scrollPosition
+        )
       )
 
       const TITLE_TRANSITION_AMOUNT = titlebar.current?.clientHeight || 0
@@ -145,9 +138,7 @@ export const PostPage: FC = () => {
     })
 
     document.addEventListener('scroll', handler)
-    return () => {
-      document.removeEventListener('scroll', handler)
-    }
+    return () => document.removeEventListener('scroll', handler)
   }, [setTitlebarTransform, setContentProgress])
 
   if (error) {
@@ -311,7 +302,7 @@ export const PostPage: FC = () => {
         </div>
       </div>
 
-      <div ref={contentArea} className='w-full px-5 py-12'>
+      <div ref={contentArea} className='min-h-[30dvh] w-full px-5 py-12'>
         <div className='mx-auto w-full max-w-[1280px]'>
           {loading ? (
             <SuspendedText

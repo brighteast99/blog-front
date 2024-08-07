@@ -80,9 +80,7 @@ export const PopoverMenu: FC<PopoverMenuProps> = ({
     middleware: [offset(offsetValue), flip({ padding: 10 })]
   })
 
-  const click = useClick(context, {
-    event: 'click'
-  })
+  const click = useClick(context, { event: 'click' })
   const dismiss = useDismiss(context)
 
   const { getReferenceProps, getFloatingProps } = useInteractions([
@@ -94,30 +92,21 @@ export const PopoverMenu: FC<PopoverMenuProps> = ({
     if (disabled) setIsOpen(false)
   }, [disabled])
 
-  useLayoutEffect(() => {
-    setIsOpen(controlledOpen)
-  }, [controlledOpen])
+  useLayoutEffect(() => setIsOpen(controlledOpen), [controlledOpen])
 
+  // * 메뉴 열린 상태에서 상위 메뉴가 닫혀서 언마운트될 때 실행될 수 있도록
   useLayoutEffect(() => {
-    // 메뉴 열린 상태에서 상위 메뉴가 닫혀서 언마운트될 때 실행될 수 있도록
     if (typeof onClose === 'function' && isOpen)
-      return () =>
-        setEmitOnCloseTimer(
-          setTimeout(() => {
-            onClose()
-          })
-        )
+      return () => setEmitOnCloseTimer(setTimeout(onClose))
   }, [onClose, isOpen])
 
-  useLayoutEffect(() => {
-    clearTimeout(emitOnCloseTimer)
-  }, [emitOnCloseTimer])
+  useLayoutEffect(() => clearTimeout(emitOnCloseTimer), [emitOnCloseTimer])
 
   return (
     <>
       <div
         ref={refs.setReference}
-        className={clsx(!subMenu && className)}
+        className={clsx('group/menu', !subMenu && className)}
         style={style}
         data-state={isOpen ? 'open' : 'closed'}
         {...getReferenceProps()}

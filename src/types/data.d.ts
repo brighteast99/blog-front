@@ -37,9 +37,3 @@ export interface Post extends Omit<Draft, 'id' | 'summary'> {
   updatedAt: Date
   deletedAt?: Date
 }
-
-export interface BlogInfo {
-  title: string
-  description: string
-  avatar?: string
-}

@@ -1,5 +1,7 @@
 import { useLayoutEffect, useState } from 'react'
 
+import { useToggle } from 'hooks/useToggle'
+
 import { ThemedButton } from 'components/Buttons/ThemedButton'
 import { PopoverMenu } from 'components/PopoverMenu'
 import { languages } from 'components/Tiptap/extensions/BetterCodeblock'
@@ -30,18 +32,18 @@ export const CodeBlockConfigurer: FC<CodeBlockConfigurerProps> = ({
   onDelete = () => {},
   children
 }) => {
-  const [isOpen, setIsOpen] = useState<boolean>(false)
+  const { value: isOpen, setFalse: close, setTrue: open } = useToggle(false)
   const [language, setLanguage] = useState<string>(_language)
 
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     if (typeof onChange === 'function') onChange(language)
-    setIsOpen(false)
+    close()
   }
 
   const onClickDelete = () => {
     if (typeof onDelete === 'function') onDelete()
-    setIsOpen(false)
+    close()
   }
 
   useLayoutEffect(() => {
@@ -55,8 +57,8 @@ export const CodeBlockConfigurer: FC<CodeBlockConfigurerProps> = ({
       placement={placement}
       offset={10}
       tooltipPlacement={tooltipPlacement}
-      onOpen={() => setIsOpen(true)}
-      onClose={() => setIsOpen(false)}
+      onOpen={open}
+      onClose={close}
       menuBtn={
         children || <button>{`코드 블록 ${active ? '편집' : '삽입'}`}</button>
       }
