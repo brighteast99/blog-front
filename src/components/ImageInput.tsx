@@ -4,8 +4,7 @@ import { Placement } from '@floating-ui/react'
 import { useDiffState } from 'hooks/useDiffState'
 import { cn } from 'utils/handleClassName'
 
-import { mdiClose, mdiImage, mdiImageSearch, mdiRefresh } from '@mdi/js'
-import { IconButton } from './Buttons/IconButton'
+import { mdiClose, mdiImageSearch, mdiRefresh } from '@mdi/js'
 import { PopoverMenu } from './PopoverMenu'
 import { PopoverMenuItem } from './PopoverMenu/PopoverMenuItem'
 
@@ -16,6 +15,7 @@ export const ImageInput: FC<{
   initialImage?: string
   menuPlacement?: Placement
   sizeLimit?: number
+  placeholder?: ReactElement
   onInput?: (file: File | null | undefined) => any
   Viewer?: ReactElement
 }> = ({
@@ -23,6 +23,7 @@ export const ImageInput: FC<{
   initialImage,
   menuPlacement = 'right-start',
   sizeLimit = 1,
+  placeholder,
   onInput,
   Viewer
 }) => {
@@ -78,7 +79,7 @@ export const ImageInput: FC<{
       <input
         ref={InputElement}
         type='file'
-        className='invisible absolute'
+        className='invisible absolute hidden'
         accept='image/*'
         onChange={handleInput}
       />
@@ -91,16 +92,19 @@ export const ImageInput: FC<{
               src: preview,
               style: {
                 ...(Viewer.props?.style || {}),
-                backgroundImage: preview ? `url(${preview})` : undefined
+                backgroundImage: `url(${preview})`
               }
             })
-          ) : preview ? (
-            <div
-              className={cn('size-full bg-cover bg-center', className)}
-              style={{ backgroundImage: `url(${preview})` }}
-            />
           ) : (
-            <IconButton path={mdiImage} variant='hover-text' />
+            <div
+              className={cn(
+                'flex size-full items-center justify-center rounded-sm border border-neutral-200 bg-neutral-50 bg-cover bg-center transition-border group-data-[state=open]/menu:border-primary',
+                className
+              )}
+              style={{ backgroundImage: `url(${preview})` }}
+            >
+              {!preview && placeholder}
+            </div>
           )
         }
       >

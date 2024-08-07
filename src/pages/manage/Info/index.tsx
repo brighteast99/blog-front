@@ -6,6 +6,8 @@ import { GET_INFO, UPDATE_INFO } from './api'
 import { useAppDispatch } from 'app/hooks'
 import { updateBlogInfo } from 'features/blog/blogSlice'
 
+import Icon from '@mdi/react'
+import { mdiImage } from '@mdi/js'
 import { Avatar } from 'components/Avatar'
 import { ThemedButton } from 'components/Buttons/ThemedButton'
 import { Error } from 'components/Error'
@@ -116,10 +118,11 @@ export const ManageInfoPage: FC = () => {
 
           <div className='flex gap-2'>
             <ImageInput
-              className='size-8'
+              className='bg-tranparent size-8 border-none'
               initialImage={blogInfo?.favicon}
               menuPlacement='left-start'
               sizeLimit={1}
+              placeholder={<Icon path={mdiImage} />}
               onInput={(file) => setFavicon(file)}
             />
             <input

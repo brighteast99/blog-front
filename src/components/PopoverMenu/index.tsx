@@ -106,7 +106,7 @@ export const PopoverMenu: FC<PopoverMenuProps> = ({
     <>
       <div
         ref={refs.setReference}
-        className={clsx(!subMenu && className)}
+        className={clsx('group/menu', !subMenu && className)}
         style={style}
         data-state={isOpen ? 'open' : 'closed'}
         {...getReferenceProps()}

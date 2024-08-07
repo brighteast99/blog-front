@@ -117,85 +117,16 @@ export const CategoryForm: FC<{
       <form className='flex size-full flex-col gap-3' onSubmit={updateCategory}>
         <ImageInput
           key={category.id}
+          className='h-50 w-full'
           initialImage={category.coverImage}
           sizeLimit={3}
-          onInput={(file) => setCoverImage(file)}
-          Viewer={
-            <div className='relative h-50 w-full bg-neutral-100 bg-cover bg-center' />
-          }
-        />
-        {/* <div
-          className='relative h-50 w-full bg-neutral-100 bg-cover bg-center'
-          style={{
-            backgroundImage:
-              coverImage === null
-                ? undefined
-                : `url(${coverPreview ?? category.coverImage})`
-          }}
-        >
-          {!coverImage && !category.coverImage && (
-            <span className='absolute inset-0 z-0 m-auto block size-fit select-none text-lg font-semibold text-neutral-400'>
+          placeholder={
+            <span className='block size-fit select-none text-lg font-semibold text-neutral-400'>
               커버 이미지
             </span>
-          )}
-          <div
-            className='absolute flex size-full cursor-pointer flex-col items-center justify-center bg-background bg-opacity-80 transition-colors [&:not(:hover)]:opacity-0'
-            onClick={() => {
-              ImageInput.current?.click()
-            }}
-          >
-            <span className='block text-xl text-foreground'>변경</span>
-            {(coverImage || category.coverImage) && (
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <IconButton
-                    className='absolute right-0 top-0 !bg-transparent p-1'
-                    path={
-                      coverChanged && category.coverImage
-                        ? mdiRefresh
-                        : mdiClose
-                    }
-                    variant='text'
-                    type='button'
-                    color={
-                      coverChanged && category.coverImage ? 'unset' : 'error'
-                    }
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      setCoverImage(
-                        coverChanged && category.coverImage ? undefined : null
-                      )
-                      if (ImageInput.current) ImageInput.current.value = ''
-                    }}
-                  />
-                </TooltipTrigger>
-                <TooltipContent>
-                  {coverChanged && category.coverImage
-                    ? '되돌리기'
-                    : '기본 이미지로 변경'}
-                </TooltipContent>
-              </Tooltip>
-            )}
-          </div>
-          <input
-            ref={ImageInput}
-            type='file'
-            className='invisible absolute'
-            accept='image/*'
-            onChange={(e) => {
-              const file = e.target.files?.[0]
-              if (!file) return setCoverImage(null)
-
-              // Maximum file size 3MB
-              if (file.size > 1024 * 1024 * 3)
-                return alert(
-                  `파일 크기는 3MB를 넘을 수 없습니다.\n선택한 파일 크기: ${Math.round((file.size / 1024 / 1024) * 10) / 10}MB`
-                )
-
-              setCoverImage(file)
-            }}
-          />
-        </div> */}
+          }
+          onInput={(file) => setCoverImage(file)}
+        />
 
         <div className='flex gap-3'>
           <span className='text-neutral-700'>상위 분류</span>
