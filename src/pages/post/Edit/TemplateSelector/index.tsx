@@ -4,6 +4,8 @@ import clsx from 'clsx'
 import { useLazyQuery, useQuery } from '@apollo/client'
 import { GET_TEMPLATE, GET_TEMPLATES } from './api'
 
+import { useToggle } from 'hooks/useToggle'
+
 import { ThemedButton } from 'components/Buttons/ThemedButton'
 import { Error } from 'components/Error'
 import { PopoverMenu } from 'components/PopoverMenu'
@@ -30,7 +32,7 @@ export const TemplateSelector: FC<TemplateSelectorProps> = ({
   description,
   onSelect
 }) => {
-  const [isOpen, setIsOpen] = useState<boolean>(false)
+  const { value: isOpen, setTrue: open, setFalse: close } = useToggle(false)
 
   const {
     data: templatesData,
@@ -71,8 +73,8 @@ export const TemplateSelector: FC<TemplateSelectorProps> = ({
           {loadingTemplates ? <Spinner size='xs' /> : '템플릿'}
         </ThemedButton>
       }
-      onOpen={() => setIsOpen(true)}
-      onClose={() => setIsOpen(false)}
+      onOpen={open}
+      onClose={close}
     >
       <div className='w-120 max-w-[90dvw] bg-neutral-50'>
         <div className='relative flex h-40 flex-col border-b border-neutral-100'>
@@ -138,7 +140,7 @@ export const TemplateSelector: FC<TemplateSelectorProps> = ({
                   onClick={() => {
                     setSelectedTemplate(undefined)
                     onSelect?.(template)
-                    setIsOpen(false)
+                    close()
                   }}
                 >
                   사용

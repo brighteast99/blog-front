@@ -5,6 +5,7 @@ import clsx from 'clsx'
 import { useLazyQuery, useMutation, useQuery } from '@apollo/client'
 import { DELETE_DRAFT, GET_DRAFT, GET_DRAFTS } from './api'
 
+import { useToggle } from 'hooks/useToggle'
 import { getRelativeTimeFromNow } from 'utils/dayJS'
 
 import { ThemedButton } from 'components/Buttons/ThemedButton'
@@ -32,7 +33,7 @@ export const DraftManager: FC<DraftManagerProps> = ({
   description,
   onSelect
 }) => {
-  const [isOpen, setIsOpen] = useState<boolean>(false)
+  const { value: isOpen, setTrue: open, setFalse: close } = useToggle(false)
 
   const {
     data: draftsData,
@@ -96,8 +97,8 @@ export const DraftManager: FC<DraftManagerProps> = ({
           )}
         </ThemedButton>
       }
-      onOpen={() => setIsOpen(true)}
-      onClose={() => setIsOpen(false)}
+      onOpen={open}
+      onClose={close}
     >
       <div className='w-120 max-w-[90dvw] bg-neutral-50'>
         <div className='relative flex h-40 flex-col border-b border-neutral-100'>
@@ -164,7 +165,7 @@ export const DraftManager: FC<DraftManagerProps> = ({
                   onClick={() => {
                     setSelectedDraft(undefined)
                     onSelect?.(draft)
-                    setIsOpen(false)
+                    close()
                   }}
                 >
                   불러오기

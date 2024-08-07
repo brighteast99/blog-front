@@ -5,6 +5,7 @@ import { Outlet } from 'react-router-dom'
 import { throttle } from 'throttle-debounce'
 
 import { useAppDispatch, useAppSelector } from 'app/hooks'
+import { useToggle } from 'hooks/useToggle'
 import { refreshToken, selectIsAuthenticated } from 'features/auth/authSlice'
 import { selectBreakpoint, updateSize } from 'features/window/windowSlice'
 
@@ -18,17 +19,13 @@ function App() {
   const [refreshLoginTimer, setRefreshLoginTimer] =
     useState<ReturnType<typeof setInterval>>()
   const breakpoint = useAppSelector(selectBreakpoint)
-  const [sidebarFolded, setSidebarFolded] = useState<boolean>(
-    breakpoint === 'mobile'
-  )
+  const {
+    value: sidebarFolded,
+    setValue: setSidebarFolded,
+    setTrue: fold,
+    toggle
+  } = useToggle(breakpoint === 'mobile')
   const sidebarFoldable = useMemo(() => breakpoint !== 'desktop', [breakpoint])
-
-  const fold = useCallback(() => setSidebarFolded(true), [setSidebarFolded])
-
-  const toggle = useCallback(
-    () => setSidebarFolded((prev) => !prev),
-    [setSidebarFolded]
-  )
 
   const refreshLoginToken = useCallback(
     () => dispatch(refreshToken(null)),
@@ -50,13 +47,14 @@ function App() {
     return () => window.removeEventListener('resize', dispatchSizeUpdate)
   }, [dispatch])
 
+  useLayoutEffect(() => {}, [])
+
   // * Update font size & sidebar state according to breakpoint
   useLayoutEffect(() => {
     document.documentElement.style.fontSize =
       breakpoint === 'mobile' ? '12px' : '16px'
 
-    if (sidebarFoldable) setSidebarFolded(true)
-    else setSidebarFolded(false)
+    setSidebarFolded(sidebarFoldable)
   }, [breakpoint, sidebarFoldable, setSidebarFolded])
 
   // * Refresh login token periodically
