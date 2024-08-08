@@ -77,10 +77,7 @@ export const TemplateSelector: FC<TemplateSelectorProps> = ({
       onClose={close}
     >
       <div className='w-120 max-w-[90dvw] bg-neutral-50'>
-        <div className='relative flex h-40 flex-col border-b border-neutral-100'>
-          <div className='border-b border-neutral-100 bg-neutral-100 py-1 text-center'>
-            템플릿 목록
-          </div>
+        <div className='relative flex h-40 flex-col'>
           {loadingTemplates && <Spinner className='absolute inset-0 m-auto' />}
           {errorLoadingTemplates && (
             <div className='absolute inset-0'>
@@ -92,14 +89,14 @@ export const TemplateSelector: FC<TemplateSelectorProps> = ({
             </div>
           )}
           {templates && (
-            <ul className='min-h-0 grow overflow-y-auto'>
+            <ul className='min-h-0 grow overflow-y-auto p-1'>
               {templates.map((template) => (
                 <li
                   className={clsx(
-                    'px-1 py-0.5',
+                    'px-1 py-0.5 text-neutral-600 transition-colors',
                     selectedTemplate === template.id
-                      ? 'bg-primary bg-opacity-25 hover:brightness-125'
-                      : 'hover:bg-background'
+                      ? 'text-primary'
+                      : 'hover:text-foreground'
                   )}
                   key={template.id}
                   onClick={() => {
@@ -115,7 +112,7 @@ export const TemplateSelector: FC<TemplateSelectorProps> = ({
         </div>
 
         {selectedTemplate && (
-          <div className='relative flex h-100 flex-col'>
+          <div className='relative flex h-100 flex-col border-t border-neutral-100'>
             {loadingTemplate && <Spinner className='absolute inset-0 m-auto' />}
             {errorLoadingTemplate && (
               <div className='absolute inset-0'>
