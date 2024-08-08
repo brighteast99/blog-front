@@ -26,7 +26,7 @@ export const BetterCodeBlockNodeView: FC<CodeBlockComponentProps> = ({
   }
 
   return (
-    <NodeViewWrapper className='relative my-3 overflow-x-auto rounded-lg border border-neutral-100 bg-neutral-50 px-4 py-6 text-white'>
+    <NodeViewWrapper className='relative my-3 rounded-lg border border-neutral-100 bg-neutral-50'>
       <Tooltip>
         <TooltipTrigger asChild>
           <IconButton
@@ -42,11 +42,11 @@ export const BetterCodeBlockNodeView: FC<CodeBlockComponentProps> = ({
         </TooltipContent>
       </Tooltip>
 
-      <pre>
+      <pre className='overflow-x-auto text-white'>
         <NodeViewContent as='code' />
       </pre>
 
-      <span className='absolute bottom-1 right-3 text-sm capitalize transition-colors [&:not(:hover)]:text-neutral-400'>
+      <span className='absolute bottom-3 right-3 text-sm capitalize transition-colors [&:not(:hover)]:text-neutral-400'>
         {language}
       </span>
     </NodeViewWrapper>
