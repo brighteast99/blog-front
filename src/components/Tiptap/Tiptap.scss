@@ -28,11 +28,16 @@
       @apply min-h-full p-5 focus:outline-0 caret-primary;
 
       > * + * {
-        @apply mt-1;
+        @apply mt-2;
       }
 
       > div.ProseMirror-gapcursor::after {
         @apply border-t-foreground;
+      }
+
+
+      p {
+        @apply whitespace-pre-wrap;
       }
 
       a {
@@ -90,15 +95,14 @@
       }
 
       blockquote {
-        @apply ml-2 border-l-4 border-primary bg-neutral-50 bg-opacity-40 py-2 pl-4;
+        @apply ml-2 border-l-4 border-primary bg-neutral-50 bg-opacity-40 py-4 pl-6;
       }
 
       pre {
-        @apply overflow-x-auto bg-neutral-50 px-4 py-3 text-white;
         font-family: 'JetBrainsMono', monospace;
 
         code {
-          @apply block w-max bg-none p-0 text-sm text-inherit;
+          @apply block w-max py-6 px-4 text-sm text-inherit;
         }
 
         .hljs-comment,

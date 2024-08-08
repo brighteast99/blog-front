@@ -211,8 +211,9 @@ export const PostPage: FC = () => {
           <p className='text-lg'>{post?.title}</p>
         </div>
       </div>
+
       <div
-        className='relative h-56 border-b border-neutral-300 bg-neutral-500 bg-cover bg-center bg-no-repeat'
+        className='relative h-64 border-b border-neutral-200 bg-neutral-500 bg-cover bg-center bg-no-repeat'
         style={{
           backgroundImage: `url(${post?.thumbnail})`
         }}
@@ -323,7 +324,7 @@ export const PostPage: FC = () => {
       {post && (
         <div className='border-t border-neutral-300 bg-neutral-50'>
           <div className='relative mx-auto w-full max-w-[1280px] bg-inherit p-8 pb-0'>
-            <p className='sticky top-0 z-10 border-b-2 border-neutral-600 bg-inherit py-2 text-2xl'>
+            <p className='sticky top-0 z-10 -mt-0.5 border-b-2 border-neutral-600 bg-inherit py-2 text-2xl'>
               <Link to={`/category/${post.category?.id || 0}`}>
                 {post.category.name}
               </Link>

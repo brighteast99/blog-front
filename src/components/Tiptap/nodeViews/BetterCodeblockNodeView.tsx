@@ -26,26 +26,29 @@ export const BetterCodeBlockNodeView: FC<CodeBlockComponentProps> = ({
   }
 
   return (
-    <NodeViewWrapper className='my-3 overflow-hidden rounded-lg'>
-      <div className='flex items-center justify-between bg-neutral-200 px-4 py-3'>
-        <span className='capitalize'>{language}</span>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <IconButton
-              variant='hover-text'
-              path={mdiContentCopy}
-              size={0.7}
-              onClick={handleCopy}
-            />
-          </TooltipTrigger>
-          <TooltipContent>
-            {alertTimer ? '복사됨' : '클립보드에 복사'}
-          </TooltipContent>
-        </Tooltip>
-      </div>
-      <pre>
+    <NodeViewWrapper className='relative my-3 rounded-lg border border-neutral-100 bg-neutral-50'>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <IconButton
+            className='absolute right-2 top-2 border border-solid border-neutral-100 hover:border-primary [&:not(:hover)]:opacity-50'
+            variant='hover-text'
+            path={mdiContentCopy}
+            size={0.65}
+            onClick={handleCopy}
+          />
+        </TooltipTrigger>
+        <TooltipContent>
+          {alertTimer ? '복사됨' : '클립보드에 복사'}
+        </TooltipContent>
+      </Tooltip>
+
+      <pre className='overflow-x-auto text-white'>
         <NodeViewContent as='code' />
       </pre>
+
+      <span className='absolute bottom-3 right-3 text-sm capitalize transition-colors [&:not(:hover)]:text-neutral-400'>
+        {language}
+      </span>
     </NodeViewWrapper>
   )
 }

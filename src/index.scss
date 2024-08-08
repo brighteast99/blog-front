@@ -25,6 +25,10 @@
   }
   select {
     padding-bottom: 0.1rem;
+
+    option {
+      @apply bg-background;
+    }
   }
 
   textarea {

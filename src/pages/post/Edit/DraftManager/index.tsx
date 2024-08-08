@@ -8,11 +8,18 @@ import { DELETE_DRAFT, GET_DRAFT, GET_DRAFTS } from './api'
 import { useToggle } from 'hooks/useToggle'
 import { getRelativeTimeFromNow } from 'utils/dayJS'
 
+import { mdiDelete, mdiFileImportOutline } from '@mdi/js'
+import { IconButton } from 'components/Buttons/IconButton'
 import { ThemedButton } from 'components/Buttons/ThemedButton'
 import { Error } from 'components/Error'
 import { PopoverMenu } from 'components/PopoverMenu'
 import { Spinner } from 'components/Spinner'
 import { Tiptap } from 'components/Tiptap'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger
+} from 'components/utils/Tooltip'
 
 import type { FC, ReactNode } from 'react'
 import type { Draft } from 'types/data'
@@ -58,22 +65,24 @@ export const DraftManager: FC<DraftManagerProps> = ({
   const [_deleteDraft, { loading: deleting, reset: resetDeleteMutation }] =
     useMutation(DELETE_DRAFT)
 
-  const deleteDraft = useCallback(() => {
-    if (!draft) return
-    if (!window.confirm(`임시 저장본 '${draft.summary}'을(를) 삭제합니다.`))
-      return
+  const deleteDraft = useCallback(
+    (draft: Draft) => {
+      if (!window.confirm(`임시 저장본 '${draft.summary}'을(를) 삭제합니다.`))
+        return
 
-    _deleteDraft({
-      variables: { id: Number(draft.id) },
-      refetchQueries: [{ query: GET_DRAFTS }],
-      onCompleted: () => setSelectedDraft(undefined),
-      onError: ({ networkError, graphQLErrors }) => {
-        if (networkError) alert('임시 저장본 삭제 중 오류가 발생했습니다.')
-        else if (graphQLErrors.length) alert(graphQLErrors[0].message)
-        resetDeleteMutation()
-      }
-    })
-  }, [_deleteDraft, draft, resetDeleteMutation])
+      _deleteDraft({
+        variables: { id: Number(draft.id) },
+        refetchQueries: [{ query: GET_DRAFTS }],
+        onCompleted: () => setSelectedDraft(undefined),
+        onError: ({ networkError, graphQLErrors }) => {
+          if (networkError) alert('임시 저장본 삭제 중 오류가 발생했습니다.')
+          else if (graphQLErrors.length) alert(graphQLErrors[0].message)
+          resetDeleteMutation()
+        }
+      })
+    },
+    [_deleteDraft, draft, resetDeleteMutation]
+  )
 
   return (
     <PopoverMenu
@@ -101,10 +110,7 @@ export const DraftManager: FC<DraftManagerProps> = ({
       onClose={close}
     >
       <div className='w-120 max-w-[90dvw] bg-neutral-50'>
-        <div className='relative flex h-40 flex-col border-b border-neutral-100'>
-          <div className='border-b border-neutral-100 bg-neutral-100 py-1 text-center'>
-            임시 저장본 목록
-          </div>
+        <div className='relative flex h-40 flex-col'>
           {loadingDrafts && <Spinner className='absolute inset-0' size='sm' />}
           {errorLoadingDrafts && (
             <div className='absolute inset-0'>
@@ -116,14 +122,13 @@ export const DraftManager: FC<DraftManagerProps> = ({
             </div>
           )}
           {drafts && (
-            <ul className='min-h-0 grow overflow-y-auto'>
+            <ul className='min-h-0 grow overflow-y-auto p-1'>
               {drafts.map((draft) => (
                 <li
                   className={clsx(
-                    'px-1 py-0.5',
-                    selectedDraft === draft.id
-                      ? 'bg-primary bg-opacity-25 hover:brightness-125'
-                      : 'hover:bg-background'
+                    'flex justify-between px-1 py-0.5',
+                    selectedDraft !== draft.id &&
+                      'text-neutral-600 hover:text-foreground'
                   )}
                   key={draft.id}
                   onClick={() => {
@@ -131,7 +136,30 @@ export const DraftManager: FC<DraftManagerProps> = ({
                     loadDraft({ variables: { id: draft.id } })
                   }}
                 >
-                  {`${draft.summary} (${getRelativeTimeFromNow(draft.createdAt)})`}
+                  <span
+                    className={clsx(
+                      'transition-colors',
+                      selectedDraft === draft.id && 'text-primary'
+                    )}
+                  >
+                    {`${draft.summary} (${getRelativeTimeFromNow(draft.createdAt)})`}
+                  </span>
+                  <Tooltip placement='right'>
+                    <TooltipTrigger asChild>
+                      <IconButton
+                        path=''
+                        variant='hover-text'
+                        color='error'
+                        iconProps={{
+                          path: mdiDelete,
+                          horizontal: true
+                        }}
+                        size={0.7}
+                        onClick={() => deleteDraft(draft)}
+                      />
+                    </TooltipTrigger>
+                    <TooltipContent>삭제</TooltipContent>
+                  </Tooltip>
                 </li>
               ))}
             </ul>
@@ -139,7 +167,7 @@ export const DraftManager: FC<DraftManagerProps> = ({
         </div>
 
         {selectedDraft && (
-          <div className='relative flex h-100 flex-col'>
+          <div className='relative flex h-100 flex-col border-t border-neutral-100'>
             {loadingDraft && <Spinner className='absolute inset-0 m-auto' />}
             {errorLoadingDraft && (
               <div className='absolute inset-0'>
@@ -169,16 +197,6 @@ export const DraftManager: FC<DraftManagerProps> = ({
                   }}
                 >
                   불러오기
-                </ThemedButton>
-
-                <ThemedButton
-                  className='h-8 shrink-0 rounded-t-none'
-                  color='error'
-                  variant='text'
-                  disabled={deleting}
-                  onClick={deleteDraft}
-                >
-                  {deleting ? <Spinner size='xs' /> : '삭제'}
                 </ThemedButton>
               </>
             )}
