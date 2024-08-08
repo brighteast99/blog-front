@@ -211,8 +211,9 @@ export const PostPage: FC = () => {
           <p className='text-lg'>{post?.title}</p>
         </div>
       </div>
+
       <div
-        className='relative h-56 border-b border-neutral-200 bg-neutral-500 bg-cover bg-center bg-no-repeat'
+        className='relative h-64 border-b border-neutral-200 bg-neutral-500 bg-cover bg-center bg-no-repeat'
         style={{
           backgroundImage: `url(${post?.thumbnail})`
         }}
