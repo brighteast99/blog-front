@@ -28,11 +28,16 @@
       @apply min-h-full p-5 focus:outline-0 caret-primary;
 
       > * + * {
-        @apply mt-1;
+        @apply mt-2;
       }
 
       > div.ProseMirror-gapcursor::after {
         @apply border-t-foreground;
+      }
+
+
+      p {
+        @apply whitespace-pre-wrap;
       }
 
       a {

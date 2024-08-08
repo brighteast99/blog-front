@@ -166,7 +166,11 @@ export const Tiptap: FC<EditorProps> = ({
     if (!editor) return
 
     if (editor.getHTML() !== content)
-      setTimeout(() => editor.commands.setContent(content))
+      setTimeout(() =>
+        editor.commands.setContent(content, false, {
+          preserveWhitespace: 'full'
+        })
+      )
   }, [editor, content])
 
   return (
@@ -175,14 +179,12 @@ export const Tiptap: FC<EditorProps> = ({
     >
       <EditorProvider
         extensions={extensions}
+        parseOptions={{ preserveWhitespace: 'full' }}
         slotBefore={editable && <Toolbar className='rounded-t' />}
         slotAfter={
           editable && (
             <div className='contents'>
               <div className='rounded-b border border-neutral-100 bg-neutral-100 bg-opacity-50 px-1 py-0.5'>
-                <p className='text-right text-sm text-neutral-600'>
-                  {editor?.state.selection.anchor}
-                </p>
                 <p className='text-right text-sm text-neutral-600'>
                   {`${editor?.storage.characterCount.words() || 0} 단어 (${editor?.storage.characterCount.characters() || 0} 자)`}
                 </p>
