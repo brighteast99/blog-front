@@ -66,7 +66,7 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
     imagesToDelete
   } = usePostInput({
     title: '',
-    category: Number(searchParams.get('category')) || 0,
+    category: Number(searchParams.get('category')) || undefined,
     isHidden: false,
     content: '<p></p>',
     textContent: '',
