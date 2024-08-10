@@ -81,7 +81,7 @@ export const DraftManager: FC<DraftManagerProps> = ({
         }
       })
     },
-    [_deleteDraft, draft, resetDeleteMutation]
+    [_deleteDraft, resetDeleteMutation]
   )
 
   return (
