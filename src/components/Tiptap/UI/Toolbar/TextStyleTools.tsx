@@ -16,9 +16,7 @@ import { ColorSelector } from './ColorSelector'
 
 import type { FC } from 'react'
 
-const FontSizes = [
-  11, 13, 15, 16, 19, 24, 28, 30, 34, 38, 42, 50, 60, 75, 90, 100
-]
+const FontSizes = [10, 12, 16, 18, 22, 28, 32, 38, 48, 60, 72, 88, 100]
 
 function rgbStringToHex(string: string): string {
   if (/^#[0-9a-zA-Z]{6}$/.test(string)) return string
@@ -40,7 +38,7 @@ export const TextStyleTools: FC = () => {
 
   if (!editor) return null
 
-  const fontSize = editor.getAttributes('textStyle')?.fontSize || '16px'
+  const fontSize = editor.getAttributes('textStyle')?.fontSize || '1rem'
   const textColor = rgbStringToHex(editor.getAttributes('textStyle')?.color)
   const highlightColor = editor.getAttributes('highlight')?.color
 
@@ -51,14 +49,16 @@ export const TextStyleTools: FC = () => {
           <div className='border-bottom focus:outline-none; flex border-b border-neutral-400 bg-transparent px-1 transition-colors focus-within:border-primary hover:border-neutral-600'>
             <Icon path={mdiFormatSize} size={1} />
             <select
-              className='form-inputw-28 border-none py-1 pl-2 pr-4'
-              value={fontSize}
+              className='form-input w-28 border-none py-1 pl-2 pr-4 text-center'
+              value={fontSize || '1rem'}
               onChange={(e) => {
-                editor.chain().focus().setFontSize(e.target.value).run()
+                if (e.target.value === '1rem')
+                  editor.chain().focus().unsetFontSize().run()
+                else editor.chain().focus().setFontSize(e.target.value).run()
               }}
             >
               {FontSizes.map((size) => (
-                <option key={`font-size-${size}`} value={`${size}px`}>
+                <option key={`font-size-${size}`} value={`${size / 16}rem`}>
                   {`${size} px`}
                 </option>
               ))}

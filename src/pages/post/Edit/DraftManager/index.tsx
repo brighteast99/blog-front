@@ -8,7 +8,7 @@ import { DELETE_DRAFT, GET_DRAFT, GET_DRAFTS } from './api'
 import { useToggle } from 'hooks/useToggle'
 import { getRelativeTimeFromNow } from 'utils/dayJS'
 
-import { mdiDelete, mdiFileImportOutline } from '@mdi/js'
+import { mdiDelete } from '@mdi/js'
 import { IconButton } from 'components/Buttons/IconButton'
 import { ThemedButton } from 'components/Buttons/ThemedButton'
 import { Error } from 'components/Error'
@@ -81,7 +81,7 @@ export const DraftManager: FC<DraftManagerProps> = ({
         }
       })
     },
-    [_deleteDraft, draft, resetDeleteMutation]
+    [_deleteDraft, resetDeleteMutation]
   )
 
   return (
