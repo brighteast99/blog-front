@@ -8,11 +8,12 @@ import { mdiClose, mdiImageSearch, mdiRefresh } from '@mdi/js'
 import { PopoverMenu } from './PopoverMenu'
 import { PopoverMenuItem } from './PopoverMenu/PopoverMenuItem'
 
-import type { ChangeEvent, FC, ReactElement } from 'react'
+import type { ChangeEvent, FC, InputHTMLAttributes, ReactElement } from 'react'
 
 export const ImageInput: FC<{
   className?: string
   initialImage?: string
+  accept?: string
   menuPlacement?: Placement
   sizeLimit?: number
   placeholder?: ReactElement
@@ -21,9 +22,10 @@ export const ImageInput: FC<{
 }> = ({
   className,
   initialImage,
-  menuPlacement = 'right-start',
+  accept = 'image/*',
   sizeLimit = 1,
   placeholder,
+  menuPlacement = 'right-start',
   onInput,
   Viewer
 }) => {
@@ -79,8 +81,8 @@ export const ImageInput: FC<{
       <input
         ref={InputElement}
         type='file'
-        className='invisible absolute hidden'
-        accept='image/*'
+        accept={accept}
+        hidden
         onChange={handleInput}
       />
       <PopoverMenu

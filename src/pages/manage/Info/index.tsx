@@ -120,9 +120,10 @@ export const ManageInfoPage: FC = () => {
             <ImageInput
               className='bg-tranparent size-8 border-none'
               initialImage={blogInfo?.favicon}
-              menuPlacement='left-start'
+              accept='.ico'
               sizeLimit={1}
               placeholder={<Icon path={mdiImage} />}
+              menuPlacement='left-start'
               onInput={(file) => setFavicon(file)}
             />
             <input
