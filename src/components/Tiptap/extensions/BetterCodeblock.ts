@@ -39,16 +39,6 @@ const lowlight = createLowlight(common)
 lowlight.register({ django, dockerfile, nginx, pgsql })
 
 export const BetterCodeBlock = CodeBlockLowlight.extend({
-  addAttributes() {
-    return {
-      ...this.parent?.(),
-      language: {
-        renderHTML: ({ type }: { type: CodeBlockLanguage }) => ({
-          dataset: { type }
-        })
-      }
-    }
-  },
   addNodeView() {
     return ReactNodeViewRenderer(BetterCodeBlockNodeView)
   }
