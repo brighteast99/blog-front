@@ -8,7 +8,7 @@ import { common, createLowlight } from 'lowlight'
 
 import { BetterCodeBlockNodeView } from '../nodeViews/BetterCodeblockNodeView'
 
-export const languages = [
+export const Languages = [
   { name: 'Bash', value: 'bash' },
   { name: 'C', value: 'c' },
   { name: 'C++', value: 'cpp' },
@@ -31,12 +31,24 @@ export const languages = [
   { name: 'TypeScript', value: 'typescript' },
   { name: 'HTML, XML', value: 'xml' },
   { name: 'YAML', value: 'yaml' }
-]
+] as const
+
+export type CodeBlockLanguage = (typeof Languages)[number]['value']
 
 const lowlight = createLowlight(common)
 lowlight.register({ django, dockerfile, nginx, pgsql })
 
 export const BetterCodeBlock = CodeBlockLowlight.extend({
+  addAttributes() {
+    return {
+      ...this.parent?.(),
+      language: {
+        renderHTML: ({ type }: { type: CodeBlockLanguage }) => ({
+          dataset: { type }
+        })
+      }
+    }
+  },
   addNodeView() {
     return ReactNodeViewRenderer(BetterCodeBlockNodeView)
   }

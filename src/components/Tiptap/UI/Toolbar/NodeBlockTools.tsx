@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { useCurrentEditor } from '@tiptap/react'
 
 import {
@@ -6,25 +7,40 @@ import {
   mdiFormatListBulleted,
   mdiFormatListCheckbox,
   mdiFormatListNumbered,
-  mdiFormatQuoteClose,
+  mdiFormatQuoteOpen,
+  mdiInformationBox,
   mdiLinkVariant,
   mdiTable,
   mdiTableOff
 } from '@mdi/js'
 import { IconButton } from 'components/Buttons/IconButton'
 import { PopoverMenu } from 'components/PopoverMenu'
+import { Languages } from 'components/Tiptap/extensions/BetterCodeblock'
+import { CalloutTypes } from 'components/Tiptap/extensions/Callout'
+import { AttributeSetter } from 'components/Tiptap/UI/Toolbar/AttributeSetter'
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger
 } from 'components/utils/Tooltip'
-import { CodeBlockConfigurer } from './CodeBlockConfigurer'
 import { LinkConfigurer } from './LinkConfigurer'
 
 import type { FC } from 'react'
+import type { CodeBlockLanguage } from 'components/Tiptap/extensions/BetterCodeblock'
+import type { CalloutType } from 'components/Tiptap/extensions/Callout'
 
 export const NodeBlockTools: FC = () => {
   const { editor } = useCurrentEditor()
+
+  const CodeBlockConfigurer = useMemo(
+    () => AttributeSetter<CodeBlockLanguage>('코드 블록', 'bash', Languages),
+    []
+  )
+
+  const CalloutConfigurer = useMemo(
+    () => AttributeSetter<CalloutType>('콜아웃', 'note', CalloutTypes),
+    []
+  )
 
   if (!editor) return null
 
@@ -32,14 +48,18 @@ export const NodeBlockTools: FC = () => {
   const orderedList = editor.isActive('orderedList')
   const taskList = editor.isActive('taskList')
   const blockquote = editor.isActive('blockquote')
-  const details = editor.isActive('details')
+  const callout = {
+    active: editor.isActive('callout'),
+    type: editor.getAttributes('callout').type
+  }
   const codeBlock = {
     active: editor.isActive('codeBlock'),
     language: editor.getAttributes('codeBlock').language
   }
+  const details = editor.isActive('details')
   const link = {
     active: Boolean(editor.getAttributes('link').href),
-    href: editor.getAttributes('link').href,
+    href: editor.getAttributes('link').link,
     title: editor.state.doc.textBetween(
       editor.view.state.selection.from,
       editor.view.state.selection.to,
@@ -114,7 +134,7 @@ export const NodeBlockTools: FC = () => {
       <Tooltip placement='bottom' offset={3}>
         <TooltipTrigger asChild>
           <IconButton
-            path={mdiFormatQuoteClose}
+            path={mdiFormatQuoteOpen}
             color='primary'
             variant='hover-text-toggle'
             active={blockquote}
@@ -124,12 +144,28 @@ export const NodeBlockTools: FC = () => {
         <TooltipContent>인용문</TooltipContent>
       </Tooltip>
 
+      <CalloutConfigurer
+        className='h-fit'
+        active={callout.active}
+        option={callout.type}
+        onChange={(type: CalloutType) =>
+          editor.chain().focus().setCallout({ type }).run()
+        }
+        onDelete={() => editor.chain().focus().toggleCallout().run()}
+      >
+        <IconButton
+          path={mdiInformationBox}
+          color='primary'
+          variant='hover-text-toggle'
+          active={callout.active}
+        />
+      </CalloutConfigurer>
+
       <CodeBlockConfigurer
         className='h-fit'
-        description={`코드 블록 ${codeBlock.active ? '편집' : '삽입'}`}
         active={codeBlock.active}
-        language={codeBlock.language}
-        onChange={(language: string) =>
+        option={codeBlock.language}
+        onChange={(language: CodeBlockLanguage) =>
           editor.chain().focus().setCodeBlock({ language }).run()
         }
         onDelete={() => editor.chain().focus().toggleCodeBlock().run()}

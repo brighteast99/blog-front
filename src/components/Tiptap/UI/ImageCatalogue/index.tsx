@@ -79,8 +79,8 @@ export const ImageCatalogue: FC<{
     <div className='mt-2'>
       <input
         ref={imageInput}
-        className='invisible absolute'
         type='file'
+        hidden
         accept='image/*'
         multiple
         onChange={uploadImage}
@@ -92,7 +92,7 @@ export const ImageCatalogue: FC<{
           path=''
           variant='hover-text'
           iconProps={{ path: mdiPlus }}
-          onClick={imageInput.current?.click}
+          onClick={() => imageInput.current?.click()}
         />
       </div>
       <div className='min-h-40 resize-y overflow-y-auto rounded border border-neutral-100 bg-neutral-50 p-1 focus-within:border-primary'>

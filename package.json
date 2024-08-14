@@ -13,6 +13,7 @@
     "@tiptap-pro/extension-details-content": "^2.10.7",
     "@tiptap-pro/extension-details-summary": "^2.10.7",
     "@tiptap-pro/extension-file-handler": "^2.10.7",
+    "@tiptap/extension-blockquote": "^2.6.2",
     "@tiptap/extension-character-count": "^2.5.8",
     "@tiptap/extension-code-block-lowlight": "^2.3.2",
     "@tiptap/extension-color": "^2.3.0",

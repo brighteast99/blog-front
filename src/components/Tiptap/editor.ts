@@ -17,6 +17,8 @@ import { TextStyle } from '@tiptap/extension-text-style'
 import { Underline } from '@tiptap/extension-underline'
 import { StarterKit } from '@tiptap/starter-kit'
 
+import { BetterBlockquote } from 'components/Tiptap/extensions/BetterBlockquote'
+import { Callout } from 'components/Tiptap/extensions/Callout'
 import { BetterCodeBlock } from './extensions/BetterCodeblock'
 import { BetterSubscript } from './extensions/BetterSubscript'
 import { BetterSuperscript } from './extensions/BetterSuperscript'
@@ -57,9 +59,11 @@ export const commonExtensions = (() => {
   })
 
   return [
+    BetterBlockquote,
     BetterCodeBlock,
     BetterSubscript,
     BetterSuperscript,
+    Callout,
     CharacterCount,
     configuredColor,
     configuredDetails,
@@ -82,6 +86,7 @@ export const commonExtensions = (() => {
 
 export const viewerExtensions = (() => {
   const configuredStarterKit = StarterKit.configure({
+    blockquote: false,
     codeBlock: false,
     dropcursor: false,
     gapcursor: false
@@ -105,6 +110,7 @@ export const viewerExtensions = (() => {
 
 export const editorExtensions = (() => {
   const configuredStarterKit = StarterKit.configure({
+    blockquote: false,
     codeBlock: false,
     dropcursor: {
       color:
