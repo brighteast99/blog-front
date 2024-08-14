@@ -11,13 +11,14 @@ import {
 
 import type { FC } from 'react'
 import type { NodeViewProps } from '@tiptap/react'
+import type { CodeBlockLanguage } from '../extensions/BetterCodeblock'
 
 interface CodeBlockComponentProps extends NodeViewProps {}
 
 export const BetterCodeBlockNodeView: FC<CodeBlockComponentProps> = ({
   node
 }) => {
-  const { language } = node.attrs
+  const language: CodeBlockLanguage = node.attrs.language || 'plaintext'
   const [alertTimer, setAlertTimer] = useState<ReturnType<typeof setTimeout>>()
 
   const handleCopy = () => {
@@ -26,7 +27,7 @@ export const BetterCodeBlockNodeView: FC<CodeBlockComponentProps> = ({
   }
 
   return (
-    <NodeViewWrapper className='relative my-3 rounded-lg border border-neutral-100 bg-neutral-50'>
+    <NodeViewWrapper className='relative my-3 rounded-lg border border-neutral-100 bg-neutral-50 bg-opacity-90'>
       <Tooltip>
         <TooltipTrigger asChild>
           <IconButton
