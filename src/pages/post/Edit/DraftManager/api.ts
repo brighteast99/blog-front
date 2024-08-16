@@ -25,6 +25,7 @@ export const GET_DRAFT: TypedDocumentNode<{ draft: Draft }, { id: number }> =
         }
         title
         content
+        textContent
         isHidden
         thumbnail
         images

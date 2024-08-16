@@ -84,7 +84,7 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
     onCompleted: ({ post }) => {
       initialize({
         title: post.title,
-        category: post.category.id,
+        category: post.category.id || undefined,
         content: post.content,
         textContent: post.textContent,
         isHidden: post.isHidden,
@@ -133,7 +133,7 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
         return
 
       initialize({
-        category: draft.category.id,
+        category: draft.category.id || undefined,
         title: draft.title,
         content: draft.content,
         textContent: draft.textContent,
