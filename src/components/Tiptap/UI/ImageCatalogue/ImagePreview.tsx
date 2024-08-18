@@ -37,20 +37,21 @@ export const ImagePreview: FC<{
   return (
     <div
       className={clsx(
-        'relative aspect-square border',
-        isThumbnail ? 'border-2 border-primary' : 'border-neutral-400'
+        'relative aspect-square outline',
+        isThumbnail ? 'outline-2 outline-primary' : 'outline-neutral-400'
       )}
     >
       {isThumbnail && (
-        <div className='absolute size-fit bg-primary px-1 py-0.5 text-background'>
+        <div className='absolute size-fit bg-primary px-1.5 text-background'>
           대표
         </div>
       )}
-      {image instanceof File ? (
+      {image instanceof File && (
         <div className='absolute size-full bg-neutral-50 bg-opacity-50'>
           <Spinner className='absolute inset-0' />
         </div>
-      ) : (
+      )}
+      {typeof image === 'string' && (
         <div className='absolute size-full bg-neutral-50 bg-opacity-75 opacity-0 transition-opacity hover:opacity-100'>
           <IconButton
             className='absolute right-0 top-0'
