@@ -38,14 +38,11 @@ export const ImagePreview: FC<{
     <div
       className={clsx(
         'relative aspect-square outline',
-        isThumbnail ? 'outline-2 outline-primary' : 'outline-neutral-400'
+        isThumbnail
+          ? 'outline-2 outline-primary'
+          : 'outline-1 outline-neutral-400'
       )}
     >
-      {isThumbnail && (
-        <div className='absolute size-fit bg-primary px-1.5 text-background'>
-          대표
-        </div>
-      )}
       {image instanceof File && (
         <div className='absolute size-full bg-neutral-50 bg-opacity-50'>
           <Spinner className='absolute inset-0' />
@@ -85,6 +82,11 @@ export const ImagePreview: FC<{
               {isThumbnail ? '대표 이미지 해제' : '대표 이미지 설정'}
             </ThemedButton>
           </div>
+        </div>
+      )}
+      {isThumbnail && (
+        <div className='absolute size-fit bg-primary px-1.5 text-background'>
+          대표
         </div>
       )}
       <img className='block size-full object-contain' src={src} alt='' />
