@@ -39,7 +39,7 @@ export const ImageImporter: FC<ImageImporterProps> = ({
     skip: !isOpen
   })
   const [selectedImages, setSelectedImages] = useState<string[]>([])
-  const { value: hideExcluded, toggle: toggleHideExcluded } = useToggle(false)
+  const { value: hideExcluded, toggle: toggleHideExcluded } = useToggle(true)
   const filteredImages = data?.images
     ? data?.images.filter((image) => !hideExcluded || !exclude?.includes(image))
     : null
