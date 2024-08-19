@@ -8,7 +8,7 @@ import { mdiClose, mdiImageSearch, mdiRefresh } from '@mdi/js'
 import { PopoverMenu } from './PopoverMenu'
 import { PopoverMenuItem } from './PopoverMenu/PopoverMenuItem'
 
-import type { ChangeEvent, FC, InputHTMLAttributes, ReactElement } from 'react'
+import type { ChangeEvent, FC, ReactElement } from 'react'
 
 export const ImageInput: FC<{
   className?: string
