@@ -98,6 +98,37 @@ export const PostPage: FC = () => {
     })
   }, [_deletePost, post?.category.id, navigate, postId, resetDeleteMutation])
 
+  const MenuButton = useCallback(
+    ({ className }: { className?: string }) =>
+      isLoggedIn ? (
+        <PopoverMenu className={className} size={0.9} closeOnScroll>
+          <PopoverMenuItem
+            icon={mdiPencil}
+            title='수정'
+            onClick={() => navigate(`/post/edit/${postId}`)}
+          />
+          <PopoverMenuItem
+            icon={
+              updating ? mdiLoading : post?.isHidden ? mdiLock : mdiLockOpen
+            }
+            disabled={updating}
+            title={post?.isHidden ? '비공개 게시글' : '공개 게시글'}
+            description={post?.isHidden ? '게시글 보이기' : '게시글 숨기기'}
+            onClick={toggleIsHidden}
+          />
+          <PopoverMenuItem
+            icon={deleting ? mdiLoading : mdiDelete}
+            disabled={deleting}
+            title='삭제'
+            className='bg-error text-error'
+            onClick={deletePost}
+          />
+        </PopoverMenu>
+      ) : null,
+    []
+  )
+
+  // * 헤더 위치 조절
   useLayoutEffect(() => {
     const handler = throttle(20, (e: Event) => {
       const target = (e.target as Document)?.documentElement
@@ -204,11 +235,12 @@ export const PostPage: FC = () => {
           />
         </div>
 
-        <div className='h-16 pt-1.5 text-center'>
+        <div className='relative h-16 pt-1.5 text-center'>
           <Link className='text-sm' to={`/category/${post?.category?.id || 0}`}>
             {post?.category?.name}
           </Link>
           <p className='text-lg'>{post?.title}</p>
+          <MenuButton className='absolute inset-y-0 right-5 my-auto h-fit' />
         </div>
       </div>
 
@@ -218,31 +250,6 @@ export const PostPage: FC = () => {
           backgroundImage: `url(${post?.thumbnail})`
         }}
       >
-        {isLoggedIn && (
-          <PopoverMenu className='absolute right-1 top-1 z-10' size={0.9}>
-            <PopoverMenuItem
-              icon={mdiPencil}
-              title='수정'
-              onClick={() => navigate(`/post/edit/${postId}`)}
-            />
-            <PopoverMenuItem
-              icon={
-                updating ? mdiLoading : post?.isHidden ? mdiLock : mdiLockOpen
-              }
-              disabled={updating}
-              title={post?.isHidden ? '비공개 게시글' : '공개 게시글'}
-              description={post?.isHidden ? '게시글 보이기' : '게시글 숨기기'}
-              onClick={toggleIsHidden}
-            />
-            <PopoverMenuItem
-              icon={deleting ? mdiLoading : mdiDelete}
-              disabled={deleting}
-              title='삭제'
-              className='bg-error text-error'
-              onClick={deletePost}
-            />
-          </PopoverMenu>
-        )}
         <div className='flex size-full flex-col items-center justify-center gap-1 py-5 backdrop-blur backdrop-brightness-50'>
           <div className='flex items-center justify-center text-lg text-neutral-800'>
             {post?.category?.ancestors &&
@@ -298,7 +305,8 @@ export const PostPage: FC = () => {
             align='center'
             length={8}
           />
-        </div>
+        </div>{' '}
+        <MenuButton className='absolute right-5 top-2.5' />
       </div>
 
       <div ref={contentArea} className='min-h-[30dvh] w-full px-5 py-12'>

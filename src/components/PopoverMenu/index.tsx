@@ -34,6 +34,7 @@ interface PopoverMenuProps {
   icon?: string
   iconOnRight?: boolean
   size?: string | number
+  closeOnScroll?: boolean
   offset?: number
   title?: string
   description?: string | boolean
@@ -55,6 +56,7 @@ export const PopoverMenu: FC<PopoverMenuProps> = ({
   icon = mdiDotsVertical,
   iconOnRight = false,
   size = 0.8,
+  closeOnScroll,
   offset: offsetValue = 5,
   title = '',
   description = '',
@@ -69,7 +71,6 @@ export const PopoverMenu: FC<PopoverMenuProps> = ({
   const {
     value: isOpen,
     setFalse: closeMenu,
-    setTrue: openMenu,
     setValue: setIsOpen
   } = useToggle(false)
   const [emitOnCloseTimer, setEmitOnCloseTimer] =
@@ -79,20 +80,20 @@ export const PopoverMenu: FC<PopoverMenuProps> = ({
     placement,
     open: isOpen,
     onOpenChange: (open) => {
-      if (!open && typeof onClose === 'function') onClose()
-      if (open && typeof onOpen === 'function') onOpen()
-      openMenu()
+      if (!open) onClose?.()
+      if (open) onOpen?.()
+      setIsOpen(open)
     },
     whileElementsMounted: autoUpdate,
     middleware: [offset(offsetValue), flip({ padding: 10 })]
   })
 
   const click = useClick(context, { event: 'click' })
-  const dismiss = useDismiss(context)
+  const dismiss = useDismiss(context, { ancestorScroll: closeOnScroll })
 
   const { getReferenceProps, getFloatingProps } = useInteractions([
-    dismiss,
-    click
+    click,
+    dismiss
   ])
 
   useLayoutEffect(() => {
@@ -139,7 +140,8 @@ export const PopoverMenu: FC<PopoverMenuProps> = ({
                       'block h-fit p-1',
                       isOpen && '!opacity-100'
                     )}
-                    variant='hover-text'
+                    active={isOpen}
+                    variant='hover-text-toggle'
                     path={icon}
                     size={size}
                     disabled={!children || disabled}

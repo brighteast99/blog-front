@@ -67,10 +67,14 @@ export const TemplateSelector: FC<TemplateSelectorProps> = ({
         <ThemedButton
           className='h-8 px-2'
           variant='flat'
-          disabled={loadingTemplates}
+          disabled={loadingTemplates || !templates?.length}
           color='primary'
         >
-          {loadingTemplates ? <Spinner size='xs' /> : '템플릿'}
+          {loadingTemplates ? (
+            <Spinner size='xs' />
+          ) : (
+            `템플릿 ${templates?.length ? '' : '없음'}`
+          )}
         </ThemedButton>
       }
       onOpen={open}
