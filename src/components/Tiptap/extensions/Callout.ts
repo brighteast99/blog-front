@@ -18,8 +18,8 @@ export const CalloutTypes = [
   'info',
   'success',
   'question',
-  'warning',
-  'error'
+  'caution',
+  'warning'
 ] as const
 export type CalloutType = (typeof CalloutTypes)[number]
 

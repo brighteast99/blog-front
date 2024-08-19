@@ -12,6 +12,8 @@ import {
 } from '@floating-ui/react'
 import clsx from 'clsx'
 
+import { useToggle } from 'hooks/useToggle'
+
 import { mdiDotsVertical } from '@mdi/js'
 import { IconButton } from 'components/Buttons/IconButton'
 import {
@@ -64,7 +66,12 @@ export const PopoverMenu: FC<PopoverMenuProps> = ({
   onOpen,
   onClose
 }) => {
-  const [isOpen, setIsOpen] = useState(false)
+  const {
+    value: isOpen,
+    setFalse: closeMenu,
+    setTrue: openMenu,
+    setValue: setIsOpen
+  } = useToggle(false)
   const [emitOnCloseTimer, setEmitOnCloseTimer] =
     useState<ReturnType<typeof setTimeout>>()
 
@@ -74,7 +81,7 @@ export const PopoverMenu: FC<PopoverMenuProps> = ({
     onOpenChange: (open) => {
       if (!open && typeof onClose === 'function') onClose()
       if (open && typeof onOpen === 'function') onOpen()
-      setIsOpen(open)
+      openMenu()
     },
     whileElementsMounted: autoUpdate,
     middleware: [offset(offsetValue), flip({ padding: 10 })]
@@ -89,10 +96,10 @@ export const PopoverMenu: FC<PopoverMenuProps> = ({
   ])
 
   useLayoutEffect(() => {
-    if (disabled) setIsOpen(false)
-  }, [disabled])
+    if (disabled) closeMenu()
+  }, [disabled, closeMenu])
 
-  useLayoutEffect(() => setIsOpen(controlledOpen), [controlledOpen])
+  useLayoutEffect(() => setIsOpen(controlledOpen), [controlledOpen, setIsOpen])
 
   // * 메뉴 열린 상태에서 상위 메뉴가 닫혀서 언마운트될 때 실행될 수 있도록
   useLayoutEffect(() => {

@@ -5,8 +5,8 @@ import { cva } from 'class-variance-authority'
 import Icon from '@mdi/react'
 import {
   mdiAlert,
-  mdiAlertOctagon,
   mdiCheckBold,
+  mdiCloseOctagon,
   mdiHelp,
   mdiInformationSlabCircle,
   mdiPencil
@@ -25,8 +25,8 @@ export const CalloutVariants = cva('ml-2 border-l-4 bg-opacity-10 p-4', {
       info: 'border-info bg-info',
       success: 'border-success bg-success',
       question: 'border-teal-800 bg-teal-800',
-      warning: 'border-warning bg-warning',
-      error: 'border-error bg-error'
+      caution: 'border-warning bg-warning',
+      warning: 'border-error bg-error'
     }
   },
   defaultVariants: {
@@ -40,8 +40,8 @@ export const CalloutIconVariants = cva('brightness-110', {
       info: 'text-info',
       success: 'text-success',
       question: 'text-teal-800',
-      warning: 'text-warning',
-      error: 'text-error'
+      caution: 'text-warning',
+      warning: 'text-error'
     }
   },
   defaultVariants: {
@@ -61,10 +61,10 @@ export const CalloutNodeView: FC<CalloutComponentProps> = ({ node }) => {
         return mdiHelp
       case 'success':
         return mdiCheckBold
-      case 'warning':
+      case 'caution':
         return mdiAlert
-      case 'error':
-        return mdiAlertOctagon
+      case 'warning':
+        return mdiCloseOctagon
     }
   }, [type])
 

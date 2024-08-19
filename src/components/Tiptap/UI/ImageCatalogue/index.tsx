@@ -1,8 +1,16 @@
 import { useCallback, useRef } from 'react'
+import { FloatingDelayGroup } from '@floating-ui/react'
 import { useCurrentEditor } from '@tiptap/react'
+import clsx from 'clsx'
 
 import { mdiPlus } from '@mdi/js'
 import { IconButton } from 'components/Buttons/IconButton'
+import { ImageImporter } from 'components/Tiptap/UI/ImageCatalogue/ImageImporter'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger
+} from 'components/utils/Tooltip'
 import { ImagePreview } from './ImagePreview'
 
 import type { ChangeEvent, FC } from 'react'
@@ -12,6 +20,7 @@ export const ImageCatalogue: FC<{
   images?: string[]
   uploadQueue?: File[]
   onFileReceived?: (files: File[]) => any
+  onImageImported?: (images: string[]) => any
   onImageDeleted?: (image: string) => any
   changeThumbnail?: (image: string | null) => any
 }> = ({
@@ -19,6 +28,7 @@ export const ImageCatalogue: FC<{
   images = [],
   uploadQueue = [],
   onFileReceived,
+  onImageImported,
   onImageDeleted,
   changeThumbnail
 }) => {
@@ -76,7 +86,7 @@ export const ImageCatalogue: FC<{
   )
 
   return (
-    <div className='mt-2'>
+    <div className='mt-3'>
       <input
         ref={imageInput}
         type='file'
@@ -85,19 +95,43 @@ export const ImageCatalogue: FC<{
         multiple
         onChange={uploadImage}
       />
-      <div className='mb-1 flex items-center justify-between'>
+      <div className='mb-1 flex items-center gap-0.5'>
         <span>첨부 이미지</span>
-        <IconButton
-          className='block'
-          path=''
-          variant='hover-text'
-          iconProps={{ path: mdiPlus }}
-          onClick={() => imageInput.current?.click()}
-        />
+        <div className='min-w-0 grow' />
+        <FloatingDelayGroup delay={100}>
+          <ImageImporter
+            className='block'
+            exclude={images}
+            description='서버 이미지 탐색'
+            onClickImport={onImageImported}
+          />
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <IconButton
+                className='block'
+                path={mdiPlus}
+                variant='hover-text'
+                onClick={() => imageInput.current?.click()}
+              />
+            </TooltipTrigger>
+            <TooltipContent>이미지 업로드</TooltipContent>
+          </Tooltip>
+        </FloatingDelayGroup>
       </div>
-      <div className='min-h-40 resize-y overflow-y-auto rounded border border-neutral-100 bg-neutral-50 p-1 focus-within:border-primary'>
+
+      <div
+        className={clsx(
+          'relative resize-y overflow-y-auto rounded border border-neutral-100 bg-neutral-50 p-1 focus-within:border-primary',
+          images.length ? 'min-h-40' : 'min-h-20'
+        )}
+      >
+        {images.length === 0 && (
+          <span className='absolute inset-0 m-auto size-fit text-lg font-semibold text-foreground text-opacity-10'>
+            이미지 없음
+          </span>
+        )}
         <div
-          className='grid gap-3'
+          className='grid gap-4 p-3'
           style={{
             gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 150px))'
           }}

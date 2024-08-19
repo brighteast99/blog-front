@@ -10,7 +10,6 @@ import { useMutation, useQuery } from '@apollo/client'
 import {
   CREATE_DRAFT,
   CREATE_POST,
-  DELETE_IMAGE,
   GET_POSTABLE_CATEGORIES,
   UPDATE_POST
 } from './api'
@@ -62,8 +61,8 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
     setIsHidden,
     setThumbnail,
     addImage,
-    removeImage,
-    imagesToDelete
+    addImages,
+    removeImage
   } = usePostInput({
     title: '',
     category: Number(searchParams.get('category')) || undefined,
@@ -84,7 +83,7 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
     onCompleted: ({ post }) => {
       initialize({
         title: post.title,
-        category: post.category.id,
+        category: post.category.id || undefined,
         content: post.content,
         textContent: post.textContent,
         isHidden: post.isHidden,
@@ -115,7 +114,6 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
   ] = useMutation(CREATE_POST)
   const [_updatePost, { loading: updatingPost, reset: resetUpdateMutation }] =
     useMutation(UPDATE_POST)
-  const [deleteImage, { loading: deletingImages }] = useMutation(DELETE_IMAGE)
 
   const [selectedCategory, setSelectedCategory] = useState<{
     id?: number
@@ -133,7 +131,7 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
         return
 
       initialize({
-        category: draft.category.id,
+        category: draft.category.id || undefined,
         title: draft.title,
         content: draft.content,
         textContent: draft.textContent,
@@ -234,19 +232,7 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
           { query: GET_CATEGORY_HIERARCHY },
           { query: GET_POST, variables: { id: postId } }
         ],
-        onCompleted: () => {
-          Promise.all(
-            imagesToDelete.map((image) => {
-              return new Promise((resolve) => {
-                deleteImage({
-                  variables: { url: image },
-                  onCompleted: () => resolve(null),
-                  onError: () => resolve(null)
-                })
-              })
-            })
-          ).then(() => navigate(`/post/${postId}`))
-        },
+        onCompleted: () => navigate(`/post/${postId}`),
         onError: ({ networkError, graphQLErrors }) => {
           if (networkError) alert('게시글 수정 중 오류가 발생했습니다.')
           else if (graphQLErrors.length) alert(graphQLErrors[0].message)
@@ -258,9 +244,7 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
       postId,
       postInput,
       selectedCategory.isHidden,
-      imagesToDelete,
       resetUpdateMutation,
-      deleteImage,
       navigate
     ]
   )
@@ -333,9 +317,7 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
 
       <div className='mx-auto w-full max-w-[1280px] px-5 py-10'>
         <NavigationBlocker
-          enabled={
-            hasChange && !creatingPost && !updatingPost && !deletingImages
-          }
+          enabled={hasChange && !creatingPost && !updatingPost}
           message={`${newPost ? '작성' : '수정'}중인 내용이 있습니다.\n페이지를 벗어나시겠습니까?`}
         />
 
@@ -416,6 +398,7 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
             thumbnail={postInput.thumbnail}
             images={postInput.images}
             onImageUploaded={addImage}
+            onImageImported={addImages}
             onImageDeleted={removeImage}
             onChangeThumbnail={setThumbnail}
           />
@@ -426,15 +409,11 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
           variant='flat'
           color='primary'
           disabled={
-            !postInput.title ||
-            creatingDraft ||
-            creatingPost ||
-            updatingPost ||
-            deletingImages
+            !postInput.title || creatingDraft || creatingPost || updatingPost
           }
           onClick={newPost ? createPost : updatePost}
         >
-          {creatingDraft || creatingPost || updatingPost || deletingImages ? (
+          {creatingDraft || creatingPost || updatingPost ? (
             <Spinner size='xs' />
           ) : newPost ? (
             '게시'
@@ -447,15 +426,11 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
           variant='text'
           color='secondary'
           disabled={
-            !postInput.title ||
-            creatingDraft ||
-            creatingPost ||
-            updatingPost ||
-            deletingImages
+            !postInput.title || creatingDraft || creatingPost || updatingPost
           }
           onClick={createDraft}
         >
-          {creatingDraft || creatingPost || updatingPost || deletingImages ? (
+          {creatingDraft || creatingPost || updatingPost ? (
             <Spinner size='xs' />
           ) : (
             '임시 저장'

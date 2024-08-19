@@ -38,6 +38,7 @@ interface EditorProps {
   autofocus?: boolean
   onChange?: (editor: ReactEditor) => any
   onImageUploaded?: (image: string) => any
+  onImageImported?: (images: string[]) => any
   onImageDeleted?: (image: string) => any
   onChangeThumbnail?: (image: string | null) => any
 }
@@ -51,6 +52,7 @@ export const Tiptap: FC<EditorProps> = ({
   autofocus = false,
   onChange,
   onImageUploaded,
+  onImageImported,
   onImageDeleted,
   onChangeThumbnail
 }) => {
@@ -85,9 +87,10 @@ export const Tiptap: FC<EditorProps> = ({
   const onFileReceived = useCallback(
     (files: File[], editor?: CoreEditor) => {
       let largeFiles: string[] = []
+      let imageCache = new Set()
 
       const SIZE_LIMIT = 5 // MB
-      files.forEach((file, i) => {
+      files.forEach((file) => {
         if (file.size > 1024 * 1024 * SIZE_LIMIT)
           return largeFiles.push(
             `${file.name}: ${Math.round((file.size / 1024 / 1024) * 10) / 10}MB`
@@ -96,32 +99,45 @@ export const Tiptap: FC<EditorProps> = ({
         if (!editor) return uploadImage(file)
 
         const fileReader = new FileReader()
-        const pos = editor.state.selection.anchor + i
+        const pos = editor.state.selection.anchor
 
         fileReader.readAsDataURL(file)
         fileReader.onload = () => {
+          const preview = fileReader.result as string
+
           editor
             .chain()
             .insertContentAt(pos, {
               type: 'image',
               attrs: {
-                src: fileReader.result
+                src: preview
               }
             })
             .focus()
             .run()
+
+          if (imageCache.has(preview)) return
+
+          uploadImage(file)
+            .then(({ data }) => {
+              const { state } = editor
+              const { doc } = state
+              doc.descendants((node, pos) => {
+                if (
+                  node.type.name === 'image' &&
+                  node.attrs.src === fileReader.result
+                )
+                  editor
+                    .chain()
+                    .setNodeSelection(pos)
+                    .setImage({ src: data?.uploadImage.url as string })
+                    .run()
+              })
+            })
+            .catch((_) =>
+              editor.chain().setNodeSelection(pos).deleteNode('image')
+            )
         }
-        uploadImage(file)
-          .then(({ data }) =>
-            editor
-              .chain()
-              .setNodeSelection(pos)
-              .setImage({ src: data?.uploadImage.url as string })
-              .run()
-          )
-          .catch((_) =>
-            editor.chain().setNodeSelection(pos).deleteNode('image')
-          )
       })
 
       if (largeFiles.length)
@@ -194,6 +210,7 @@ export const Tiptap: FC<EditorProps> = ({
                 images={images}
                 uploadQueue={uploadQueue}
                 onFileReceived={onFileReceived}
+                onImageImported={onImageImported}
                 onImageDeleted={onImageDeleted}
                 changeThumbnail={onChangeThumbnail}
               />

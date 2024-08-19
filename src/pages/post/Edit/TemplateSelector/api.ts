@@ -20,6 +20,7 @@ export const GET_TEMPLATE: TypedDocumentNode<
     template(id: $id) {
       id
       content
+      textContent
       thumbnail
       images
     }
