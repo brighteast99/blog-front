@@ -133,7 +133,7 @@ export const ImageCatalogue: FC<{
         <div
           className='grid gap-4 p-3'
           style={{
-            gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 150px))',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(8rem, 1fr))',
             gridTemplateRows: 'auto'
           }}
         >

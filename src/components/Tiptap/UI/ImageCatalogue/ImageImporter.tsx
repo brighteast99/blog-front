@@ -39,6 +39,10 @@ export const ImageImporter: FC<ImageImporterProps> = ({
     skip: !isOpen
   })
   const [selectedImages, setSelectedImages] = useState<string[]>([])
+  const { value: hideExcluded, toggle: toggleHideExcluded } = useToggle(false)
+  const filteredImages = data?.images
+    ? data?.images.filter((image) => !hideExcluded || !exclude?.includes(image))
+    : null
 
   useLayoutEffect(() => {
     if (isOpen) refetch()
@@ -63,8 +67,20 @@ export const ImageImporter: FC<ImageImporterProps> = ({
       {isOpen && (
         <div className='absolute inset-0 z-20 flex size-full items-center justify-center bg-neutral-50 bg-opacity-80'>
           <div className='relative flex max-h-[80%] w-4/5 flex-col gap-4 rounded border border-neutral-100 bg-background shadow-lg'>
-            <div className='flex justify-between px-4 pt-4'>
+            <div className='flex items-center gap-4 px-4 pt-4'>
               <span className='text-xl font-semibold'>서버 이미지</span>
+              <label className='self-end'>
+                <input
+                  type='checkbox'
+                  className='accent-primary'
+                  checked={hideExcluded}
+                  onChange={toggleHideExcluded}
+                />
+                <span className='ml-1 text-sm text-neutral-700'>
+                  게시글에 포함된 항목 제외
+                </span>
+              </label>
+              <div className='min-w-0 grow' />
               <IconButton
                 path={mdiClose}
                 variant='hover-text'
@@ -81,21 +97,20 @@ export const ImageImporter: FC<ImageImporterProps> = ({
                   actions={[{ label: '다시 시도', handler: () => refetch() }]}
                 />
               )}
-              {data && (
+              {filteredImages && (
                 <div
                   className='grid size-full gap-3'
                   style={{
-                    gridTemplateColumns:
-                      'repeat(auto-fit, minmax(100px, 150px))',
+                    gridTemplateColumns: 'repeat(auto-fill, minmax(8rem, 1fr))',
                     gridTemplateRows: 'auto'
                   }}
                 >
-                  {data.images.length === 0 && (
+                  {filteredImages.length === 0 && (
                     <span className='absolute inset-0 m-auto size-fit text-xl text-foreground text-opacity-25'>
-                      서버에 업로드된 이미지가 없습니다
+                      사용 가능한 이미지가 없습니다
                     </span>
                   )}
-                  {data.images.map((image) => {
+                  {filteredImages.map((image) => {
                     const selected = selectedImages.includes(image)
                     const excluded = exclude?.includes(image)
                     return (
