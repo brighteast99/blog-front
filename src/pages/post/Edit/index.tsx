@@ -315,7 +315,7 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
         </div>
       )}
 
-      <div className='mx-auto w-full max-w-[1280px] px-5 py-10'>
+      <div className='mx-auto w-full max-w-[1280px] p-10'>
         <NavigationBlocker
           enabled={hasChange && !creatingPost && !updatingPost}
           message={`${newPost ? '작성' : '수정'}중인 내용이 있습니다.\n페이지를 벗어나시겠습니까?`}

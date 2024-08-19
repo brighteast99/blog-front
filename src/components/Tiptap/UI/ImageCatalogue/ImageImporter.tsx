@@ -42,6 +42,7 @@ export const ImageImporter: FC<ImageImporterProps> = ({
 
   useLayoutEffect(() => {
     if (isOpen) refetch()
+    else setSelectedImages([])
   }, [isOpen, refetch])
 
   return (
@@ -63,7 +64,7 @@ export const ImageImporter: FC<ImageImporterProps> = ({
         <div className='absolute inset-0 z-20 flex size-full items-center justify-center bg-neutral-50 bg-opacity-80'>
           <div className='relative flex max-h-[80%] w-4/5 flex-col gap-4 rounded border border-neutral-100 bg-background shadow-lg'>
             <div className='flex justify-between px-4 pt-4'>
-              <span className='text-xl font-semibold'>업로드된 이미지</span>
+              <span className='text-xl font-semibold'>서버 이미지</span>
               <IconButton
                 path={mdiClose}
                 variant='hover-text'
@@ -71,7 +72,7 @@ export const ImageImporter: FC<ImageImporterProps> = ({
                 onClick={close}
               />
             </div>
-            <div className='relative min-h-0 grow overflow-y-auto px-4'>
+            <div className='relative min-h-0 grow overflow-y-auto p-4'>
               {loading && <Spinner className='absolute inset-0 m-auto' />}
               {error && (
                 <Error
@@ -85,13 +86,13 @@ export const ImageImporter: FC<ImageImporterProps> = ({
                   className='grid size-full gap-3'
                   style={{
                     gridTemplateColumns:
-                      'repeat(auto-fit, minmax(100px, auto))',
+                      'repeat(auto-fit, minmax(100px, 150px))',
                     gridTemplateRows: 'auto'
                   }}
                 >
                   {data.images.length === 0 && (
                     <span className='absolute inset-0 m-auto size-fit text-xl text-foreground text-opacity-25'>
-                      업로드된 이미지가 없습니다
+                      서버에 업로드된 이미지가 없습니다
                     </span>
                   )}
                   {data.images.map((image) => {
@@ -103,11 +104,11 @@ export const ImageImporter: FC<ImageImporterProps> = ({
                         className={clsx(
                           'relative aspect-square cursor-pointer outline',
                           excluded
-                            ? 'cursor-not-allowed outline-neutral-200'
+                            ? 'cursor-not-allowed outline-1 outline-neutral-200'
                             : 'cursor-pointer',
                           selected
                             ? 'outline-2 outline-primary'
-                            : 'outline-neutral-400'
+                            : 'outline-1 outline-neutral-400'
                         )}
                         onClick={() => {
                           if (excluded) return

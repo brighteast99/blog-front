@@ -121,8 +121,8 @@ export const ImageCatalogue: FC<{
 
       <div
         className={clsx(
-          'relative resize-y overflow-y-auto rounded border border-neutral-100 bg-neutral-50 p-1 focus-within:border-primary',
-          images.length ? 'min-h-40' : 'min-h-20'
+          'relative overflow-y-auto rounded border border-neutral-100 bg-neutral-50 p-1 focus-within:border-primary',
+          images.length ? 'min-h-40 resize-y' : 'min-h-10'
         )}
       >
         {images.length === 0 && (
@@ -133,7 +133,7 @@ export const ImageCatalogue: FC<{
         <div
           className='grid gap-4 p-3'
           style={{
-            gridTemplateColumns: 'repeat(auto-fit, minmax(100px, auto))',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 150px))',
             gridTemplateRows: 'auto'
           }}
         >
