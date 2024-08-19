@@ -133,7 +133,7 @@ export const PopoverMenu: FC<PopoverMenuProps> = ({
         ) : (
           <Tooltip placement={tooltipPlacement}>
             <TooltipTrigger asChild>
-              <div onClick={onClick}>
+              <div className='size-full' onClick={onClick}>
                 {menuBtn || (
                   <IconButton
                     className={clsx(

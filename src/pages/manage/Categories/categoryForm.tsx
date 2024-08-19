@@ -117,6 +117,7 @@ export const CategoryForm: FC<{
       <form className='flex size-full flex-col gap-3' onSubmit={updateCategory}>
         <ImageInput
           key={category.id}
+          menuPlacement='top'
           className='h-50 w-full'
           initialImage={category.coverImage}
           sizeLimit={3}

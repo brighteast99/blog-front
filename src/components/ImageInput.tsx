@@ -86,6 +86,7 @@ export const ImageInput: FC<{
         onChange={handleInput}
       />
       <PopoverMenu
+        className={cn('size-fit', className)}
         placement={menuPlacement}
         menuBtn={
           Viewer ? (
@@ -99,10 +100,7 @@ export const ImageInput: FC<{
             })
           ) : (
             <div
-              className={cn(
-                'flex size-full items-center justify-center rounded-sm border border-neutral-200 bg-neutral-50 bg-cover bg-center transition-border group-data-[state=open]/menu:border-primary',
-                className
-              )}
+              className='flex size-full items-center justify-center rounded-sm border border-neutral-200 bg-neutral-50 bg-cover bg-center transition-border group-data-[state=open]/menu:border-primary'
               style={{ backgroundImage: `url(${preview})` }}
             >
               {!preview && placeholder}
