@@ -34,6 +34,7 @@ interface PopoverMenuProps {
   icon?: string
   iconOnRight?: boolean
   size?: string | number
+  closeOnScroll?: boolean
   offset?: number
   title?: string
   description?: string | boolean
@@ -55,6 +56,7 @@ export const PopoverMenu: FC<PopoverMenuProps> = ({
   icon = mdiDotsVertical,
   iconOnRight = false,
   size = 0.8,
+  closeOnScroll,
   offset: offsetValue = 5,
   title = '',
   description = '',
@@ -87,7 +89,7 @@ export const PopoverMenu: FC<PopoverMenuProps> = ({
   })
 
   const click = useClick(context, { event: 'click' })
-  const dismiss = useDismiss(context)
+  const dismiss = useDismiss(context, { ancestorScroll: closeOnScroll })
 
   const { getReferenceProps, getFloatingProps } = useInteractions([
     click,
