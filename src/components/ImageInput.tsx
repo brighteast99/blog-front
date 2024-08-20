@@ -52,7 +52,7 @@ export const ImageInput: FC<{
       onInput?.(file)
       setFile(file)
     },
-    [setFile, onInput, sizeLimit]
+    [onInput, sizeLimit]
   )
 
   useEffect(() => {

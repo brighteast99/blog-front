@@ -7,18 +7,12 @@ export const useDiffState = <T extends Exclude<any, Function>>(
   const [value, setValue] = useState<T>(_initialValue)
   const hasChange = JSON.stringify(initialValue) !== JSON.stringify(value)
 
-  const initialize = useCallback(
-    (value: T | ((prev: T) => T)) => {
-      setInitialValue(value)
-      setValue(value)
-    },
-    [setInitialValue, setValue]
-  )
+  const initialize = useCallback((value: T | ((prev: T) => T)) => {
+    setInitialValue(value)
+    setValue(value)
+  }, [])
 
-  const resetValue = useCallback(
-    () => setValue(initialValue),
-    [setValue, initialValue]
-  )
+  const resetValue = useCallback(() => setValue(initialValue), [initialValue])
 
   return {
     value,
