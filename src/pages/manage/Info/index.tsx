@@ -113,12 +113,7 @@ export const ManageInfoPage: FC = () => {
             className='mx-auto'
             initialImage={blogInfo?.avatar}
             sizeLimit={3}
-            Viewer={
-              <Avatar
-                className='mx-auto border-2 border-neutral-200 transition-border group-data-[state=open]/menu:border-primary'
-                size='2xl'
-              />
-            }
+            Viewer={<Avatar className='mx-auto border-2' size='2xl' />}
             onInput={(file) => setAvatar(file)}
           />
 
