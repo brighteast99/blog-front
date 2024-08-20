@@ -1,7 +1,9 @@
-import { cloneElement, useCallback, useEffect, useRef, useState } from 'react'
+import { cloneElement, useCallback, useEffect, useState } from 'react'
 import { Placement } from '@floating-ui/react'
+import clsx from 'clsx'
 
 import { useDiffState } from 'hooks/useDiffState'
+import { useDropzone } from 'hooks/useDropzone'
 import { cn } from 'utils/handleClassName'
 
 import { mdiClose, mdiImageSearch, mdiRefresh } from '@mdi/js'
@@ -27,9 +29,8 @@ export const ImageInput: FC<{
   placeholder,
   menuPlacement = 'right-start',
   onInput,
-  Viewer
+  Viewer: _Viewer
 }) => {
-  const InputElement = useRef<HTMLInputElement>(null)
   const [file, setFile] = useState<File | null | undefined>()
   const {
     value: preview,
@@ -38,6 +39,11 @@ export const ImageInput: FC<{
     resetValue: resetPreview,
     hasChange
   } = useDiffState<string | undefined>(initialImage)
+  const {
+    inputRef: InputElement,
+    dropzoneProps,
+    isDragging
+  } = useDropzone({ accept })
 
   const handleInput = useCallback(
     (e: ChangeEvent<HTMLInputElement>) => {
@@ -52,7 +58,7 @@ export const ImageInput: FC<{
       onInput?.(file)
       setFile(file)
     },
-    [setFile, onInput, sizeLimit]
+    [onInput, sizeLimit]
   )
 
   useEffect(() => {
@@ -76,6 +82,50 @@ export const ImageInput: FC<{
     setFile(undefined)
   }, [initialImage, initializePreview, setFile])
 
+  const Viewer = (() => {
+    const commonClassName = clsx(
+      'relative border border-neutral-200 transition-border group-data-[state=open]/menu:border-primary overflow-hidden',
+      isDragging && 'border-primary'
+    )
+    const dropzoneInfo = (
+      <div
+        className={clsx(
+          'absolute inset-0 flex size-full items-center justify-center bg-primary bg-opacity-10 transition-opacity',
+          !isDragging && 'pointer-events-none opacity-0'
+        )}
+      >
+        <span className='text-lg font-semibold text-foreground'>
+          여기에 드롭
+        </span>
+      </div>
+    )
+    return _Viewer ? (
+      cloneElement(_Viewer, {
+        ..._Viewer.props,
+        className: cn(commonClassName, _Viewer.props.className),
+        src: preview,
+        style: {
+          ...(_Viewer.props?.style || {}),
+          backgroundImage: `url(${preview})`
+        },
+        children: [...(_Viewer.props?.children || []), dropzoneInfo],
+        ...dropzoneProps
+      })
+    ) : (
+      <div
+        className={clsx(
+          commonClassName,
+          'flex size-full items-center justify-center rounded-sm bg-neutral-50 bg-cover bg-center'
+        )}
+        style={{ backgroundImage: `url(${preview})` }}
+        {...dropzoneProps}
+      >
+        {!preview && !isDragging && placeholder}
+        {dropzoneInfo}
+      </div>
+    )
+  })()
+
   return (
     <>
       <input
@@ -86,29 +136,9 @@ export const ImageInput: FC<{
         onChange={handleInput}
       />
       <PopoverMenu
+        className={cn('size-fit', className)}
         placement={menuPlacement}
-        menuBtn={
-          Viewer ? (
-            cloneElement(Viewer, {
-              ...Viewer.props,
-              src: preview,
-              style: {
-                ...(Viewer.props?.style || {}),
-                backgroundImage: `url(${preview})`
-              }
-            })
-          ) : (
-            <div
-              className={cn(
-                'flex size-full items-center justify-center rounded-sm border border-neutral-200 bg-neutral-50 bg-cover bg-center transition-border group-data-[state=open]/menu:border-primary',
-                className
-              )}
-              style={{ backgroundImage: `url(${preview})` }}
-            >
-              {!preview && placeholder}
-            </div>
-          )
-        }
+        menuBtn={Viewer}
       >
         <PopoverMenuItem
           title='이미지 선택'

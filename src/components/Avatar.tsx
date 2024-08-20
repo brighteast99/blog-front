@@ -39,10 +39,12 @@ export const Avatar: FC<AvatarProps> = ({
   className = '',
   size = 'md',
   src,
+  children,
   ...props
 }) => {
   return (
     <div className={cn(AvatarVariants({ size }), className)} {...props}>
+      {children}
       <img
         src={src || DEFAULT_IMAGE}
         alt='Profile'

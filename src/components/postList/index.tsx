@@ -10,6 +10,7 @@ import { Spinner } from 'components/Spinner'
 import { PostListItem } from './PostListItem'
 
 import type { FC } from 'react'
+import type { PostSortCondition } from './api'
 
 export interface PostListProps {
   pageSize?: number
@@ -23,6 +24,7 @@ export interface PostListProps {
     targetPost?: string
     offset?: number
   }
+  sortCondition?: PostSortCondition
   useSearchParam?: string
   logHistory?: boolean
 }
@@ -31,6 +33,7 @@ export const PostList: FC<PostListProps> = ({
   pageSize = 5,
   filterArgs = {},
   initialPagination = {},
+  sortCondition = 'recent',
   useSearchParam,
   logHistory
 }) => {
@@ -47,7 +50,8 @@ export const PostList: FC<PostListProps> = ({
     variables: {
       pageSize,
       ...filterArgs,
-      ...initialPagination
+      ...initialPagination,
+      orderBy: sortCondition
     },
     fetchPolicy: 'cache-and-network',
     notifyOnNetworkStatusChange: true

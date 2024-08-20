@@ -98,35 +98,30 @@ export const PostPage: FC = () => {
     })
   }, [_deletePost, post?.category.id, navigate, postId, resetDeleteMutation])
 
-  const MenuButton = useCallback(
-    ({ className }: { className?: string }) =>
-      isLoggedIn ? (
-        <PopoverMenu className={className} size={0.9} closeOnScroll>
-          <PopoverMenuItem
-            icon={mdiPencil}
-            title='수정'
-            onClick={() => navigate(`/post/edit/${postId}`)}
-          />
-          <PopoverMenuItem
-            icon={
-              updating ? mdiLoading : post?.isHidden ? mdiLock : mdiLockOpen
-            }
-            disabled={updating}
-            title={post?.isHidden ? '비공개 게시글' : '공개 게시글'}
-            description={post?.isHidden ? '게시글 보이기' : '게시글 숨기기'}
-            onClick={toggleIsHidden}
-          />
-          <PopoverMenuItem
-            icon={deleting ? mdiLoading : mdiDelete}
-            disabled={deleting}
-            title='삭제'
-            className='bg-error text-error'
-            onClick={deletePost}
-          />
-        </PopoverMenu>
-      ) : null,
-    []
-  )
+  const MenuButton = ({ className }: { className?: string }) =>
+    isLoggedIn ? (
+      <PopoverMenu className={className} size={0.9} closeOnScroll>
+        <PopoverMenuItem
+          icon={mdiPencil}
+          title='수정'
+          onClick={() => navigate(`/post/edit/${postId}`)}
+        />
+        <PopoverMenuItem
+          icon={updating ? mdiLoading : post?.isHidden ? mdiLock : mdiLockOpen}
+          disabled={updating}
+          title={post?.isHidden ? '비공개 게시글' : '공개 게시글'}
+          description={post?.isHidden ? '게시글 보이기' : '게시글 숨기기'}
+          onClick={toggleIsHidden}
+        />
+        <PopoverMenuItem
+          icon={deleting ? mdiLoading : mdiDelete}
+          disabled={deleting}
+          title='삭제'
+          className='bg-error text-error'
+          onClick={deletePost}
+        />
+      </PopoverMenu>
+    ) : null
 
   // * 헤더 위치 조절
   useLayoutEffect(() => {
@@ -170,7 +165,7 @@ export const PostPage: FC = () => {
 
     document.addEventListener('scroll', handler)
     return () => document.removeEventListener('scroll', handler)
-  }, [setTitlebarTransform, setContentProgress])
+  }, [])
 
   if (error) {
     if (error.networkError)

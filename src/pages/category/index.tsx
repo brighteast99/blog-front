@@ -1,4 +1,4 @@
-import { useLayoutEffect, useMemo, useState } from 'react'
+import { useLayoutEffect, useMemo } from 'react'
 import clsx from 'clsx'
 import {
   useLocation,
@@ -9,12 +9,14 @@ import {
 
 import { useQuery } from '@apollo/client'
 import { CATEGORY_INFO } from './api'
+import { PostSortConditions } from 'components/postList/api'
 
 import { useAppSelector } from 'app/hooks'
 import { selectIsAuthenticated } from 'features/auth/authSlice'
 
 import Icon from '@mdi/react'
 import { mdiLock, mdiMagnify, mdiPlus } from '@mdi/js'
+import { SearchKeys, useSearchCondition } from 'pages/category/hooks'
 import { IconButton } from 'components/Buttons/IconButton'
 import { Error } from 'components/Error'
 import { PostList } from 'components/postList'
@@ -27,27 +29,50 @@ import {
 
 import type { FC, FormEvent } from 'react'
 import type { Action } from 'components/Error'
+import type { PostSortCondition } from 'components/postList/api'
 import type { GraphQLFormattedError } from 'graphql'
-
-type PostSearchField = 'titleAndContent' | 'title' | 'content'
+import type { SearchKey } from 'pages/category/hooks'
 
 export const CategoryPage: FC = () => {
   const navigate = useNavigate()
   const location = useLocation()
   const isLoggedIn = useAppSelector(selectIsAuthenticated)
 
-  const { categoryId } = useParams()
+  const { categoryId: _categoryId } = useParams()
+  const categoryId =
+    _categoryId === 'all' || _categoryId === undefined
+      ? undefined
+      : isNaN(Number(_categoryId))
+        ? -1
+        : Number(_categoryId)
   const [searchParams, setSearchParams] = useSearchParams()
   const pageIdx = Number.parseInt(searchParams.get('page') || '') || 0
-  const [pageSize, setPageSize] = useState<number>(
-    Number.parseInt(searchParams.get('pageSize') || '') || 10
-  )
-  const [{ searchBy, searchKeyword }, setSearchCondition] = useState<{
-    searchBy: PostSearchField
-    searchKeyword: string
-  }>({
-    searchBy: (searchParams.get('key') as PostSearchField) || 'titleAndContent',
-    searchKeyword: searchParams.get('value') || ''
+  const {
+    initialSearchCondition: {
+      searchBy,
+      searchKeyword,
+      sortCondition,
+      pageSize
+    },
+    searchCondition: {
+      searchBy: _searchBy,
+      searchKeyword: _searchKeyword,
+      sortCondition: _sortCondition
+    },
+    initialize: initializeSearchCondition,
+    setSearchBy,
+    setSearchKeyword,
+    hasChange
+  } = useSearchCondition({
+    searchBy: (searchParams.get('key') as SearchKey) || 'titleAndContent',
+    searchKeyword: searchParams.get('value') || '',
+    sortCondition: searchParams.get('value')
+      ? (searchParams.get('sort') as PostSortCondition) || 'relavant'
+      : undefined,
+    pageSize: Math.max(
+      1,
+      Number.parseInt(searchParams.get('pageSize') || '') || 10
+    )
   })
 
   const {
@@ -56,43 +81,42 @@ export const CategoryPage: FC = () => {
     error,
     refetch: refetchCategory
   } = useQuery(CATEGORY_INFO, {
-    variables: { id: Number(categoryId) },
+    variables: { id: categoryId },
     fetchPolicy: 'cache-and-network',
-    notifyOnNetworkStatusChange: true,
-    skip:
-      isNaN(Number(categoryId)) &&
-      categoryId !== undefined &&
-      categoryId !== 'all'
+    notifyOnNetworkStatusChange: true
   })
   const category = useMemo(() => categoryData?.category, [categoryData])
 
   const searchPosts = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
-    if (
-      (searchParams.get('key') ?? 'titleAndContent') === searchBy &&
-      (searchParams.get('value') ?? '') === searchKeyword
-    )
-      return
+    if (!hasChange) return
 
-    searchParams.set('key', searchBy)
-    searchParams.set('value', searchKeyword)
     searchParams.delete('page')
+    searchParams.set('key', _searchBy)
+    searchParams.set('value', _searchKeyword)
+    if (_searchKeyword) searchParams.set('sort', _sortCondition || 'relavant')
+    else searchParams.delete('sort')
     setSearchParams(searchParams)
   }
 
   useLayoutEffect(() => {
-    if (categoryId === undefined) navigate('/category/all', { replace: true })
-  }, [categoryId, navigate])
+    if (_categoryId === undefined) navigate('/category/all', { replace: true })
+  }, [_categoryId, navigate])
 
   useLayoutEffect(() => {
-    setSearchCondition({
-      searchBy:
-        (searchParams.get('key') as PostSearchField) || 'titleAndContent',
-      searchKeyword: searchParams.get('value') || ''
+    initializeSearchCondition({
+      searchBy: (searchParams.get('key') as SearchKey) || 'titleAndContent',
+      searchKeyword: searchParams.get('value') || '',
+      sortCondition: searchParams.get('value')
+        ? (searchParams.get('sort') as PostSortCondition) || 'relavant'
+        : undefined,
+      pageSize: Math.max(
+        1,
+        Number.parseInt(searchParams.get('pageSize') || '') || 10
+      )
     })
-    setPageSize(Number(searchParams.get('pageSize')) || 10)
-  }, [searchParams])
+  }, [initializeSearchCondition, searchParams])
 
   if (error) {
     if (error.networkError)
@@ -209,7 +233,25 @@ export const CategoryPage: FC = () => {
         )}
 
         <div className='grow' />
+
         <form className='contents' onSubmit={searchPosts}>
+          {searchKeyword && (
+            <select
+              className='w-30 px-2 py-0.5 text-center'
+              name='filterBy'
+              value={sortCondition}
+              onChange={(e) => {
+                searchParams.set('sort', e.target.value)
+                setSearchParams(searchParams)
+              }}
+            >
+              {PostSortConditions.map(({ name, value }) => (
+                <option key={value} value={value}>
+                  {name}
+                </option>
+              ))}
+            </select>
+          )}
           <select
             className='px-4 py-0.5 text-center'
             name='pageSize'
@@ -231,28 +273,20 @@ export const CategoryPage: FC = () => {
           <select
             className='w-30 px-2 py-0.5 text-center'
             name='filterBy'
-            value={searchBy}
-            onChange={(e) =>
-              setSearchCondition((prev) => ({
-                ...prev,
-                searchBy: e.target.value as PostSearchField
-              }))
-            }
+            value={_searchBy}
+            onChange={(e) => setSearchBy(e.target.value as SearchKey)}
           >
-            <option value='titleAndContent'>제목+내용</option>
-            <option value='title'>제목</option>
-            <option value='content'>내용</option>
+            {SearchKeys.map(({ name, value }) => (
+              <option key={value} value={value}>
+                {name}
+              </option>
+            ))}
           </select>
 
           <input
             type='text'
-            value={searchKeyword}
-            onChange={(e) =>
-              setSearchCondition((prev) => ({
-                ...prev,
-                searchKeyword: e.target.value
-              }))
-            }
+            value={_searchKeyword}
+            onChange={(e) => setSearchKeyword(e.target.value)}
           />
 
           <IconButton
@@ -263,17 +297,18 @@ export const CategoryPage: FC = () => {
           />
         </form>
       </div>
+
       <div className='mx-auto w-5/6 bg-background'>
         <PostList
           pageSize={pageSize}
           filterArgs={{
-            categoryId: categoryId ? Number(categoryId) : undefined,
-            [searchParams.get('key') ?? 'titleAndContent']:
-              searchParams.get('value') || ''
+            categoryId,
+            [searchBy]: searchKeyword
           }}
           initialPagination={{
             offset: pageSize * pageIdx
           }}
+          sortCondition={sortCondition}
           useSearchParam='page'
           logHistory
         />

@@ -3,6 +3,13 @@ import { gql } from '@apollo/client'
 import type { TypedDocumentNode } from '@apollo/client'
 import type { Post } from 'types/data'
 
+export const PostSortConditions = [
+  { name: '정확도순', value: 'relavant' },
+  { name: '최신순', value: 'recent' }
+] as const
+
+export type PostSortCondition = (typeof PostSortConditions)[number]['value']
+
 export type PostsQueryResult = {
   posts: {
     posts: Post[]
@@ -20,6 +27,7 @@ export interface PostsQueryVariables {
   offset?: number
   targetPost?: string
   pageSize?: number
+  orderBy?: PostSortCondition
 }
 
 export const GET_POSTS: TypedDocumentNode<
@@ -34,6 +42,7 @@ export const GET_POSTS: TypedDocumentNode<
     $offset: Int
     $targetPost: ID
     $pageSize: Int
+    $orderBy: String
   ) {
     posts(
       categoryId: $categoryId
@@ -43,6 +52,7 @@ export const GET_POSTS: TypedDocumentNode<
       offset: $offset
       targetPost: $targetPost
       pageSize: $pageSize
+      orderBy: $orderBy
     ) {
       posts {
         category {

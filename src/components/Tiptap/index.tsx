@@ -27,6 +27,8 @@ import FileHandler from '@tiptap-pro/extension-file-handler'
 import { useMutation } from '@apollo/client'
 import { UPLOAD_IMAGE } from './api'
 
+import { useSet } from 'hooks/useSet'
+
 import { TableTools } from './UI/TableTools'
 
 interface EditorProps {
@@ -57,31 +59,47 @@ export const Tiptap: FC<EditorProps> = ({
   onChangeThumbnail
 }) => {
   const [editor, setEditor] = useState<ReactEditor>()
-  const [uploadQueue, setUploadQueue] = useState<File[]>([])
+  const {
+    value: uploadQueue,
+    addItem: addUploadQueue,
+    deleteItem: deleteUploadQueue
+  } = useSet<File>()
+  const {
+    value: failedFiles,
+    addItem: addFailedFile,
+    deleteItem: deleteFailedFile
+  } = useSet<File>()
   const [_uploadImage] = useMutation(UPLOAD_IMAGE)
 
   const uploadImage = useCallback(
     (file: File) => {
-      setUploadQueue((prev) => [...prev, file])
+      addUploadQueue(file)
       return _uploadImage({
         variables: { file },
         onError: ({ networkError, graphQLErrors }) => {
-          if (networkError)
+          deleteUploadQueue(file)
+          addFailedFile(file)
+          if (networkError) {
             return alert(`${file.name}을 업로드하던 중 오류가 발생했습니다`)
-          if (graphQLErrors.length) return alert(graphQLErrors[0].message)
+          }
+          if (graphQLErrors.length)
+            return alert(
+              `${file.name}을 업로드할 수 없습니다.\n사유: ${graphQLErrors[0].message}`
+            )
         },
         onCompleted: ({ uploadImage: { url } }) => {
           onImageUploaded?.(url)
-          setUploadQueue((prev) =>
-            prev.toSpliced(
-              prev.findIndex((item) => item === file),
-              1
-            )
-          )
+          deleteUploadQueue(file)
         }
       })
     },
-    [_uploadImage, setUploadQueue, onImageUploaded]
+    [
+      _uploadImage,
+      addUploadQueue,
+      deleteUploadQueue,
+      addFailedFile,
+      onImageUploaded
+    ]
   )
 
   const onFileReceived = useCallback(
@@ -149,6 +167,14 @@ export const Tiptap: FC<EditorProps> = ({
     [uploadImage]
   )
 
+  const retryUpload = useCallback(
+    (file: File) => {
+      deleteFailedFile(file)
+      onFileReceived([file])
+    },
+    [deleteFailedFile, onFileReceived]
+  )
+
   const extensions = useMemo(() => {
     let extensions = [...commonExtensions]
     if (!editable) extensions.push(...viewerExtensions)
@@ -200,7 +226,7 @@ export const Tiptap: FC<EditorProps> = ({
         slotAfter={
           editable && (
             <div className='contents'>
-              <div className='rounded-b border border-neutral-100 bg-neutral-100 bg-opacity-50 px-1 py-0.5'>
+              <div className='mb-3 rounded-b border border-neutral-100 bg-neutral-100 bg-opacity-50 px-1 py-0.5'>
                 <p className='text-right text-sm text-neutral-600'>
                   {`${editor?.storage.characterCount.words() || 0} 단어 (${editor?.storage.characterCount.characters() || 0} 자)`}
                 </p>
@@ -208,10 +234,13 @@ export const Tiptap: FC<EditorProps> = ({
               <ImageCatalogue
                 thumbnail={thumbnail}
                 images={images}
-                uploadQueue={uploadQueue}
+                uploading={uploadQueue}
+                failed={failedFiles}
                 onFileReceived={onFileReceived}
                 onImageImported={onImageImported}
                 onImageDeleted={onImageDeleted}
+                onAbortFile={deleteFailedFile}
+                onRetryUpload={retryUpload}
                 changeThumbnail={onChangeThumbnail}
               />
             </div>

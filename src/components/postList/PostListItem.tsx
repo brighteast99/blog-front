@@ -81,8 +81,8 @@ export const PostListItem: FC<{ post: Post; isActive?: boolean }> = ({
       >
         <div
           className={clsx(
-            'flex grow flex-col',
-            !minimized && 'flex min-w-0 grow flex-col justify-center gap-2 py-5'
+            'flex min-w-0 grow flex-col',
+            !minimized && 'justify-center gap-2 py-5'
           )}
         >
           {!minimized && titleArea}

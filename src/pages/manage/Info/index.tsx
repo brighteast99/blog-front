@@ -110,9 +110,10 @@ export const ManageInfoPage: FC = () => {
           onSubmit={updateInfo}
         >
           <ImageInput
+            className='mx-auto'
             initialImage={blogInfo?.avatar}
             sizeLimit={3}
-            Viewer={<Avatar className='mx-auto' size='2xl' />}
+            Viewer={<Avatar className='mx-auto border-2' size='2xl' />}
             onInput={(file) => setAvatar(file)}
           />
 
