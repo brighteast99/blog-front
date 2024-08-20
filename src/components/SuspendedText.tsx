@@ -13,7 +13,7 @@ interface SuspendedTextProps extends HTMLAttributes<HTMLDivElement> {
   text?: string
   length?: number
   loading?: boolean
-  lines?: PositiveInteger<number>
+  lines?: PositiveInteger
   align?: alignLiteral
 }
 
