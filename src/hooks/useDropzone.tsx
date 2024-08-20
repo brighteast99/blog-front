@@ -47,7 +47,6 @@ export const useDropzone = ({ accept }: DropzoneProps = {}) => {
       e.stopPropagation()
 
       stopDrag()
-      console.log('drop')
 
       if (!inputRef.current) return
 

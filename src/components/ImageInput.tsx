@@ -47,7 +47,6 @@ export const ImageInput: FC<{
 
   const handleInput = useCallback(
     (e: ChangeEvent<HTMLInputElement>) => {
-      console.log('input')
       const file = e.target.files?.[0]
       if (!file) return
 
