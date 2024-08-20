@@ -16,6 +16,7 @@ export const useDiffState = <T extends Exclude<any, Function>>(
 
   return {
     value,
+    initialValue,
     hasChange,
     initialize,
     setValue,

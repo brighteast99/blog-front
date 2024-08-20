@@ -5,7 +5,7 @@ import type { Category } from 'types/data'
 
 export const CATEGORY_INFO: TypedDocumentNode<
   { category: Category },
-  { id: number }
+  { id?: number }
 > = gql`
   query Category($id: Int) {
     category(id: $id) {
