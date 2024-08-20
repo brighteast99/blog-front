@@ -1,5 +1,4 @@
 import { useLayoutEffect, useState } from 'react'
-import clsx from 'clsx'
 
 import { useQuery } from '@apollo/client'
 import { GET_IMAGES } from './api'
@@ -17,6 +16,7 @@ import {
   TooltipContent,
   TooltipTrigger
 } from 'components/utils/Tooltip'
+import { ImagePreview } from './ImagePreview'
 
 import type { FC } from 'react'
 
@@ -114,43 +114,35 @@ export const ImageImporter: FC<ImageImporterProps> = ({
                     const selected = selectedImages.includes(image)
                     const excluded = exclude?.includes(image)
                     return (
-                      <div
+                      <ImagePreview
                         key={image}
-                        className={clsx(
-                          'relative aspect-square cursor-pointer outline',
-                          excluded
-                            ? 'cursor-not-allowed outline-1 outline-neutral-200'
-                            : 'cursor-pointer',
-                          selected
-                            ? 'outline-2 outline-primary'
-                            : 'outline-1 outline-neutral-400'
-                        )}
-                        onClick={() => {
-                          if (excluded) return
-                          if (selected)
-                            setSelectedImages((prev) =>
-                              prev.toSpliced(
+                        className={
+                          excluded ? 'cursor-not-allowed' : 'cursor-pointer'
+                        }
+                        image={image}
+                        active={selected}
+                        disabled={excluded}
+                        label={
+                          excluded && (
+                            <div className='absolute flex size-full items-center justify-center bg-neutral-50 opacity-50'>
+                              <span className='text-lg font-semibold text-foreground text-opacity-75'>
+                                사용중
+                              </span>
+                            </div>
+                          )
+                        }
+                        onClick={() =>
+                          setSelectedImages((prev) => {
+                            if (prev.includes(image))
+                              return prev.toSpliced(
                                 prev.findIndex((_image) => _image === image),
                                 1
                               )
-                            )
-                          else setSelectedImages((prev) => [...prev, image])
-                        }}
-                      >
-                        {excluded && (
-                          <>
-                            <div className='absolute size-full bg-neutral-50 opacity-80' />
-                            <span className='absolute inset-0 m-auto size-fit text-lg font-semibold text-foreground text-opacity-75'>
-                              사용중
-                            </span>
-                          </>
-                        )}
-                        <img
-                          className='block size-full object-contain'
-                          src={image}
-                          alt=''
-                        />
-                      </div>
+
+                            return [...prev, image]
+                          })
+                        }
+                      />
                     )
                   })}
                 </div>

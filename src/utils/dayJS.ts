@@ -26,3 +26,10 @@ export function isPast(date: Date | number): Boolean {
 export function isFuture(date: Date | number): Boolean {
   return dayjs(date).isAfter(dayjs())
 }
+
+export function formatDate(
+  template: string = 'YYYY-MM-DD HH:mm:ss',
+  date: Date | number = Date.now()
+): string {
+  return dayjs(date).format(template)
+}

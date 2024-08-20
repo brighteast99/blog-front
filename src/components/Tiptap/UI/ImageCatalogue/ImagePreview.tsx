@@ -1,25 +1,33 @@
 import { useEffect, useState } from 'react'
-import clsx from 'clsx'
 
-import { mdiClose } from '@mdi/js'
-import { IconButton } from 'components/Buttons/IconButton'
-import { ThemedButton } from 'components/Buttons/ThemedButton'
+import { cn } from 'utils/handleClassName'
+
 import { Spinner } from 'components/Spinner'
 
-import type { FC } from 'react'
+import type { FC, ReactNode } from 'react'
 
-export const ImagePreview: FC<{
-  isThumbnail?: boolean
+interface ImagePreviewProps {
+  className?: string
+  active?: boolean
   image: File | string
-  onDelete?: (image: string) => any
-  onSelect?: (image: string) => any
-  onChangeThumbnail?: (image: string | null) => any
-}> = ({
-  isThumbnail = false,
+  loading?: boolean
+  disabled?: boolean
+  useHoverMenu?: boolean
+  label?: ReactNode
+  children?: ReactNode
+  onClick?: (image: File | string) => any
+}
+
+export const ImagePreview: FC<ImagePreviewProps> = ({
+  className,
   image,
-  onDelete,
-  onSelect,
-  onChangeThumbnail
+  active = false,
+  disabled,
+  loading,
+  useHoverMenu,
+  label,
+  children,
+  onClick
 }) => {
   let [src, setSrc] = useState<string>()
 
@@ -36,59 +44,28 @@ export const ImagePreview: FC<{
 
   return (
     <div
-      className={clsx(
-        'relative aspect-square outline',
-        isThumbnail
-          ? 'outline-2 outline-primary'
-          : 'outline-1 outline-neutral-400'
+      className={cn(
+        'relative aspect-square outline transition-colors',
+        active ? 'outline-2 outline-primary' : 'outline-1 outline-neutral-400',
+        disabled ? 'outline-1 outline-neutral-100' : 'cursor-pointer',
+        className
       )}
+      onClick={() => {
+        if (disabled) return
+        onClick?.(image)
+      }}
     >
-      {image instanceof File && (
+      {loading && (
         <div className='absolute size-full bg-neutral-50 bg-opacity-50'>
           <Spinner className='absolute inset-0' />
         </div>
       )}
-      {typeof image === 'string' && (
+      {useHoverMenu && !disabled && (
         <div className='absolute size-full bg-neutral-50 bg-opacity-75 opacity-0 transition-opacity hover:opacity-100'>
-          <IconButton
-            className='absolute right-0 top-0'
-            path={mdiClose}
-            variant='hover-text'
-            color='error'
-            onClick={() => {
-              if (
-                !window.confirm(
-                  `${isThumbnail ? '대표 이미지가 해제되며 ' : ''}본문에 포함된 이미지도 모두 제거됩니다.`
-                )
-              )
-                return
-              onDelete?.(image)
-            }}
-          />
-          <div className='absolute inset-0 m-auto flex size-fit flex-col items-center justify-center gap-2'>
-            <ThemedButton
-              className='p-1'
-              color='primary'
-              onClick={() => onSelect?.(image)}
-            >
-              본문에 삽입
-            </ThemedButton>
-            <ThemedButton
-              className='p-1'
-              color={isThumbnail ? 'error' : 'primary'}
-              variant={isThumbnail ? 'text' : 'flat'}
-              onClick={() => onChangeThumbnail?.(isThumbnail ? null : image)}
-            >
-              {isThumbnail ? '대표 이미지 해제' : '대표 이미지 설정'}
-            </ThemedButton>
-          </div>
+          {children}
         </div>
       )}
-      {isThumbnail && (
-        <div className='absolute size-fit bg-primary px-1.5 text-background'>
-          대표
-        </div>
-      )}
+      {label}
       <img className='block size-full object-contain' src={src} alt='' />
     </div>
   )
