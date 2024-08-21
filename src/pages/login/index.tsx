@@ -78,7 +78,7 @@ export const LoginPage: FC = () => {
   )
 
   return (
-    <div className='flex h-lvh min-h-fit w-dvw flex-col items-center justify-center gap-5'>
+    <div className='flex h-lvh min-h-fit w-full flex-col items-center justify-center gap-5'>
       <p className='text-center text-3xl'>관리자 로그인</p>
       <form onSubmit={onSubmit}>
         <input
