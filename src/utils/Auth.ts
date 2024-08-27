@@ -1,7 +1,9 @@
 import { client } from 'ApolloContext'
+import dayjs from 'dayjs'
 
 import { ApolloError, gql } from '@apollo/client'
 
+import { isFuture, isPast } from 'utils/dayJS'
 import { STORAGE_KEY } from 'features/auth/authSlice'
 
 import type { TypedDocumentNode } from '@apollo/client'
@@ -12,6 +14,21 @@ export class TokenExpiredError extends Error {}
 export class RefreshExpiredError extends Error {}
 export class InvalidTokenError extends Error {}
 export class NetworkError extends Error {}
+
+export function formatRefreshToken(refreshToken: string, expiresIn: number) {
+  return `${refreshToken};${expiresIn}`
+}
+
+export function parseRefreshToken(str: string): {
+  refreshToken: string
+  expiresIn: number
+} {
+  const [refreshToken, expiresIn] = str.split(';')
+  return {
+    refreshToken,
+    expiresIn: Number(expiresIn)
+  }
+}
 
 export async function auth(
   username: string,
@@ -156,12 +173,14 @@ export async function revoke(refreshToken: string): Promise<boolean> {
 }
 
 export async function authFromStorage(): Promise<AuthInfo | null> {
-  let token =
+  let data =
     sessionStorage.getItem(STORAGE_KEY) ?? localStorage.getItem(STORAGE_KEY)
-  if (!token) return null
+  if (!data) return null
 
   try {
-    return await refresh(token)
+    const { refreshToken, expiresIn } = parseRefreshToken(data)
+    if (isPast(expiresIn * 1000)) return null
+    return await refresh(refreshToken)
   } catch (err) {
     if (err instanceof TokenExpiredError || err instanceof InvalidTokenError) {
       localStorage.removeItem(STORAGE_KEY)

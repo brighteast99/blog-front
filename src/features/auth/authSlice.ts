@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit'
 
-import { refresh, revoke } from 'utils/Auth'
+import { formatRefreshToken, refresh, revoke } from 'utils/Auth'
 import { isPast } from 'utils/dayJS'
 
 import type { RootState } from 'app/store'
@@ -86,9 +86,24 @@ export const createAuthSlice = (initialState: AuthState) =>
         } else state.status = 'UNAUTHORIZED'
 
         if (localStorage.getItem(STORAGE_KEY))
-          localStorage.setItem(STORAGE_KEY, action.payload.refreshToken)
+          localStorage.setItem(
+            STORAGE_KEY,
+            `${action.payload.refreshToken};${action.payload.refreshExpiresIn}`
+          )
         else if (sessionStorage.getItem(STORAGE_KEY))
-          sessionStorage.setItem(STORAGE_KEY, action.payload.refreshToken)
+          sessionStorage.setItem(
+            STORAGE_KEY,
+            `${action.payload.refreshToken};${action.payload.refreshExpiresIn}`
+          )
+      },
+      updateRefreshToken: (
+        state,
+        action: PayloadAction<{ refreshToken: string; expiresIn: number }>
+      ) => {
+        if (!state.info) return
+
+        state.info.refreshToken = action.payload.refreshToken
+        state.info.refreshExpiresIn = action.payload.expiresIn
       }
     },
     extraReducers: (builder) => {
@@ -109,10 +124,15 @@ export const createAuthSlice = (initialState: AuthState) =>
             state.info = action.payload
             state.status = 'AUTHORIZED'
 
+            const token = formatRefreshToken(
+              action.payload.refreshToken,
+              action.payload.refreshExpiresIn
+            )
+
             if (localStorage.getItem(STORAGE_KEY))
-              localStorage.setItem(STORAGE_KEY, action.payload.refreshToken)
+              localStorage.setItem(STORAGE_KEY, token)
             else if (sessionStorage.getItem(STORAGE_KEY))
-              sessionStorage.setItem(STORAGE_KEY, action.payload.refreshToken)
+              sessionStorage.setItem(STORAGE_KEY, token)
           }
         )
         .addCase(revokeToken.fulfilled, (state, _action) => {
@@ -127,7 +147,7 @@ export const createAuthSlice = (initialState: AuthState) =>
 
 export const authSlice = createAuthSlice(initialState)
 
-export const { setToken } = authSlice.actions
+export const { setToken, updateRefreshToken } = authSlice.actions
 
 export const selectIsAuthenticated = (state: RootState) => {
   if (
