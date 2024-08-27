@@ -4,10 +4,7 @@ import { createBrowserRouter } from 'react-router-dom'
 import { CategoryPage } from 'pages/category'
 import { LoginPage } from 'pages/login'
 import { MainPage } from 'pages/main'
-import { ManagePage } from 'pages/manage'
-import { ManageCategoryPage } from 'pages/manage/Categories'
-import { ManageInfoPage } from 'pages/manage/Info'
-import { ManageTemplatePage } from 'pages/manage/Templates'
+import { MANAGE_ROUTES, ManagePage } from 'pages/manage'
 import { PostPage } from 'pages/post'
 import { EditPostPage } from 'pages/post/Edit'
 import { Error } from 'components/Error'
@@ -21,11 +18,7 @@ export const router = createBrowserRouter([
       {
         path: '/manage',
         element: <ManagePage />,
-        children: [
-          { path: '/manage/info', element: <ManageInfoPage /> },
-          { path: '/manage/categories', element: <ManageCategoryPage /> },
-          { path: '/manage/templates', element: <ManageTemplatePage /> }
-        ]
+        children: MANAGE_ROUTES
       },
       { path: '/category/:categoryId?', element: <CategoryPage /> },
       { path: '/post/new', element: <EditPostPage newPost /> },
