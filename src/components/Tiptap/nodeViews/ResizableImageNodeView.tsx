@@ -46,10 +46,6 @@ export const ResizableImageNodeView = ({
   const [resizingStyle, setResizingStyle] = useState<
     Pick<CSSProperties, 'width'> | undefined
   >()
-  const handleColor = useMemo(
-    () => `bg-${extension.options.handleColor || 'primary'}`,
-    [extension.options.handleColor]
-  )
 
   const handleMouseDown = useEvent((e: React.MouseEvent<HTMLDivElement>) => {
     if (!imgRef.current) return
@@ -85,7 +81,7 @@ export const ResizableImageNodeView = ({
   const dragCornerButton = (direction: string) => (
     <div
       role='button'
-      className={handleColor}
+      className='rounded-sm bg-primary'
       tabIndex={0}
       onMouseDown={handleMouseDown}
       data-direction={direction}

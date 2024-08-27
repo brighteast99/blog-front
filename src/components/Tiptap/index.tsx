@@ -19,6 +19,7 @@ import { ImageCatalogue } from './UI/ImageCatalogue'
 import { Toolbar } from './UI/Toolbar'
 
 import type { FC } from 'react'
+import type { AnyExtension } from '@tiptap/react'
 
 import './Tiptap.scss'
 
@@ -176,7 +177,7 @@ export const Tiptap: FC<EditorProps> = ({
   )
 
   const extensions = useMemo(() => {
-    let extensions = [...commonExtensions]
+    let extensions: AnyExtension[] = [...commonExtensions]
     if (!editable) extensions.push(...viewerExtensions)
     else {
       extensions.push(...editorExtensions)

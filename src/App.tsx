@@ -6,7 +6,13 @@ import { throttle } from 'throttle-debounce'
 
 import { useAppDispatch, useAppSelector } from 'app/hooks'
 import { useToggle } from 'hooks/useToggle'
-import { refreshToken, selectIsAuthenticated } from 'features/auth/authSlice'
+import { parseRefreshToken } from 'utils/Auth'
+import {
+  refreshToken,
+  selectIsAuthenticated,
+  STORAGE_KEY,
+  updateRefreshToken
+} from 'features/auth/authSlice'
 import { selectBlogInfo } from 'features/blog/blogSlice'
 import { selectBreakpoint, updateSize } from 'features/window/windowSlice'
 
@@ -88,6 +94,24 @@ function App() {
     if (!refreshLoginTimer)
       setRefreshLoginTimer(setInterval(refreshLoginToken, 1000 * 290))
   }, [dispatch, isLoggedIn, refreshLoginTimer, refreshLoginToken])
+
+  // * Update refresh token when token is refreshed by other tab
+  useLayoutEffect(() => {
+    if (!isLoggedIn) return
+
+    const updateToken = () => {
+      let data =
+        localStorage.getItem(STORAGE_KEY) || sessionStorage.getItem(STORAGE_KEY)
+      if (!data) return
+
+      const { refreshToken, expiresIn } = parseRefreshToken(data)
+      dispatch(updateRefreshToken({ refreshToken, expiresIn }))
+    }
+
+    window.addEventListener('storage', updateToken)
+
+    return () => window.removeEventListener('storage', updateToken)
+  }, [])
 
   // * Set eventListener that refreshes login token when user has left and returned to the page
   useLayoutEffect(() => {

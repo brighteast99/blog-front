@@ -34,13 +34,14 @@ export const commonExtensions = (() => {
     types: ['textStyle']
   })
 
-  const configuredHighlight = Highlight.configure({
-    multicolor: true
+  const configuredDetails = Details.configure({
+    HTMLAttributes: {
+      class: 'details'
+    }
   })
 
-  const configuredTextAlign = TextAlign.configure({
-    types: ['heading', 'paragraph'],
-    defaultAlignment: 'justify'
+  const configuredHighlight = Highlight.configure({
+    multicolor: true
   })
 
   const configuredResizableImage = ResizableImage.configure({
@@ -52,10 +53,17 @@ export const commonExtensions = (() => {
     nested: true
   })
 
-  const configuredDetails = Details.configure({
+  const configuredTextAlign = TextAlign.configure({
+    types: ['heading', 'paragraph'],
+    defaultAlignment: 'justify'
+  })
+
+  const configuredLink = Link.configure({
     HTMLAttributes: {
-      class: 'details'
-    }
+      rel: 'noopener noreferrer',
+      target: '_blank'
+    },
+    validate: (href) => /^https?:\/\//.test(href)
   })
 
   return [
@@ -68,6 +76,7 @@ export const commonExtensions = (() => {
     configuredColor,
     configuredDetails,
     configuredHighlight,
+    configuredLink,
     configuredResizableImage,
     configuredTaskItem,
     configuredTextAlign,
@@ -92,20 +101,11 @@ export const viewerExtensions = (() => {
     gapcursor: false
   })
 
-  const configuredLink = Link.configure({
-    HTMLAttributes: {
-      rel: 'noopener noreferrer',
-      target: '_blank'
-    },
-    openOnClick: false,
-    validate: (href) => /^https?:\/\//.test(href)
-  })
-
   const configuredTable = Table.configure({
     lastColumnResizable: false
   })
 
-  return [configuredLink, configuredStarterKit, configuredTable]
+  return [configuredStarterKit, configuredTable]
 })()
 
 export const editorExtensions = (() => {
@@ -118,18 +118,10 @@ export const editorExtensions = (() => {
     }
   })
 
-  const configuredLink = Link.configure({
-    HTMLAttributes: {
-      rel: 'noopener noreferrer',
-      target: '_blank'
-    },
-    validate: (href) => /^https?:\/\//.test(href)
-  })
-
   const configuredTable = Table.configure({
     resizable: true,
     allowTableNodeSelection: true
   })
 
-  return [configuredLink, configuredStarterKit, configuredTable]
+  return [configuredStarterKit, configuredTable]
 })()

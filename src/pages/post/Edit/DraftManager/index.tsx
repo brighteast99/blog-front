@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useLayoutEffect, useMemo, useState } from 'react'
 import { Placement } from '@floating-ui/react'
 import clsx from 'clsx'
 
@@ -84,12 +84,16 @@ export const DraftManager: FC<DraftManagerProps> = ({
     [_deleteDraft, resetDeleteMutation]
   )
 
+  useLayoutEffect(() => {
+    if (!drafts?.length) close()
+  }, [drafts, close])
+
   return (
     <PopoverMenu
       className={className}
       open={isOpen}
       placement={placement}
-      offset={12}
+      offset={-24}
       tooltipPlacement={tooltipPlacement}
       description={description}
       menuBtn={
@@ -110,7 +114,7 @@ export const DraftManager: FC<DraftManagerProps> = ({
       onClose={close}
     >
       <div className='w-120 max-w-[90dvw] bg-neutral-50'>
-        <div className='relative flex h-40 flex-col'>
+        <div className='relative flex max-h-40 flex-col'>
           {loadingDrafts && <Spinner className='absolute inset-0' size='sm' />}
           {errorLoadingDrafts && (
             <div className='absolute inset-0'>
@@ -122,7 +126,7 @@ export const DraftManager: FC<DraftManagerProps> = ({
             </div>
           )}
           {drafts && (
-            <ul className='min-h-0 grow overflow-y-auto p-1'>
+            <ul className='min-h-0 grow overflow-y-auto px-2 py-1.5'>
               {drafts.map((draft) => (
                 <li
                   className={clsx(
@@ -155,7 +159,10 @@ export const DraftManager: FC<DraftManagerProps> = ({
                           horizontal: true
                         }}
                         size={0.7}
-                        onClick={() => deleteDraft(draft)}
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          deleteDraft(draft)
+                        }}
                       />
                     </TooltipTrigger>
                     <TooltipContent>삭제</TooltipContent>

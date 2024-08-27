@@ -3,6 +3,12 @@ import { ReactNodeViewRenderer } from '@tiptap/react'
 
 import { ResizableImageNodeView } from '../nodeViews/ResizableImageNodeView'
 
+declare module '@tiptap/extension-image' {
+  interface ImageOptions {
+    minWidth: number
+  }
+}
+
 export const ResizableImage = TipTapImage.extend({
   addAttributes() {
     return {
@@ -15,7 +21,6 @@ export const ResizableImage = TipTapImage.extend({
     return {
       ...this.parent?.(),
       minWidth: 0,
-      handleColor: 'primary',
       inline: false
     }
   },

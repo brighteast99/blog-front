@@ -60,7 +60,7 @@ export const TemplateSelector: FC<TemplateSelectorProps> = ({
       className={className}
       open={isOpen}
       placement={placement}
-      offset={12}
+      offset={-32}
       tooltipPlacement={tooltipPlacement}
       description={description}
       menuBtn={
@@ -81,7 +81,7 @@ export const TemplateSelector: FC<TemplateSelectorProps> = ({
       onClose={close}
     >
       <div className='w-120 max-w-[90dvw] bg-neutral-50'>
-        <div className='relative flex h-40 flex-col'>
+        <div className='relative flex max-h-40 flex-col'>
           {loadingTemplates && <Spinner className='absolute inset-0 m-auto' />}
           {errorLoadingTemplates && (
             <div className='absolute inset-0'>
@@ -93,7 +93,7 @@ export const TemplateSelector: FC<TemplateSelectorProps> = ({
             </div>
           )}
           {templates && (
-            <ul className='min-h-0 grow overflow-y-auto p-1'>
+            <ul className='min-h-0 grow overflow-y-auto px-2 py-1.5'>
               {templates.map((template) => (
                 <li
                   className={clsx(

@@ -167,6 +167,14 @@ export const PostPage: FC = () => {
     return () => document.removeEventListener('scroll', handler)
   }, [])
 
+  useLayoutEffect(() => {
+    if (postId)
+      window.scrollTo({
+        top: 0,
+        behavior: 'instant'
+      })
+  }, [postId])
+
   if (error) {
     if (error.networkError)
       return (
