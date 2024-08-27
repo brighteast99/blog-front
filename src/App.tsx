@@ -111,7 +111,7 @@ function App() {
     window.addEventListener('storage', updateToken)
 
     return () => window.removeEventListener('storage', updateToken)
-  }, [])
+  }, [isLoggedIn, dispatch])
 
   // * Set eventListener that refreshes login token when user has left and returned to the page
   useLayoutEffect(() => {
