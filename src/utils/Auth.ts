@@ -1,9 +1,8 @@
 import { client } from 'ApolloContext'
-import dayjs from 'dayjs'
 
 import { ApolloError, gql } from '@apollo/client'
 
-import { isFuture, isPast } from 'utils/dayJS'
+import { isPast } from 'utils/dayJS'
 import { STORAGE_KEY } from 'features/auth/authSlice'
 
 import type { TypedDocumentNode } from '@apollo/client'
