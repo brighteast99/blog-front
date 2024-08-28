@@ -21,8 +21,8 @@ let retry
 do {
   try {
     retry = false
-    let token = await authFromStorage()
-    if (token) store.dispatch(setToken(token))
+    let authInfo = await authFromStorage()
+    if (authInfo) store.dispatch(setToken({ authInfo, keepLogin: true }))
   } catch (err) {
     retry = window.confirm('로그인 중 오류가 발생했습니다.\n다시 시도할까요?')
   }

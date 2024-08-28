@@ -5,8 +5,10 @@ import clsx from 'clsx'
 import { useLazyQuery, useMutation, useQuery } from '@apollo/client'
 import { DELETE_DRAFT, GET_DRAFT, GET_DRAFTS } from './api'
 
+import { useAppSelector } from 'app/hooks'
 import { useToggle } from 'hooks/useToggle'
 import { getRelativeTimeFromNow } from 'utils/dayJS'
+import { selectIsAuthenticated } from 'features/auth/authSlice'
 
 import { mdiDelete } from '@mdi/js'
 import { IconButton } from 'components/Buttons/IconButton'
@@ -41,13 +43,17 @@ export const DraftManager: FC<DraftManagerProps> = ({
   onSelect
 }) => {
   const { value: isOpen, setTrue: open, setFalse: close } = useToggle(false)
+  const isLoggedIn = useAppSelector(selectIsAuthenticated)
 
   const {
     data: draftsData,
     loading: loadingDrafts,
     error: errorLoadingDrafts,
     refetch: refetchDrafts
-  } = useQuery(GET_DRAFTS, { notifyOnNetworkStatusChange: true })
+  } = useQuery(GET_DRAFTS, {
+    notifyOnNetworkStatusChange: true,
+    skip: !isLoggedIn
+  })
   const drafts = useMemo(() => draftsData?.drafts, [draftsData])
 
   const [

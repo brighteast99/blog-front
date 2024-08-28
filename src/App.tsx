@@ -1,18 +1,12 @@
-import { useCallback, useLayoutEffect, useMemo, useState } from 'react'
+import { useLayoutEffect, useMemo } from 'react'
 import clsx from 'clsx'
 import { ErrorBoundary } from 'react-error-boundary'
 import { Outlet } from 'react-router-dom'
 import { throttle } from 'throttle-debounce'
 
 import { useAppDispatch, useAppSelector } from 'app/hooks'
+import { useAuth } from 'hooks/useAuth'
 import { useToggle } from 'hooks/useToggle'
-import { parseRefreshToken } from 'utils/Auth'
-import {
-  refreshToken,
-  selectIsAuthenticated,
-  STORAGE_KEY,
-  updateRefreshToken
-} from 'features/auth/authSlice'
 import { selectBlogInfo } from 'features/blog/blogSlice'
 import { selectBreakpoint, updateSize } from 'features/window/windowSlice'
 
@@ -21,11 +15,9 @@ import { Sidebar } from 'components/sidebar'
 import { SidebarHandle } from 'components/sidebar/SidebarHandle'
 
 function App() {
+  useAuth()
   const dispatch = useAppDispatch()
   const { title, favicon } = useAppSelector(selectBlogInfo)
-  const isLoggedIn = useAppSelector(selectIsAuthenticated)
-  const [refreshLoginTimer, setRefreshLoginTimer] =
-    useState<ReturnType<typeof setInterval>>()
   const breakpoint = useAppSelector(selectBreakpoint)
   const {
     value: sidebarFolded,
@@ -34,11 +26,6 @@ function App() {
     toggle
   } = useToggle(breakpoint === 'mobile')
   const sidebarFoldable = useMemo(() => breakpoint !== 'desktop', [breakpoint])
-
-  const refreshLoginToken = useCallback(
-    () => dispatch(refreshToken(null)),
-    [dispatch]
-  )
 
   // * Update title
   // Todo: Update title acording to current location
@@ -82,48 +69,6 @@ function App() {
 
     setSidebarFolded(sidebarFoldable)
   }, [breakpoint, sidebarFoldable, setSidebarFolded])
-
-  // * Refresh login token periodically
-  useLayoutEffect(() => {
-    if (!isLoggedIn) {
-      if (refreshLoginTimer) clearInterval(refreshLoginTimer)
-      setRefreshLoginTimer(undefined)
-      return
-    }
-
-    if (!refreshLoginTimer)
-      setRefreshLoginTimer(setInterval(refreshLoginToken, 1000 * 290))
-  }, [dispatch, isLoggedIn, refreshLoginTimer, refreshLoginToken])
-
-  // * Update refresh token when token is refreshed by other tab
-  useLayoutEffect(() => {
-    if (!isLoggedIn) return
-
-    const updateToken = () => {
-      let data =
-        localStorage.getItem(STORAGE_KEY) || sessionStorage.getItem(STORAGE_KEY)
-      if (!data) return
-
-      const { refreshToken, expiresIn } = parseRefreshToken(data)
-      dispatch(updateRefreshToken({ refreshToken, expiresIn }))
-    }
-
-    window.addEventListener('storage', updateToken)
-
-    return () => window.removeEventListener('storage', updateToken)
-  }, [isLoggedIn, dispatch])
-
-  // * Set eventListener that refreshes login token when user has left and returned to the page
-  useLayoutEffect(() => {
-    if (!isLoggedIn) return
-
-    const refreshLogin = () => {
-      if (!document.hidden) return refreshLoginToken()
-    }
-    document.addEventListener('visibilitychange', refreshLogin)
-
-    return () => document.removeEventListener('visibilitychange', refreshLogin)
-  }, [isLoggedIn, refreshLoginToken])
 
   return (
     <div className='min-w-dvw flex min-h-dvh'>

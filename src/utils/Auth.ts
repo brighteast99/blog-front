@@ -14,21 +14,6 @@ export class RefreshExpiredError extends Error {}
 export class InvalidTokenError extends Error {}
 export class NetworkError extends Error {}
 
-export function formatRefreshToken(refreshToken: string, expiresIn: number) {
-  return `${refreshToken};${expiresIn}`
-}
-
-export function parseRefreshToken(str: string): {
-  refreshToken: string
-  expiresIn: number
-} {
-  const [refreshToken, expiresIn] = str.split(';')
-  return {
-    refreshToken,
-    expiresIn: Number(expiresIn)
-  }
-}
-
 export async function auth(
   username: string,
   password: string
@@ -172,19 +157,18 @@ export async function revoke(refreshToken: string): Promise<boolean> {
 }
 
 export async function authFromStorage(): Promise<AuthInfo | null> {
-  let data =
+  const data =
     sessionStorage.getItem(STORAGE_KEY) ?? localStorage.getItem(STORAGE_KEY)
   if (!data) return null
 
+  const authInfo = JSON.parse(data) as AuthInfo
+
   try {
-    const { refreshToken, expiresIn } = parseRefreshToken(data)
-    if (isPast(expiresIn * 1000)) return null
-    return await refresh(refreshToken)
+    if (isPast(authInfo.refreshExpiresIn * 1000)) return null
+    return await refresh(authInfo.refreshToken)
   } catch (err) {
-    if (err instanceof TokenExpiredError || err instanceof InvalidTokenError) {
-      localStorage.removeItem(STORAGE_KEY)
+    if (err instanceof TokenExpiredError || err instanceof InvalidTokenError)
       return null
-    }
 
     if (err instanceof NetworkError) throw err
 

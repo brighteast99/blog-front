@@ -4,11 +4,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from 'app/hooks'
 import { useToggle } from 'hooks/useToggle'
 import { auth, AuthFailedError, NetworkError } from 'utils/Auth'
-import {
-  selectIsAuthenticated,
-  setToken,
-  STORAGE_KEY
-} from 'features/auth/authSlice'
+import { selectIsAuthenticated, setToken } from 'features/auth/authSlice'
 
 import { ThemedButton } from 'components/Buttons/ThemedButton'
 import { Spinner } from 'components/Spinner'
@@ -52,10 +48,8 @@ export const LoginPage: FC = () => {
       setLoading(true)
       setError(undefined)
       auth(username, password)
-        .then((token) => {
-          if (keepLogin) localStorage.setItem(STORAGE_KEY, token.refreshToken)
-          else sessionStorage.setItem(STORAGE_KEY, token.refreshToken)
-          dispatch(setToken(token))
+        .then((authInfo) => {
+          dispatch(setToken({ authInfo, keepLogin }))
           navigate(searchParams.get('next') ?? '/', { replace: true })
         })
         .catch((err) => {
