@@ -9,7 +9,8 @@ export const store = configureStore({
     auth: authReducer,
     window: windowReducer,
     blog: blogInfoReducer
-  }
+  },
+  devTools: !process.env.REACT_APP_PRODUCTION
 })
 
 export type RootState = ReturnType<typeof store.getState>

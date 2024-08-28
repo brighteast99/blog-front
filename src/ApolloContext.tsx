@@ -27,7 +27,10 @@ const authMiddleware = new ApolloLink((operation, forward) => {
 
 export const client = new ApolloClient({
   link: authMiddleware.concat(uploadLink),
-  cache: new InMemoryCache()
+  cache: new InMemoryCache(),
+  devtools: {
+    enabled: !process.env.REACT_APP_PRODUCTION
+  }
 })
 
 export function ApolloContext({ children }: PropsWithChildren) {
