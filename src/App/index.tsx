@@ -5,19 +5,21 @@ import { Outlet } from 'react-router-dom'
 import { throttle } from 'throttle-debounce'
 
 import { useAppDispatch, useAppSelector } from 'store/hooks'
-import { selectBlogInfo } from 'store/slices/blog/blogSlice'
-import { selectBreakpoint, updateSize } from 'store/slices/window/windowSlice'
-import { useAuth } from 'hooks/useAuth'
+import {
+  selectBreakpoint,
+  updateBreakpoint
+} from 'store/slices/window/windowSlice'
 import { useToggle } from 'hooks/useToggle'
 
 import { Error } from 'components/Error'
 import { Sidebar } from 'components/sidebar'
 import { SidebarHandle } from 'components/sidebar/SidebarHandle'
+import { useAuth, usePageMeta } from './hooks'
 
 function App() {
+  usePageMeta()
   useAuth()
   const dispatch = useAppDispatch()
-  const { title, favicon } = useAppSelector(selectBlogInfo)
   const breakpoint = useAppSelector(selectBreakpoint)
   const {
     value: sidebarFolded,
@@ -27,35 +29,11 @@ function App() {
   } = useToggle(breakpoint === 'mobile')
   const sidebarFoldable = useMemo(() => breakpoint !== 'desktop', [breakpoint])
 
-  // * Update title
-  // Todo: Update title acording to current location
-  useLayoutEffect(() => {
-    document.title = title
-  }, [title])
-
-  // * Set favicon
-  useLayoutEffect(() => {
-    let link = document.querySelector("link[rel ~= 'icon']") as HTMLLinkElement
-
-    if (favicon) {
-      if (!link) {
-        link = document.createElement('link')
-        link.rel = 'icon'
-        document.head.appendChild(link)
-      }
-      link.href = favicon
-    } else if (link) link.remove()
-  }, [favicon])
-
   // * Update window size
   useLayoutEffect(() => {
-    const dispatchSizeUpdate = throttle(250, () => {
-      dispatch(
-        updateSize({
-          size: { height: window.innerHeight, width: window.innerWidth }
-        })
-      )
-    })
+    const dispatchSizeUpdate = throttle(250, () =>
+      dispatch(updateBreakpoint({ width: window.innerWidth }))
+    )
 
     window.addEventListener('resize', dispatchSizeUpdate)
 
