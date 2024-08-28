@@ -7,10 +7,10 @@ import { DELETE_POST, GET_POST } from './api'
 import { UPDATE_POST } from './Edit/api'
 import { GET_CATEGORY_HIERARCHY } from 'pages/manage/Categories/api'
 
-import { useAppSelector } from 'app/hooks'
+import { useAppSelector } from 'store/hooks'
+import { selectIsAuthenticated } from 'store/slices/auth/authSlice'
 import { getRelativeTimeFromNow } from 'utils/dayJS'
 import { progress } from 'utils/useProgress'
-import { selectIsAuthenticated } from 'features/auth/authSlice'
 
 import Icon from '@mdi/react'
 import { mdiDelete, mdiLoading, mdiLock, mdiLockOpen, mdiPencil } from '@mdi/js'

@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit'
 
-import type { RootState } from 'app/store'
+import type { RootState } from 'store'
 
 export interface BlogInfo {
   title: string

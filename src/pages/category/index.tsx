@@ -11,8 +11,8 @@ import { useQuery } from '@apollo/client'
 import { CATEGORY_INFO } from './api'
 import { PostSortConditions } from 'components/postList/api'
 
-import { useAppSelector } from 'app/hooks'
-import { selectIsAuthenticated } from 'features/auth/authSlice'
+import { useAppSelector } from 'store/hooks'
+import { selectIsAuthenticated } from 'store/slices/auth/authSlice'
 
 import Icon from '@mdi/react'
 import { mdiLock, mdiMagnify, mdiPlus } from '@mdi/js'

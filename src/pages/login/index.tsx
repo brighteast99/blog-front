@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 
-import { useAppDispatch, useAppSelector } from 'app/hooks'
+import { useAppDispatch, useAppSelector } from 'store/hooks'
+import { selectIsAuthenticated, setToken } from 'store/slices/auth/authSlice'
 import { useToggle } from 'hooks/useToggle'
 import { auth, AuthFailedError, NetworkError } from 'utils/Auth'
-import { selectIsAuthenticated, setToken } from 'features/auth/authSlice'
 
 import { ThemedButton } from 'components/Buttons/ThemedButton'
 import { Spinner } from 'components/Spinner'

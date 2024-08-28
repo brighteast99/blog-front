@@ -3,7 +3,7 @@ import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { refresh, revoke } from 'utils/Auth'
 import { isPast } from 'utils/dayJS'
 
-import type { RootState } from 'app/store'
+import type { RootState } from 'store'
 import type { AuthInfo } from 'types/auth'
 
 export const STORAGE_KEY = 'auth'

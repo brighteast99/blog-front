@@ -5,10 +5,10 @@ import clsx from 'clsx'
 import { useLazyQuery, useMutation, useQuery } from '@apollo/client'
 import { DELETE_DRAFT, GET_DRAFT, GET_DRAFTS } from './api'
 
-import { useAppSelector } from 'app/hooks'
+import { useAppSelector } from 'store/hooks'
+import { selectIsAuthenticated } from 'store/slices/auth/authSlice'
 import { useToggle } from 'hooks/useToggle'
 import { getRelativeTimeFromNow } from 'utils/dayJS'
-import { selectIsAuthenticated } from 'features/auth/authSlice'
 
 import { mdiDelete } from '@mdi/js'
 import { IconButton } from 'components/Buttons/IconButton'

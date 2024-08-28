@@ -8,9 +8,9 @@ import { useLoadableQuery, useQuery } from '@apollo/client'
 import { GET_CATEGORY_HIERARCHY } from 'pages/manage/Categories/api'
 import { GET_INFO } from 'pages/manage/Info/api'
 
-import { useAppDispatch, useAppSelector } from 'app/hooks'
-import { revokeToken, selectIsAuthenticated } from 'features/auth/authSlice'
-import { updateBlogInfo } from 'features/blog/blogSlice'
+import { useAppDispatch, useAppSelector } from 'store/hooks'
+import { revokeToken, selectIsAuthenticated } from 'store/slices/auth/authSlice'
+import { updateBlogInfo } from 'store/slices/blog/blogSlice'
 
 import { mdiCog, mdiLogin, mdiLogout, mdiMenu } from '@mdi/js'
 import { Avatar } from 'components/Avatar'

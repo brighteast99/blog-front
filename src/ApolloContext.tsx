@@ -7,7 +7,7 @@ import {
   InMemoryCache
 } from '@apollo/client'
 
-import { store } from 'app/store'
+import { store } from 'store'
 import { isFuture } from 'utils/dayJS'
 
 import type { PropsWithChildren } from 'react'

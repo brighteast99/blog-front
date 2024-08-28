@@ -17,8 +17,8 @@ import { GET_DRAFTS } from './DraftManager/api'
 import { GET_CATEGORY_HIERARCHY } from 'pages/manage/Categories/api'
 import { GET_POST } from 'pages/post/api'
 
-import { useAppSelector } from 'app/hooks'
-import { selectIsAuthenticated } from 'features/auth/authSlice'
+import { useAppSelector } from 'store/hooks'
+import { selectIsAuthenticated } from 'store/slices/auth/authSlice'
 
 import { mdiLock, mdiLockOpen } from '@mdi/js'
 import { IconButton } from 'components/Buttons/IconButton'

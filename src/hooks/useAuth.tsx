@@ -1,6 +1,6 @@
 import { useCallback, useLayoutEffect, useState } from 'react'
 
-import { useAppDispatch, useAppSelector } from 'app/hooks'
+import { useAppDispatch, useAppSelector } from 'store/hooks'
 import {
   refreshToken,
   resetToken,
@@ -8,7 +8,7 @@ import {
   selectNeedRefresh,
   setToken,
   STORAGE_KEY
-} from 'features/auth/authSlice'
+} from 'store/slices/auth/authSlice'
 
 export const useAuth = () => {
   const dispatch = useAppDispatch()

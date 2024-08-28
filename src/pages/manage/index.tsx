@@ -2,8 +2,8 @@ import { useEffect } from 'react'
 import clsx from 'clsx'
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
 
-import { useAppSelector } from 'app/hooks'
-import { selectIsAuthenticated } from 'features/auth/authSlice'
+import { useAppSelector } from 'store/hooks'
+import { selectIsAuthenticated } from 'store/slices/auth/authSlice'
 
 import { ManageCategoryPage } from './Categories'
 import { ManageImagePage } from './Images'

@@ -2,9 +2,9 @@ import { useMemo } from 'react'
 import clsx from 'clsx'
 import { Link } from 'react-router-dom'
 
-import { useAppSelector } from 'app/hooks'
+import { useAppSelector } from 'store/hooks'
+import { selectBreakpoint } from 'store/slices/window/windowSlice'
 import { getRelativeTimeFromNow } from 'utils/dayJS'
-import { selectBreakpoint } from 'features/window/windowSlice'
 
 import Icon from '@mdi/react'
 import { mdiLock } from '@mdi/js'

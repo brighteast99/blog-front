@@ -3,8 +3,8 @@ import { useCallback, useEffect, useMemo } from 'react'
 import { useMutation, useQuery } from '@apollo/client'
 import { GET_INFO, UPDATE_INFO } from './api'
 
-import { useAppDispatch } from 'app/hooks'
-import { updateBlogInfo } from 'features/blog/blogSlice'
+import { useAppDispatch } from 'store/hooks'
+import { updateBlogInfo } from 'store/slices/blog/blogSlice'
 
 import Icon from '@mdi/react'
 import { mdiImage } from '@mdi/js'

@@ -2,8 +2,8 @@ import { client } from 'ApolloContext'
 
 import { ApolloError, gql } from '@apollo/client'
 
+import { STORAGE_KEY } from 'store/slices/auth/authSlice'
 import { isPast } from 'utils/dayJS'
-import { STORAGE_KEY } from 'features/auth/authSlice'
 
 import type { TypedDocumentNode } from '@apollo/client'
 import type { AuthInfo, TokenPayload } from 'types/auth'
