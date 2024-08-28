@@ -1,6 +1,5 @@
 import { useEffect } from 'react'
 import clsx from 'clsx'
-import { element } from 'prop-types'
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
 
 import { useAppSelector } from 'app/hooks'
