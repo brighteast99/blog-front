@@ -11,6 +11,7 @@ import {
   mdiAlertOutline,
   mdiClose,
   mdiImage,
+  mdiImageMinus,
   mdiImageOff,
   mdiImagePlus,
   mdiImageRemove,
@@ -116,7 +117,15 @@ export const ImageCatalogue: FC<ImageCatalogueProps> = ({
   )
 
   const onDeleteImage = useCallback(
-    (url: string) => {
+    (url: string, options?: { isThumbnail?: boolean; force?: boolean }) => {
+      if (
+        !options?.force &&
+        !window.confirm(
+          `${options?.isThumbnail ? '대표 이미지가 해제되며 ' : ''}본문에 포함된 이미지도 모두 제거됩니다.`
+        )
+      )
+        return
+
       onImageDeleted?.(url)
 
       if (!editor) return
@@ -141,6 +150,32 @@ export const ImageCatalogue: FC<ImageCatalogueProps> = ({
     [onImageDeleted, editor]
   )
 
+  const pruneImages = useCallback(() => {
+    if (
+      !window.confirm(
+        '사용되지 않은 이미지를 모두 제거합니다.\n서버에서는 삭제되지 않습니다.'
+      )
+    )
+      return
+
+    const imagesUsed = new Set<string>()
+
+    if (!editor) return
+
+    const { state } = editor
+    const { doc } = state
+
+    if (thumbnail) imagesUsed.add(thumbnail)
+    doc.descendants((node) => {
+      if (node.type.name === 'image') imagesUsed.add(node.attrs.src)
+    })
+
+    const imagesToDelete = images.filter((image) => !imagesUsed.has(image))
+    if (!imagesToDelete.length) return alert('제거할 이미지가 없습니다')
+
+    for (const image of imagesToDelete) onDeleteImage(image, { force: true })
+  }, [editor, images, thumbnail, onDeleteImage])
+
   useLayoutEffect(() => {
     window.addEventListener('paste', handlePaste)
 
@@ -153,10 +188,19 @@ export const ImageCatalogue: FC<ImageCatalogueProps> = ({
         <span>첨부 이미지</span>
         <div className='min-w-0 grow' />
         <FloatingDelayGroup delay={100}>
+          <IconButton
+            className='block'
+            path={mdiImageMinus}
+            variant='hover-text'
+            color='error'
+            disabled={!images.length}
+            tooltip='미사용 이미지 제거'
+            onClick={pruneImages}
+          />
           <ImageImporter
             className='block'
             exclude={images}
-            description='서버 이미지 탐색'
+            description='이미지 가져오기'
             onClickImport={onImageImported}
           />
           <IconButton
@@ -239,15 +283,7 @@ export const ImageCatalogue: FC<ImageCatalogueProps> = ({
                           variant='text'
                           size={1.2}
                           tooltip='이미지 삭제'
-                          onClick={() => {
-                            if (
-                              !window.confirm(
-                                `${isThumbnail ? '대표 이미지가 해제되며 ' : ''}본문에 포함된 이미지도 모두 제거됩니다.`
-                              )
-                            )
-                              return
-                            onDeleteImage(image)
-                          }}
+                          onClick={() => onDeleteImage(image, { isThumbnail })}
                         />
                       </FloatingDelayGroup>
                     </div>
