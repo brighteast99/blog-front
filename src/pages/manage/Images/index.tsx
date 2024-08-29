@@ -1,9 +1,13 @@
 import { Suspense, useCallback, useLayoutEffect, useMemo } from 'react'
+import clsx from 'clsx'
 import { ErrorBoundary } from 'react-error-boundary'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 
 import { useLoadableQuery, useQuery } from '@apollo/client'
 import { GET_IMAGE, GET_IMAGES } from './api'
+
+import { useAppSelector } from 'store/hooks'
+import { selectIsMobile } from 'store/slices/window/windowSlice'
 
 import { ImageInfo } from 'pages/manage/Images/ImageInfo'
 import { Error } from 'components/Error'
@@ -15,6 +19,8 @@ import type { FC } from 'react'
 export const ManageImagePage: FC = () => {
   const [searchParams, setSearchParams] = useSearchParams()
   const navigate = useNavigate()
+  const isMobile = useAppSelector(selectIsMobile)
+
   const { data, loading, error, refetch } = useQuery(GET_IMAGES, {
     fetchPolicy: 'cache-and-network',
     notifyOnNetworkStatusChange: true
@@ -49,8 +55,18 @@ export const ManageImagePage: FC = () => {
   }, [selectedImage])
 
   return (
-    <div className='flex justify-center gap-2 p-5'>
-      <div className='relative grow overflow-y-auto rounded border border-neutral-200 bg-neutral-50 p-4'>
+    <div
+      className={clsx(
+        'flex justify-center gap-2 p-5',
+        isMobile && 'flex-col-reverse'
+      )}
+    >
+      <div
+        className={clsx(
+          'relative flex-1 overflow-y-auto rounded border border-neutral-200 bg-neutral-50 p-4',
+          isMobile ? 'grow' : 'grow-[0.75]'
+        )}
+      >
         {loading && <Spinner className='absolute inset-0' />}
         {error && (
           <Error
@@ -84,7 +100,14 @@ export const ManageImagePage: FC = () => {
         )}
       </div>
 
-      <div className='relative w-1/3 overflow-y-auto rounded border border-neutral-200 bg-neutral-50'>
+      <div
+        className={clsx(
+          'relative flex gap-4 overflow-y-auto rounded border border-neutral-200 bg-neutral-50 px-4 py-6',
+          isMobile
+            ? 'h-[21.5rem] flex-row items-start justify-center'
+            : 'flex-1 grow-[0.25] flex-col'
+        )}
+      >
         <ErrorBoundary
           FallbackComponent={({ resetErrorBoundary }) => (
             <Error

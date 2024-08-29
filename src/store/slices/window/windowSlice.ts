@@ -44,4 +44,7 @@ export const { updateBreakpoint } = windowSlice.actions
 
 export const selectBreakpoint = (state: RootState) => state.window.breakpoint
 
+export const selectIsMobile = (state: RootState) =>
+  state.window.breakpoint === 'mobile'
+
 export default windowSlice.reducer

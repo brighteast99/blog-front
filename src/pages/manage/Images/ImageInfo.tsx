@@ -61,11 +61,11 @@ export const ImageInfo: FC<{
   }, [_deleteImage, onDelete, resetDeleteMutation, url, name])
 
   return (
-    <div className='size-full px-4 py-6'>
+    <>
       <ImagePreview className='mx-auto mb-6 w-5/6 max-w-64' image={url} />
       <table className='w-full table-fixed'>
         <colgroup>
-          <col width='20%' />
+          <col width='35%' />
         </colgroup>
         <tbody className='*:py-2 *-[th]:text-left *-[th]:align-top'>
           <tr>
@@ -178,6 +178,6 @@ export const ImageInfo: FC<{
           ? '삭제 불가'
           : '삭제'}
       </ThemedButton>
-    </div>
+    </>
   )
 }
