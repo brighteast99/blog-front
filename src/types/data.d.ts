@@ -37,3 +37,18 @@ export interface Post extends Omit<Draft, 'id' | 'summary'> {
   updatedAt: Date
   deletedAt?: Date
 }
+
+export interface ImageData {
+  id: number
+  url: string
+  name: string
+  uploadedAt: Date
+  templateThumbnailOf: Template[]
+  templateContentOf: Template[]
+  draftThumbnailOf: Draft[]
+  draftContentOf: Draft[]
+  postThumbnailOf: Post[]
+  postContentOf: Post[]
+  thumbnailReferenceCount: number
+  contentReferenceCount: number
+}
