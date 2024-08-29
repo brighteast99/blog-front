@@ -8,9 +8,9 @@ import { useLoadableQuery, useQuery } from '@apollo/client'
 import { GET_CATEGORY_HIERARCHY } from 'pages/manage/Categories/api'
 import { GET_INFO } from 'pages/manage/Info/api'
 
-import { useAppDispatch, useAppSelector } from 'app/hooks'
-import { revokeToken, selectIsAuthenticated } from 'features/auth/authSlice'
-import { updateBlogInfo } from 'features/blog/blogSlice'
+import { useAppDispatch, useAppSelector } from 'store/hooks'
+import { revokeToken, selectIsAuthenticated } from 'store/slices/auth/authSlice'
+import { updateBlogInfo } from 'store/slices/blog/blogSlice'
 
 import { mdiCog, mdiLogin, mdiLogout, mdiMenu } from '@mdi/js'
 import { Avatar } from 'components/Avatar'
@@ -20,11 +20,6 @@ import { PopoverMenu } from 'components/PopoverMenu'
 import { PopoverMenuItem } from 'components/PopoverMenu/PopoverMenuItem'
 import { Spinner } from 'components/Spinner'
 import { SuspendedText } from 'components/SuspendedText'
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger
-} from 'components/utils/Tooltip'
 import { CategoryList } from './CategoryList'
 
 import type { FC } from 'react'
@@ -162,18 +157,14 @@ export const Sidebar: FC<SidebarProps> = ({
             />
           </PopoverMenu>
         ) : (
-          <Tooltip placement='right'>
-            <TooltipTrigger asChild>
-              <IconButton
-                className='w-fit'
-                path={mdiLogin}
-                color='primary'
-                variant='hover-text'
-                onClick={logIn}
-              />
-            </TooltipTrigger>
-            <TooltipContent>로그인</TooltipContent>
-          </Tooltip>
+          <IconButton
+            className='w-fit'
+            path={mdiLogin}
+            color='primary'
+            variant='hover-text'
+            tooltip='로그인'
+            onClick={logIn}
+          />
         )}
       </div>
     </>

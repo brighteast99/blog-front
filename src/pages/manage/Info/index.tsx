@@ -3,8 +3,8 @@ import { useCallback, useEffect, useMemo } from 'react'
 import { useMutation, useQuery } from '@apollo/client'
 import { GET_INFO, UPDATE_INFO } from './api'
 
-import { useAppDispatch } from 'app/hooks'
-import { updateBlogInfo } from 'features/blog/blogSlice'
+import { useAppDispatch } from 'store/hooks'
+import { updateBlogInfo } from 'store/slices/blog/blogSlice'
 
 import Icon from '@mdi/react'
 import { mdiImage } from '@mdi/js'
@@ -149,8 +149,10 @@ export const ManageInfoPage: FC = () => {
             className='h-10 w-full py-0.5 text-lg'
             color='primary'
             disabled={!title.length || !description.length || !hasChange}
+            loading={updating}
+            spinnerSize='xs'
           >
-            {updating ? <Spinner size='xs' /> : '저장'}
+            저장
           </ThemedButton>
         </form>
       </div>

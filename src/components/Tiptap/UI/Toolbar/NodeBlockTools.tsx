@@ -18,11 +18,6 @@ import { PopoverMenu } from 'components/PopoverMenu'
 import { Languages } from 'components/Tiptap/extensions/BetterCodeblock'
 import { CalloutTypes } from 'components/Tiptap/extensions/Callout'
 import { AttributeSetter } from 'components/Tiptap/UI/Toolbar/AttributeSetter'
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger
-} from 'components/utils/Tooltip'
 import { LinkConfigurer } from './LinkConfigurer'
 
 import type { FC } from 'react'
@@ -82,67 +77,61 @@ export const NodeBlockTools: FC = () => {
         }
         placement='bottom'
       >
-        <Tooltip placement='right' offset={3}>
-          <TooltipTrigger asChild>
-            <IconButton
-              className='block'
-              path={mdiFormatListBulleted}
-              color='primary'
-              variant='hover-text-toggle'
-              active={bulletList}
-              onClick={() => editor.chain().focus().toggleBulletList().run()}
-            />
-          </TooltipTrigger>
-          <TooltipContent>
-            {bulletList ? '목록 해제' : '순서 없는 목록'}
-          </TooltipContent>
-        </Tooltip>
+        <IconButton
+          className='block'
+          path={mdiFormatListBulleted}
+          color='primary'
+          variant='hover-text-toggle'
+          active={bulletList}
+          tooltip={bulletList ? '목록 해제' : '순서 없는 목록'}
+          tooltipOptions={{
+            placement: 'right',
+            offset: 3
+          }}
+          onClick={() => editor.chain().focus().toggleBulletList().run()}
+        />
 
-        <Tooltip placement='right' offset={3}>
-          <TooltipTrigger asChild>
-            <IconButton
-              className='block'
-              path={mdiFormatListNumbered}
-              color='primary'
-              variant='hover-text-toggle'
-              active={orderedList}
-              onClick={() => editor.chain().focus().toggleOrderedList().run()}
-            />
-          </TooltipTrigger>
-          <TooltipContent>
-            {orderedList ? '목록 해제' : '순서 있는 목록'}
-          </TooltipContent>
-        </Tooltip>
+        <IconButton
+          className='block'
+          path={mdiFormatListNumbered}
+          color='primary'
+          variant='hover-text-toggle'
+          active={orderedList}
+          tooltip={orderedList ? '목록 해제' : '순서 있는 목록'}
+          tooltipOptions={{
+            placement: 'right',
+            offset: 3
+          }}
+          onClick={() => editor.chain().focus().toggleOrderedList().run()}
+        />
 
-        <Tooltip placement='right' offset={3}>
-          <TooltipTrigger asChild>
-            <IconButton
-              className='block'
-              path={mdiFormatListCheckbox}
-              color='primary'
-              variant='hover-text-toggle'
-              active={taskList}
-              onClick={() => editor.chain().focus().toggleTaskList().run()}
-            />
-          </TooltipTrigger>
-          <TooltipContent>
-            {taskList ? '목록 해제' : '체크리스트'}
-          </TooltipContent>
-        </Tooltip>
+        <IconButton
+          className='block'
+          path={mdiFormatListCheckbox}
+          color='primary'
+          variant='hover-text-toggle'
+          active={taskList}
+          tooltip={taskList ? '목록 해제' : '체크리스트'}
+          tooltipOptions={{
+            placement: 'right',
+            offset: 3
+          }}
+          onClick={() => editor.chain().focus().toggleTaskList().run()}
+        />
       </PopoverMenu>
 
-      <Tooltip placement='bottom' offset={3}>
-        <TooltipTrigger asChild>
-          <IconButton
-            path={mdiFormatQuoteOpen}
-            color='primary'
-            variant='hover-text-toggle'
-            active={blockquote}
-            onClick={() => editor.chain().focus().toggleBlockquote().run()}
-          />
-        </TooltipTrigger>
-        <TooltipContent>인용문</TooltipContent>
-      </Tooltip>
+      <IconButton
+        path={mdiFormatQuoteOpen}
+        color='primary'
+        variant='hover-text-toggle'
+        active={blockquote}
+        tooltip='인용문'
+        tooltipOptions={{
+          placement: 'bottom',
+          offset: 3
+        }}
+        onClick={() => editor.chain().focus().toggleBlockquote().run()}
+      />
 
       <CalloutConfigurer
         className='h-fit'
@@ -178,38 +167,37 @@ export const NodeBlockTools: FC = () => {
         />
       </CodeBlockConfigurer>
 
-      <Tooltip placement='bottom' offset={3}>
-        <TooltipTrigger asChild>
-          <IconButton
-            path={mdiDetails}
-            color='primary'
-            variant='hover-text-toggle'
-            active={details}
-            onClick={() => {
-              if (details) editor.chain().focus().unsetDetails().run()
-              else editor.chain().focus().setDetails().run()
-            }}
-          />
-        </TooltipTrigger>
-        <TooltipContent>요약</TooltipContent>
-      </Tooltip>
+      <IconButton
+        path={mdiDetails}
+        color='primary'
+        variant='hover-text-toggle'
+        active={details}
+        tooltip='요약'
+        tooltipOptions={{
+          placement: 'bottom',
+          offset: 3
+        }}
+        onClick={() => {
+          if (details) editor.chain().focus().unsetDetails().run()
+          else editor.chain().focus().setDetails().run()
+        }}
+      />
 
-      <Tooltip placement='bottom' offset={3}>
-        <TooltipTrigger asChild>
-          <IconButton
-            path={table ? mdiTableOff : mdiTable}
-            color='primary'
-            variant='hover-text-toggle'
-            active={table}
-            onClick={() => {
-              if (table) editor.chain().focus().deleteTable().run()
-              else
-                editor.chain().focus().insertTable({ rows: 2, cols: 2 }).run()
-            }}
-          />
-        </TooltipTrigger>
-        <TooltipContent>{table ? '표 삭제' : '표 삽입'}</TooltipContent>
-      </Tooltip>
+      <IconButton
+        path={table ? mdiTableOff : mdiTable}
+        color='primary'
+        variant='hover-text-toggle'
+        active={table}
+        tooltip={table ? '표 삭제' : '표 삽입'}
+        tooltipOptions={{
+          placement: 'bottom',
+          offset: 3
+        }}
+        onClick={() => {
+          if (table) editor.chain().focus().deleteTable().run()
+          else editor.chain().focus().insertTable({ rows: 2, cols: 2 }).run()
+        }}
+      />
 
       <LinkConfigurer
         className='h-fit'

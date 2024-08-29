@@ -7,11 +7,6 @@ import {
   mdiFormatAlignRight
 } from '@mdi/js'
 import { IconButton } from 'components/Buttons/IconButton'
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger
-} from 'components/utils/Tooltip'
 
 import type { FC } from 'react'
 
@@ -27,61 +22,61 @@ export const TextAlignTools: FC = () => {
 
   return (
     <div>
-      <Tooltip placement='bottom' offset={3}>
-        <TooltipTrigger asChild>
-          <IconButton
-            className='block'
-            path={mdiFormatAlignLeft}
-            color='primary'
-            variant='hover-text-toggle'
-            active={textAlignLeft}
-            onClick={() => editor.commands.setTextAlign('left')}
-          />
-        </TooltipTrigger>
-        <TooltipContent>왼쪽 맞춤</TooltipContent>
-      </Tooltip>
+      <IconButton
+        className='block'
+        path={mdiFormatAlignLeft}
+        color='primary'
+        variant='hover-text-toggle'
+        active={textAlignLeft}
+        tooltip='왼쪽 맞춤'
+        tooltipOptions={{
+          placement: 'bottom',
+          offset: 3
+        }}
+        onClick={() => editor.commands.setTextAlign('left')}
+      />
 
-      <Tooltip placement='bottom' offset={3}>
-        <TooltipTrigger asChild>
-          <IconButton
-            className='block'
-            path={mdiFormatAlignCenter}
-            color='primary'
-            variant='hover-text-toggle'
-            active={textAlignCenter}
-            onClick={() => editor.commands.setTextAlign('center')}
-          />
-        </TooltipTrigger>
-        <TooltipContent>가운데 맞춤</TooltipContent>
-      </Tooltip>
+      <IconButton
+        className='block'
+        path={mdiFormatAlignCenter}
+        color='primary'
+        variant='hover-text-toggle'
+        active={textAlignCenter}
+        tooltip='가운데 맞춤'
+        tooltipOptions={{
+          placement: 'bottom',
+          offset: 3
+        }}
+        onClick={() => editor.commands.setTextAlign('center')}
+      />
 
-      <Tooltip placement='bottom' offset={3}>
-        <TooltipTrigger asChild>
-          <IconButton
-            className='block'
-            path={mdiFormatAlignRight}
-            color='primary'
-            variant='hover-text-toggle'
-            active={textAlignRight}
-            onClick={() => editor.commands.setTextAlign('right')}
-          />
-        </TooltipTrigger>
-        <TooltipContent>오른쪽 맞춤</TooltipContent>
-      </Tooltip>
+      <IconButton
+        className='block'
+        path={mdiFormatAlignRight}
+        color='primary'
+        variant='hover-text-toggle'
+        active={textAlignRight}
+        tooltip='오른쪽 맞춤'
+        tooltipOptions={{
+          placement: 'bottom',
+          offset: 3
+        }}
+        onClick={() => editor.commands.setTextAlign('right')}
+      />
 
-      <Tooltip placement='bottom' offset={3}>
-        <TooltipTrigger asChild>
-          <IconButton
-            className='block'
-            path={mdiFormatAlignJustify}
-            color='primary'
-            variant='hover-text-toggle'
-            active={textAlignJustify}
-            onClick={() => editor.commands.setTextAlign('justify')}
-          />
-        </TooltipTrigger>
-        <TooltipContent>양쪽 맞춤</TooltipContent>
-      </Tooltip>
+      <IconButton
+        className='block'
+        path={mdiFormatAlignJustify}
+        color='primary'
+        variant='hover-text-toggle'
+        active={textAlignJustify}
+        tooltip='양쪽 맞춤'
+        tooltipOptions={{
+          placement: 'bottom',
+          offset: 3
+        }}
+        onClick={() => editor.commands.setTextAlign('justify')}
+      />
     </div>
   )
 }

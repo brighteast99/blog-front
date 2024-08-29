@@ -1,10 +1,9 @@
 import { useEffect } from 'react'
 import clsx from 'clsx'
-import { element } from 'prop-types'
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
 
-import { useAppSelector } from 'app/hooks'
-import { selectIsAuthenticated } from 'features/auth/authSlice'
+import { useAppSelector } from 'store/hooks'
+import { selectIsAuthenticated } from 'store/slices/auth/authSlice'
 
 import { ManageCategoryPage } from './Categories'
 import { ManageImagePage } from './Images'
@@ -56,6 +55,7 @@ export const ManagePage: FC = () => {
       <div className='flex border-b border-primary *:cursor-pointer *:rounded-t-sm *:px-3 *:py-1 *:text-xl'>
         {MANAGE_ROUTES.map(({ path, label }) => (
           <div
+            key={path}
             className={clsx(
               location.pathname === path && 'bg-primary text-background'
             )}

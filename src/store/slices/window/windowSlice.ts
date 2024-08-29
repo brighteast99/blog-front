@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit'
 
-import type { RootState } from 'app/store'
+import type { RootState } from 'store'
 
 export type breakpoint = 'mobile' | 'tablet' | 'desktop'
 
@@ -14,18 +14,10 @@ function getBreakpoint(width: number): breakpoint {
 }
 
 export interface WindowState {
-  size: {
-    width?: number
-    height?: number
-  }
   breakpoint: 'mobile' | 'tablet' | 'desktop'
 }
 
 const initialState: WindowState = {
-  size: {
-    width: window.innerWidth,
-    height: window.innerHeight
-  },
   breakpoint: getBreakpoint(window.innerWidth)
 }
 
@@ -34,25 +26,25 @@ export const createWindowSlice = (initialState: WindowState) =>
     name: 'window',
     initialState,
     reducers: {
-      updateSize: (
+      updateBreakpoint: (
         state,
         action: {
-          payload: { size: { width: number; height: number } }
+          payload: { width: number }
           type: string
         }
       ) => {
-        let { size } = action.payload
-
-        state.size = size
-        state.breakpoint = getBreakpoint(size.width)
+        state.breakpoint = getBreakpoint(action.payload.width)
       }
     }
   })
 
 export const windowSlice = createWindowSlice(initialState)
 
-export const { updateSize } = windowSlice.actions
+export const { updateBreakpoint } = windowSlice.actions
 
 export const selectBreakpoint = (state: RootState) => state.window.breakpoint
+
+export const selectIsMobile = (state: RootState) =>
+  state.window.breakpoint === 'mobile'
 
 export default windowSlice.reducer

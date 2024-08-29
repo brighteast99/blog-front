@@ -15,7 +15,7 @@
     "@apollo",
     "api$",
     "",
-    "^app/*",
+    "^store/*",
     "^hooks/*",
     "^utils/*",
     "^features/*",

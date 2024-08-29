@@ -29,12 +29,14 @@ import clsx from 'clsx'
 import type { HTMLProps, ReactNode } from 'react'
 import type { Placement } from '@floating-ui/react'
 
-interface TooltipOptions {
+export type TooltipDelay = number | { open?: number; close?: number }
+
+export interface TooltipOptions {
   initialOpen?: boolean
   placement?: Placement
   offset?: number
   open?: boolean
-  delay?: number | { open?: number; close?: number }
+  delay?: TooltipDelay
   onOpenChange?: (open: boolean) => void
 }
 export function useTooltip({

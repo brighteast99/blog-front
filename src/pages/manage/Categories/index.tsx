@@ -11,6 +11,9 @@ import {
   GET_CATEGORY_HIERARCHY
 } from './api'
 
+import { useAppSelector } from 'store/hooks'
+import { selectIsMobile } from 'store/slices/window/windowSlice'
+
 import Icon from '@mdi/react'
 import { mdiLoading, mdiLock, mdiMinus, mdiPlus } from '@mdi/js'
 import { IconButton } from 'components/Buttons/IconButton'
@@ -63,6 +66,7 @@ const CategoryListItem: FC<{ category: Category }> = ({ category }) => {
 export const ManageCategoryPage: FC = () => {
   const [searchParams, setSearchParams] = useSearchParams()
   const navigate = useNavigate()
+  const isMobile = useAppSelector(selectIsMobile)
 
   const {
     data: categoriesData,
@@ -175,10 +179,13 @@ export const ManageCategoryPage: FC = () => {
   }, [selectedCategory])
 
   return (
-    <div className='flex gap-2 p-5'>
-      <div className='w-1/3'>
+    <div className={clsx('flex gap-2 p-5', isMobile && 'flex-col')}>
+      <div className={clsx('flex flex-col', !isMobile && 'flex-1 grow-[0.3]')}>
         <div
-          className='relative h-full overflow-y-auto rounded border border-neutral-200 bg-neutral-50 pb-10'
+          className={clsx(
+            'relative h-full overflow-y-auto rounded border border-neutral-200 bg-neutral-50',
+            isMobile && 'order-2 max-h-60'
+          )}
           onClick={(e) => {
             if (e.target !== e.currentTarget) return
             selectCategory(undefined)
@@ -209,30 +216,26 @@ export const ManageCategoryPage: FC = () => {
         <div className='flex w-full justify-end'>
           <IconButton
             disabled={creating}
-            path=''
+            path={creating ? mdiLoading : mdiPlus}
             variant='hover-text'
             color='primary'
-            iconProps={{
-              spin: creating,
-              path: creating ? mdiLoading : mdiPlus
-            }}
+            iconProps={{ spin: creating }}
             onClick={createCategory}
           />
           <IconButton
             disabled={!selectedCategory}
-            path=''
+            path={deleting ? mdiLoading : mdiMinus}
             variant='hover-text'
             color='error'
-            iconProps={{
-              spin: deleting,
-              path: deleting ? mdiLoading : mdiMinus
-            }}
+            iconProps={{ spin: deleting }}
             onClick={deleteCategory}
           />
         </div>
       </div>
 
-      <div className='relative w-2/3'>
+      {isMobile && <hr className='my-4 border-neutral-400' />}
+
+      <div className='relative flex-1 grow-[0.7]'>
         <ErrorBoundary
           FallbackComponent={({ resetErrorBoundary }) => (
             <Error

@@ -1,4 +1,5 @@
-import { useLayoutEffect, useState } from 'react'
+import { useLayoutEffect, useMemo, useState } from 'react'
+import clsx from 'clsx'
 
 import { useQuery } from '@apollo/client'
 import { GET_IMAGES } from './api'
@@ -10,13 +11,8 @@ import { mdiClose, mdiImageSearch } from '@mdi/js'
 import { IconButton } from 'components/Buttons/IconButton'
 import { ThemedButton } from 'components/Buttons/ThemedButton'
 import { Error } from 'components/Error'
+import { ImagePreview } from 'components/ImagePreview'
 import { Spinner } from 'components/Spinner'
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger
-} from 'components/utils/Tooltip'
-import { ImagePreview } from './ImagePreview'
 
 import type { FC } from 'react'
 
@@ -40,8 +36,9 @@ export const ImageImporter: FC<ImageImporterProps> = ({
   })
   const [selectedImages, setSelectedImages] = useState<string[]>([])
   const { value: hideExcluded, toggle: toggleHideExcluded } = useToggle(true)
-  const filteredImages = data?.images
-    ? data?.images.filter((image) => !hideExcluded || !exclude?.includes(image))
+  const images = useMemo(() => data?.images || null, [data?.images])
+  const filteredImages = images
+    ? images.filter((image) => !hideExcluded || !exclude?.includes(image.url))
     : null
 
   useLayoutEffect(() => {
@@ -51,18 +48,14 @@ export const ImageImporter: FC<ImageImporterProps> = ({
 
   return (
     <>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <IconButton
-            className={cn(className)}
-            path={mdiImageSearch}
-            variant='hover-text-toggle'
-            active={isOpen}
-            onClick={toggle}
-          />
-        </TooltipTrigger>
-        {description && <TooltipContent>{description}</TooltipContent>}
-      </Tooltip>
+      <IconButton
+        className={cn(className)}
+        path={mdiImageSearch}
+        variant='hover-text-toggle'
+        active={isOpen}
+        tooltip={description}
+        onClick={toggle}
+      />
 
       {isOpen && (
         <div className='absolute inset-0 z-20 flex size-full items-center justify-center bg-neutral-50 bg-opacity-80'>
@@ -88,6 +81,7 @@ export const ImageImporter: FC<ImageImporterProps> = ({
                 onClick={close}
               />
             </div>
+
             <div className='relative min-h-0 grow overflow-y-auto p-4'>
               {loading && <Spinner className='absolute inset-0 m-auto' />}
               {error && (
@@ -110,39 +104,38 @@ export const ImageImporter: FC<ImageImporterProps> = ({
                       사용 가능한 이미지가 없습니다
                     </span>
                   )}
-                  {filteredImages.map((image) => {
-                    const selected = selectedImages.includes(image)
-                    const excluded = exclude?.includes(image)
+                  {filteredImages.map(({ url }) => {
+                    const selected = selectedImages.includes(url)
+                    const excluded = exclude?.includes(url)
                     return (
                       <ImagePreview
-                        key={image}
-                        className={
+                        key={url}
+                        className={clsx(
+                          'relative',
                           excluded ? 'cursor-not-allowed' : 'cursor-pointer'
-                        }
-                        image={image}
+                        )}
+                        image={url}
                         active={selected}
                         disabled={excluded}
-                        label={
-                          excluded && (
-                            <div className='absolute flex size-full items-center justify-center bg-neutral-50 opacity-50'>
-                              <span className='text-lg font-semibold text-foreground text-opacity-75'>
-                                사용중
-                              </span>
-                            </div>
-                          )
-                        }
                         onClick={() =>
                           setSelectedImages((prev) => {
-                            if (prev.includes(image))
+                            if (prev.includes(url))
                               return prev.toSpliced(
-                                prev.findIndex((_image) => _image === image),
+                                prev.findIndex((_image) => _image === url),
                                 1
                               )
-
-                            return [...prev, image]
+                            return [...prev, url]
                           })
                         }
-                      />
+                      >
+                        {excluded && (
+                          <div className='absolute flex size-full items-center justify-center bg-neutral-50 opacity-75'>
+                            <span className='text-lg font-semibold text-foreground text-opacity-75'>
+                              사용중
+                            </span>
+                          </div>
+                        )}
+                      </ImagePreview>
                     )
                   })}
                 </div>

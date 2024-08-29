@@ -2,8 +2,8 @@ import { useLayoutEffect, useMemo } from 'react'
 import clsx from 'clsx'
 import { useBlocker } from 'react-router-dom'
 
-import { useAppSelector } from 'app/hooks'
-import { selectIsAuthenticated } from 'features/auth/authSlice'
+import { useAppSelector } from 'store/hooks'
+import { selectIsAuthenticated } from 'store/slices/auth/authSlice'
 
 import { ThemedButton } from 'components/Buttons/ThemedButton'
 

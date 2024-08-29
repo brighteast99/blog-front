@@ -6,6 +6,9 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useLoadableQuery, useMutation, useQuery } from '@apollo/client'
 import { CREATE_TEMPLATE, GET_TEMPLATE, GET_TEMPLATES } from './api'
 
+import { useAppSelector } from 'store/hooks'
+import { selectIsMobile } from 'store/slices/window/windowSlice'
+
 import Icon from '@mdi/react'
 import { mdiPlus } from '@mdi/js'
 import { ThemedButton } from 'components/Buttons/ThemedButton'
@@ -18,6 +21,7 @@ import type { FC } from 'react'
 export const ManageTemplatePage: FC = () => {
   const [searchParams, setSearchParams] = useSearchParams()
   const navigate = useNavigate()
+  const isMobile = useAppSelector(selectIsMobile)
 
   const {
     data,
@@ -87,15 +91,11 @@ export const ManageTemplatePage: FC = () => {
   }, [selectedTemplate])
 
   return (
-    <div className='flex justify-center gap-2 p-5'>
-      <div className='w-1/3'>
-        <div
-          className='relative h-full overflow-y-auto rounded border border-neutral-200 bg-neutral-50'
-          onClick={(e) => {
-            if (e.target !== e.currentTarget) return
-            selectTemplate(undefined)
-          }}
-        >
+    <div
+      className={clsx('flex justify-center gap-2 p-5', isMobile && 'flex-col')}
+    >
+      <div className='flex-1 grow-[0.2]'>
+        <div className='relative h-full overflow-y-auto rounded border border-neutral-200 bg-neutral-50'>
           {loadingTemplates && (
             <Spinner className='absolute inset-0' size='sm' />
           )}
@@ -111,24 +111,15 @@ export const ManageTemplatePage: FC = () => {
           {templates && (
             <>
               <ThemedButton
-                className='h-12 w-full'
+                className='h-10 w-full'
                 variant='text'
                 color='primary'
-                disabled={creating}
+                loading={creating}
+                spinnerSize='xs'
                 onClick={createTemplate}
               >
-                {creating ? (
-                  <Spinner size='xs' />
-                ) : (
-                  <>
-                    <Icon
-                      className='-mt-1 mr-1 inline'
-                      path={mdiPlus}
-                      size={1}
-                    />
-                    새 템플릿
-                  </>
-                )}
+                <Icon className='-mt-1 mr-1 inline' path={mdiPlus} size={1} />새
+                템플릿
               </ThemedButton>
               <ul className='text-lg'>
                 {templates.map((template) => (
@@ -159,11 +150,13 @@ export const ManageTemplatePage: FC = () => {
         </div>
       </div>
 
-      <div className='relative w-2/3 max-w-[1280px]'>
+      {isMobile && <hr className='my-4 border-neutral-400' />}
+
+      <div className='relative max-w-[1280px] flex-1 grow-[0.8]'>
         <ErrorBoundary
           FallbackComponent={({ resetErrorBoundary }) => (
             <Error
-              message='게시판 정보를 불러오지 못했습니다'
+              message='템플릿을 불러오지 못했습니다'
               hideDefaultAction
               actions={[
                 {

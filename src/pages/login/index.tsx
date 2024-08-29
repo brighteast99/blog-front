@@ -1,17 +1,12 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 
-import { useAppDispatch, useAppSelector } from 'app/hooks'
+import { useAppDispatch, useAppSelector } from 'store/hooks'
+import { selectIsAuthenticated, setToken } from 'store/slices/auth/authSlice'
 import { useToggle } from 'hooks/useToggle'
 import { auth, AuthFailedError, NetworkError } from 'utils/Auth'
-import {
-  selectIsAuthenticated,
-  setToken,
-  STORAGE_KEY
-} from 'features/auth/authSlice'
 
 import { ThemedButton } from 'components/Buttons/ThemedButton'
-import { Spinner } from 'components/Spinner'
 
 import type { ChangeEvent, FC, FormEvent } from 'react'
 
@@ -52,10 +47,8 @@ export const LoginPage: FC = () => {
       setLoading(true)
       setError(undefined)
       auth(username, password)
-        .then((token) => {
-          if (keepLogin) localStorage.setItem(STORAGE_KEY, token.refreshToken)
-          else sessionStorage.setItem(STORAGE_KEY, token.refreshToken)
-          dispatch(setToken(token))
+        .then((authInfo) => {
+          dispatch(setToken({ authInfo, keepLogin }))
           navigate(searchParams.get('next') ?? '/', { replace: true })
         })
         .catch((err) => {
@@ -105,9 +98,10 @@ export const LoginPage: FC = () => {
           type='submit'
           color='primary'
           variant='flat'
-          disabled={loading}
+          loading={loading}
+          spinnerSize='xs'
         >
-          {loading ? <Spinner size='xs' /> : '로그인'}
+          로그인
         </ThemedButton>
         <label className='block'>
           <input

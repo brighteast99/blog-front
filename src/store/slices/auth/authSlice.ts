@@ -1,28 +1,30 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit'
 
-import { formatRefreshToken, refresh, revoke } from 'utils/Auth'
+import { refresh, revoke } from 'utils/Auth'
 import { isPast } from 'utils/dayJS'
 
-import type { RootState } from 'app/store'
+import type { RootState } from 'store'
 import type { AuthInfo } from 'types/auth'
 
-export const STORAGE_KEY = 'refreshToken'
+export const STORAGE_KEY = 'auth'
 
 type AuthStatus = 'UNAUTHORIZED' | 'AUTHORIZED' | 'REFRESHING' | 'EXPIRED'
 
 interface AuthState {
   info?: AuthInfo
+  keepLogin: boolean
   status: AuthStatus
 }
 
 const initialState: AuthState = {
   info: undefined,
+  keepLogin: false,
   status: 'UNAUTHORIZED'
 }
 
 export const refreshToken = createAsyncThunk<
   AuthInfo,
-  any,
+  undefined,
   {
     state: RootState
   }
@@ -35,8 +37,7 @@ export const refreshToken = createAsyncThunk<
     try {
       return await refresh(info.refreshToken)
     } catch (err) {
-      console.dir(err)
-      return thunkAPI.rejectWithValue(err)
+      return thunkAPI.rejectWithValue(null)
     }
   },
   {
@@ -76,26 +77,28 @@ export const createAuthSlice = (initialState: AuthState) =>
     name: 'auth',
     initialState,
     reducers: {
-      setToken: (state, action: PayloadAction<AuthInfo>) => {
-        state.info = action.payload
+      setToken: (
+        state,
+        action: PayloadAction<{ authInfo: AuthInfo; keepLogin: boolean }>
+      ) => {
+        const { authInfo, keepLogin } = action.payload
+        state.info = authInfo
+        state.keepLogin = keepLogin
 
         if (action.payload) {
-          if (isPast(action.payload.payload.exp * 1000))
-            state.status = 'EXPIRED'
+          if (isPast(authInfo.payload.exp * 1000)) state.status = 'EXPIRED'
           else state.status = 'AUTHORIZED'
         } else state.status = 'UNAUTHORIZED'
 
-        if (localStorage.getItem(STORAGE_KEY))
-          localStorage.setItem(
-            STORAGE_KEY,
-            `${action.payload.refreshToken};${action.payload.refreshExpiresIn}`
-          )
-        else if (sessionStorage.getItem(STORAGE_KEY))
-          sessionStorage.setItem(
-            STORAGE_KEY,
-            `${action.payload.refreshToken};${action.payload.refreshExpiresIn}`
-          )
+        const serialized = JSON.stringify(action.payload.authInfo)
+
+        if (keepLogin) {
+          if (localStorage.getItem(STORAGE_KEY) !== serialized)
+            localStorage.setItem(STORAGE_KEY, serialized)
+        } else if (sessionStorage.getItem(STORAGE_KEY) !== serialized)
+          sessionStorage.setItem(STORAGE_KEY, serialized)
       },
+      resetToken: (_state, _action: PayloadAction<undefined>) => initialState,
       updateRefreshToken: (
         state,
         action: PayloadAction<{ refreshToken: string; expiresIn: number }>
@@ -113,6 +116,7 @@ export const createAuthSlice = (initialState: AuthState) =>
         })
         .addCase(refreshToken.rejected, (state) => {
           state.info = undefined
+          state.keepLogin = false
           state.status = 'UNAUTHORIZED'
 
           localStorage.removeItem(STORAGE_KEY)
@@ -124,19 +128,18 @@ export const createAuthSlice = (initialState: AuthState) =>
             state.info = action.payload
             state.status = 'AUTHORIZED'
 
-            const token = formatRefreshToken(
-              action.payload.refreshToken,
-              action.payload.refreshExpiresIn
-            )
+            const serialized = JSON.stringify(action.payload)
 
-            if (localStorage.getItem(STORAGE_KEY))
-              localStorage.setItem(STORAGE_KEY, token)
-            else if (sessionStorage.getItem(STORAGE_KEY))
-              sessionStorage.setItem(STORAGE_KEY, token)
+            if (state.keepLogin) {
+              if (localStorage.getItem(STORAGE_KEY) !== serialized)
+                localStorage.setItem(STORAGE_KEY, serialized)
+            } else if (sessionStorage.getItem(STORAGE_KEY) !== serialized)
+              sessionStorage.setItem(STORAGE_KEY, serialized)
           }
         )
         .addCase(revokeToken.fulfilled, (state, _action) => {
           state.info = undefined
+          state.keepLogin = false
           state.status = 'UNAUTHORIZED'
 
           localStorage.removeItem(STORAGE_KEY)
@@ -147,7 +150,7 @@ export const createAuthSlice = (initialState: AuthState) =>
 
 export const authSlice = createAuthSlice(initialState)
 
-export const { setToken, updateRefreshToken } = authSlice.actions
+export const { setToken, resetToken, updateRefreshToken } = authSlice.actions
 
 export const selectIsAuthenticated = (state: RootState) => {
   if (
@@ -165,5 +168,10 @@ export const selectIsAuthenticated = (state: RootState) => {
 
   return true
 }
+
+export const selectNeedRefresh = (state: RootState) =>
+  state.auth.status === 'EXPIRED'
+
+export const selectAuthStatus = (state: RootState) => state.auth.status
 
 export default authSlice.reducer

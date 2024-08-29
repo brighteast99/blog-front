@@ -11,7 +11,6 @@ import {
 
 import { ThemedButton } from 'components/Buttons/ThemedButton'
 import { ImageInput } from 'components/ImageInput'
-import { Spinner } from 'components/Spinner'
 import { NavigationBlocker } from 'components/utils/NavigationBlocker'
 import {
   Tooltip,
@@ -215,9 +214,11 @@ export const CategoryForm: FC<{
         <ThemedButton
           className='h-10 w-full py-0.5 text-lg'
           color='primary'
-          disabled={updating || !hasChange}
+          disabled={!hasChange}
+          loading={updating}
+          spinnerSize='xs'
         >
-          {updating ? <Spinner size='xs' /> : '저장'}
+          저장
         </ThemedButton>
       </form>
     </>

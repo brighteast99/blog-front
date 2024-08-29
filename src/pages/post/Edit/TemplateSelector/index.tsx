@@ -4,6 +4,8 @@ import clsx from 'clsx'
 import { useLazyQuery, useQuery } from '@apollo/client'
 import { GET_TEMPLATE, GET_TEMPLATES } from './api'
 
+import { useAppSelector } from 'store/hooks'
+import { selectIsAuthenticated } from 'store/slices/auth/authSlice'
 import { useToggle } from 'hooks/useToggle'
 
 import { ThemedButton } from 'components/Buttons/ThemedButton'
@@ -33,13 +35,17 @@ export const TemplateSelector: FC<TemplateSelectorProps> = ({
   onSelect
 }) => {
   const { value: isOpen, setTrue: open, setFalse: close } = useToggle(false)
+  const isLoggedIn = useAppSelector(selectIsAuthenticated)
 
   const {
     data: templatesData,
     loading: loadingTemplates,
     error: errorLoadingTemplates,
     refetch: refetchTemplates
-  } = useQuery(GET_TEMPLATES, { notifyOnNetworkStatusChange: true })
+  } = useQuery(GET_TEMPLATES, {
+    notifyOnNetworkStatusChange: true,
+    skip: !isLoggedIn
+  })
   const templates = useMemo(() => templatesData?.templates, [templatesData])
 
   const [
@@ -67,14 +73,12 @@ export const TemplateSelector: FC<TemplateSelectorProps> = ({
         <ThemedButton
           className='h-8 px-2'
           variant='flat'
-          disabled={loadingTemplates || !templates?.length}
+          disabled={!templates?.length}
+          loading={loadingTemplates}
+          spinnerSize='xs'
           color='primary'
         >
-          {loadingTemplates ? (
-            <Spinner size='xs' />
-          ) : (
-            `템플릿 ${templates?.length ? '' : '없음'}`
-          )}
+          {`템플릿 ${templates?.length ? '' : '없음'}`}
         </ThemedButton>
       }
       onOpen={open}
