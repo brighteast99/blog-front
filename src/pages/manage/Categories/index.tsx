@@ -209,24 +209,18 @@ export const ManageCategoryPage: FC = () => {
         <div className='flex w-full justify-end'>
           <IconButton
             disabled={creating}
-            path=''
+            path={creating ? mdiLoading : mdiPlus}
             variant='hover-text'
             color='primary'
-            iconProps={{
-              spin: creating,
-              path: creating ? mdiLoading : mdiPlus
-            }}
+            iconProps={{ spin: creating }}
             onClick={createCategory}
           />
           <IconButton
             disabled={!selectedCategory}
-            path=''
+            path={deleting ? mdiLoading : mdiMinus}
             variant='hover-text'
             color='error'
-            iconProps={{
-              spin: deleting,
-              path: deleting ? mdiLoading : mdiMinus
-            }}
+            iconProps={{ spin: deleting }}
             onClick={deleteCategory}
           />
         </div>

@@ -3,8 +3,16 @@ import clsx from 'clsx'
 
 import { cn } from 'utils/handleClassName'
 
+import { Spinner } from 'components/Spinner'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger
+} from 'components/utils/Tooltip'
+
 import type { DetailedHTMLProps, HTMLAttributes, ReactNode } from 'react'
-import type { NamedColors } from 'types/commonProps'
+import type { TooltipOptions } from 'components/utils/Tooltip'
+import type { NamedColors, sizeLiteral } from 'types/commonProps'
 
 interface ThemedButtonProps {
   type?: 'submit' | 'button'
@@ -18,6 +26,10 @@ interface ThemedButtonProps {
     | 'outline'
     | 'outline-toggle'
   active?: boolean
+  loading?: boolean
+  spinnerSize?: sizeLiteral
+  tooltip?: string
+  tooltipOptions?: TooltipOptions
   disabled?: boolean
   children?: ReactNode
 }
@@ -34,6 +46,10 @@ export const ThemedButton = forwardRef<
       variant = 'flat',
       active = false,
       disabled = false,
+      loading = false,
+      spinnerSize,
+      tooltip,
+      tooltipOptions,
       children,
       ...props
     },
@@ -121,7 +137,7 @@ export const ThemedButton = forwardRef<
       }
     }, [active, color, disabled, variant])
 
-    return (
+    const button = (
       <button
         ref={ref}
         className={cn(
@@ -130,12 +146,21 @@ export const ThemedButton = forwardRef<
           variantClassName,
           className
         )}
-        disabled={disabled}
+        disabled={loading || disabled}
         data-active={active}
         {...props}
       >
-        {children}
+        {loading ? <Spinner size={spinnerSize} /> : children}
       </button>
+    )
+
+    if (!tooltip) return button
+
+    return (
+      <Tooltip {...tooltipOptions}>
+        <TooltipTrigger asChild>{button}</TooltipTrigger>
+        <TooltipContent>{tooltip}</TooltipContent>
+      </Tooltip>
     )
   }
 )

@@ -111,24 +111,15 @@ export const ManageTemplatePage: FC = () => {
           {templates && (
             <>
               <ThemedButton
-                className='h-12 w-full'
+                className='h-10 w-full'
                 variant='text'
                 color='primary'
-                disabled={creating}
+                loading={creating}
+                spinnerSize='xs'
                 onClick={createTemplate}
               >
-                {creating ? (
-                  <Spinner size='xs' />
-                ) : (
-                  <>
-                    <Icon
-                      className='-mt-1 mr-1 inline'
-                      path={mdiPlus}
-                      size={1}
-                    />
-                    새 템플릿
-                  </>
-                )}
+                <Icon className='-mt-1 mr-1 inline' path={mdiPlus} size={1} />새
+                템플릿
               </ThemedButton>
               <ul className='text-lg'>
                 {templates.map((template) => (

@@ -13,11 +13,6 @@ import { ThemedButton } from 'components/Buttons/ThemedButton'
 import { Error } from 'components/Error'
 import { ImagePreview } from 'components/ImagePreview'
 import { Spinner } from 'components/Spinner'
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger
-} from 'components/utils/Tooltip'
 
 import type { FC } from 'react'
 
@@ -53,18 +48,14 @@ export const ImageImporter: FC<ImageImporterProps> = ({
 
   return (
     <>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <IconButton
-            className={cn(className)}
-            path={mdiImageSearch}
-            variant='hover-text-toggle'
-            active={isOpen}
-            onClick={toggle}
-          />
-        </TooltipTrigger>
-        {description && <TooltipContent>{description}</TooltipContent>}
-      </Tooltip>
+      <IconButton
+        className={cn(className)}
+        path={mdiImageSearch}
+        variant='hover-text-toggle'
+        active={isOpen}
+        tooltip={description}
+        onClick={toggle}
+      />
 
       {isOpen && (
         <div className='absolute inset-0 z-20 flex size-full items-center justify-center bg-neutral-50 bg-opacity-80'>

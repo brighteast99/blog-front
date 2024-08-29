@@ -19,11 +19,6 @@ import {
 } from '@mdi/js'
 import { IconButton } from 'components/Buttons/IconButton'
 import { ImagePreview } from 'components/ImagePreview'
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger
-} from 'components/utils/Tooltip'
 import { ImageFilePreview } from './ImageFilePreview'
 import { ImageImporter } from './ImageImporter'
 
@@ -164,17 +159,13 @@ export const ImageCatalogue: FC<ImageCatalogueProps> = ({
             description='서버 이미지 탐색'
             onClickImport={onImageImported}
           />
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <IconButton
-                className='block'
-                path={mdiPlus}
-                variant='hover-text'
-                onClick={() => imageInput.current?.click()}
-              />
-            </TooltipTrigger>
-            <TooltipContent>이미지 업로드</TooltipContent>
-          </Tooltip>
+          <IconButton
+            className='block'
+            path={mdiPlus}
+            variant='hover-text'
+            tooltip='이미지 업로드'
+            onClick={() => imageInput.current?.click()}
+          />
         </FloatingDelayGroup>
       </div>
 
@@ -218,58 +209,46 @@ export const ImageCatalogue: FC<ImageCatalogueProps> = ({
                   <div className='absolute size-full bg-neutral-50 bg-opacity-75 opacity-0 transition-opacity hover:opacity-100'>
                     <div className='absolute inset-0 m-auto flex size-fit gap-1'>
                       <FloatingDelayGroup delay={100}>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <IconButton
-                              className='p-1'
-                              path={mdiImagePlus}
-                              color='primary'
-                              variant='hover-text'
-                              size={1.2}
-                              onClick={() => onInsertImage(image)}
-                            />
-                          </TooltipTrigger>
-                          <TooltipContent>본문에 삽입</TooltipContent>
-                        </Tooltip>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <IconButton
-                              className='p-1'
-                              path={isThumbnail ? mdiImageOff : mdiImage}
-                              color={isThumbnail ? 'error' : 'primary'}
-                              variant={isThumbnail ? 'text' : 'hover-text'}
-                              size={1.2}
-                              onClick={() =>
-                                changeThumbnail?.(isThumbnail ? null : image)
-                              }
-                            />
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            {isThumbnail
+                        <IconButton
+                          className='p-1'
+                          path={mdiImagePlus}
+                          color='primary'
+                          variant='hover-text'
+                          size={1.2}
+                          tooltip='본문에 삽입'
+                          onClick={() => onInsertImage(image)}
+                        />
+                        <IconButton
+                          className='p-1'
+                          path={isThumbnail ? mdiImageOff : mdiImage}
+                          color={isThumbnail ? 'error' : 'primary'}
+                          variant={isThumbnail ? 'text' : 'hover-text'}
+                          size={1.2}
+                          tooltip={
+                            isThumbnail
                               ? '대표 이미지 해제'
-                              : '대표 이미지 설정'}
-                          </TooltipContent>
-                        </Tooltip>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <IconButton
-                              path={mdiImageRemove}
-                              color='error'
-                              variant='text'
-                              size={1.2}
-                              onClick={() => {
-                                if (
-                                  !window.confirm(
-                                    `${isThumbnail ? '대표 이미지가 해제되며 ' : ''}본문에 포함된 이미지도 모두 제거됩니다.`
-                                  )
-                                )
-                                  return
-                                onDeleteImage(image)
-                              }}
-                            />
-                          </TooltipTrigger>
-                          <TooltipContent>이미지 삭제</TooltipContent>
-                        </Tooltip>
+                              : '대표 이미지 설정'
+                          }
+                          onClick={() =>
+                            changeThumbnail?.(isThumbnail ? null : image)
+                          }
+                        />
+                        <IconButton
+                          path={mdiImageRemove}
+                          color='error'
+                          variant='text'
+                          size={1.2}
+                          tooltip='이미지 삭제'
+                          onClick={() => {
+                            if (
+                              !window.confirm(
+                                `${isThumbnail ? '대표 이미지가 해제되며 ' : ''}본문에 포함된 이미지도 모두 제거됩니다.`
+                              )
+                            )
+                              return
+                            onDeleteImage(image)
+                          }}
+                        />
                       </FloatingDelayGroup>
                     </div>
                   </div>
@@ -307,30 +286,22 @@ export const ImageCatalogue: FC<ImageCatalogueProps> = ({
                 <div className='absolute size-full bg-neutral-50 bg-opacity-75 opacity-0 transition-opacity hover:opacity-100'>
                   <div className='absolute inset-0 m-auto flex size-fit gap-2'>
                     <FloatingDelayGroup delay={100}>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <IconButton
-                            path={mdiRefresh}
-                            variant='hover-text'
-                            color='primary'
-                            size={1.2}
-                            onClick={() => onRetryUpload?.(file)}
-                          />
-                        </TooltipTrigger>
-                        <TooltipContent>다시 시도</TooltipContent>
-                      </Tooltip>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <IconButton
-                            path={mdiClose}
-                            variant='text'
-                            color='error'
-                            size={1.2}
-                            onClick={() => onAbortFile?.(file)}
-                          />
-                        </TooltipTrigger>
-                        <TooltipContent>업로드 취소</TooltipContent>
-                      </Tooltip>
+                      <IconButton
+                        path={mdiRefresh}
+                        variant='hover-text'
+                        color='primary'
+                        size={1.2}
+                        tooltip='다시 시도'
+                        onClick={() => onRetryUpload?.(file)}
+                      />
+                      <IconButton
+                        path={mdiClose}
+                        variant='text'
+                        color='error'
+                        size={1.2}
+                        tooltip='업로드 취소'
+                        onClick={() => onAbortFile?.(file)}
+                      />
                     </FloatingDelayGroup>
                   </div>
                 </div>

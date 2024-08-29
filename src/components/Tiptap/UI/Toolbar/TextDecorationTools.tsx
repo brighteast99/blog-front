@@ -9,11 +9,6 @@ import {
   mdiFormatUnderline
 } from '@mdi/js'
 import { IconButton } from 'components/Buttons/IconButton'
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger
-} from 'components/utils/Tooltip'
 
 import type { FC } from 'react'
 
@@ -31,89 +26,89 @@ export const TextDecorationTools: FC = () => {
 
   return (
     <div>
-      <Tooltip placement='bottom' offset={3}>
-        <TooltipTrigger asChild>
-          <IconButton
-            path={mdiFormatBold}
-            color='primary'
-            variant='hover-text-toggle'
-            active={bold}
-            onClick={() => {
-              editor.chain().focus().toggleBold().run()
-            }}
-          />
-        </TooltipTrigger>
-        <TooltipContent>굵게</TooltipContent>
-      </Tooltip>
+      <IconButton
+        path={mdiFormatBold}
+        color='primary'
+        variant='hover-text-toggle'
+        active={bold}
+        tooltip='굵게'
+        tooltipOptions={{
+          placement: 'bottom',
+          offset: 3
+        }}
+        onClick={() => {
+          editor.chain().focus().toggleBold().run()
+        }}
+      />
 
-      <Tooltip placement='bottom' offset={3}>
-        <TooltipTrigger asChild>
-          <IconButton
-            path={mdiFormatItalic}
-            color='primary'
-            variant='hover-text-toggle'
-            active={italic}
-            onClick={() => editor.chain().focus().toggleItalic().run()}
-          />
-        </TooltipTrigger>
-        <TooltipContent>기울임</TooltipContent>
-      </Tooltip>
+      <IconButton
+        path={mdiFormatItalic}
+        color='primary'
+        variant='hover-text-toggle'
+        active={italic}
+        tooltip='기울임'
+        tooltipOptions={{
+          placement: 'bottom',
+          offset: 3
+        }}
+        onClick={() => editor.chain().focus().toggleItalic().run()}
+      />
 
-      <Tooltip placement='bottom' offset={3}>
-        <TooltipTrigger asChild>
-          <IconButton
-            path={mdiFormatUnderline}
-            color='primary'
-            variant='hover-text-toggle'
-            active={underline}
-            onClick={() => editor.chain().focus().toggleUnderline().run()}
-          />
-        </TooltipTrigger>
-        <TooltipContent>밑줄</TooltipContent>
-      </Tooltip>
+      <IconButton
+        path={mdiFormatUnderline}
+        color='primary'
+        variant='hover-text-toggle'
+        active={underline}
+        tooltip='밑줄'
+        tooltipOptions={{
+          placement: 'bottom',
+          offset: 3
+        }}
+        onClick={() => editor.chain().focus().toggleUnderline().run()}
+      />
 
-      <Tooltip placement='bottom' offset={3}>
-        <TooltipTrigger asChild>
-          <IconButton
-            path={mdiFormatStrikethroughVariant}
-            color='primary'
-            variant='hover-text-toggle'
-            active={strike}
-            onClick={() => editor.chain().focus().toggleStrike().run()}
-          />
-        </TooltipTrigger>
-        <TooltipContent>취소선</TooltipContent>
-      </Tooltip>
+      <IconButton
+        path={mdiFormatStrikethroughVariant}
+        color='primary'
+        variant='hover-text-toggle'
+        active={strike}
+        tooltip='취소선'
+        tooltipOptions={{
+          placement: 'bottom',
+          offset: 3
+        }}
+        onClick={() => editor.chain().focus().toggleStrike().run()}
+      />
 
-      <Tooltip placement='bottom' offset={3}>
-        <TooltipTrigger asChild>
-          <IconButton
-            path={mdiFormatSuperscript}
-            color='primary'
-            variant='hover-text-toggle'
-            active={superscript}
-            onClick={() => {
-              editor.chain().focus().unsetSubscript().toggleSuperscript().run()
-            }}
-          />
-        </TooltipTrigger>
-        <TooltipContent>위첨자</TooltipContent>
-      </Tooltip>
+      <IconButton
+        path={mdiFormatSuperscript}
+        color='primary'
+        variant='hover-text-toggle'
+        active={superscript}
+        tooltip='위첨자'
+        tooltipOptions={{
+          placement: 'bottom',
+          offset: 3
+        }}
+        onClick={() => {
+          editor.chain().focus().unsetSubscript().toggleSuperscript().run()
+        }}
+      />
 
-      <Tooltip placement='bottom' offset={3}>
-        <TooltipTrigger asChild>
-          <IconButton
-            path={mdiFormatSubscript}
-            color='primary'
-            variant='hover-text-toggle'
-            active={subscript}
-            onClick={() => {
-              editor.chain().focus().unsetSuperscript().toggleSubscript().run()
-            }}
-          />
-        </TooltipTrigger>
-        <TooltipContent>아래첨자</TooltipContent>
-      </Tooltip>
+      <IconButton
+        path={mdiFormatSubscript}
+        color='primary'
+        variant='hover-text-toggle'
+        active={subscript}
+        tooltip='아래첨자'
+        tooltipOptions={{
+          placement: 'bottom',
+          offset: 3
+        }}
+        onClick={() => {
+          editor.chain().focus().unsetSuperscript().toggleSubscript().run()
+        }}
+      />
     </div>
   )
 }

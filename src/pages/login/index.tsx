@@ -7,7 +7,6 @@ import { useToggle } from 'hooks/useToggle'
 import { auth, AuthFailedError, NetworkError } from 'utils/Auth'
 
 import { ThemedButton } from 'components/Buttons/ThemedButton'
-import { Spinner } from 'components/Spinner'
 
 import type { ChangeEvent, FC, FormEvent } from 'react'
 
@@ -99,9 +98,10 @@ export const LoginPage: FC = () => {
           type='submit'
           color='primary'
           variant='flat'
-          disabled={loading}
+          loading={loading}
+          spinnerSize='xs'
         >
-          {loading ? <Spinner size='xs' /> : '로그인'}
+          로그인
         </ThemedButton>
         <label className='block'>
           <input

@@ -149,8 +149,10 @@ export const ManageInfoPage: FC = () => {
             className='h-10 w-full py-0.5 text-lg'
             color='primary'
             disabled={!title.length || !description.length || !hasChange}
+            loading={updating}
+            spinnerSize='xs'
           >
-            {updating ? <Spinner size='xs' /> : '저장'}
+            저장
           </ThemedButton>
         </form>
       </div>

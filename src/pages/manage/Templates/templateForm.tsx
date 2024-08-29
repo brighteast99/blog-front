@@ -10,7 +10,6 @@ import {
 
 import { usePostInput as useTemplateInput } from 'pages/post/Edit/hooks'
 import { ThemedButton } from 'components/Buttons/ThemedButton'
-import { Spinner } from 'components/Spinner'
 import { Tiptap } from 'components/Tiptap'
 import { NavigationBlocker } from 'components/utils/NavigationBlocker'
 
@@ -139,24 +138,28 @@ export const TemplateForm: FC<{
           onChangeThumbnail={setThumbnail}
         />
         <ThemedButton
-          className='h-12 w-full'
+          className='h-10 w-full'
           type='submit'
           variant='flat'
           color='primary'
-          disabled={updating || deleting}
+          disabled={deleting}
+          loading={updating}
+          spinnerSize='xs'
           onClick={updateTemplate}
         >
-          {updating ? <Spinner size='xs' /> : '저장'}
+          저장
         </ThemedButton>
         <ThemedButton
-          className='h-12 w-full'
+          className='h-10 w-full'
           type='button'
           variant='text'
           color='error'
-          disabled={updating || deleting}
+          disabled={updating}
+          loading={deleting}
+          spinnerSize='xs'
           onClick={deleteTemplate}
         >
-          {deleting ? <Spinner size='xs' /> : '삭제'}
+          삭제
         </ThemedButton>
       </div>
     </>

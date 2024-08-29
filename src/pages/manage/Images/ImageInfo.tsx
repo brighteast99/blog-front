@@ -9,7 +9,6 @@ import { getRelativeTimeFromNow } from 'utils/dayJS'
 import { CopyButton } from 'components/Buttons/CopyButton'
 import { ThemedButton } from 'components/Buttons/ThemedButton'
 import { ImagePreview } from 'components/ImagePreview'
-import { Spinner } from 'components/Spinner'
 
 import type { FC } from 'react'
 import type { QueryRef } from '@apollo/client'
@@ -172,15 +171,12 @@ export const ImageInfo: FC<{
         color='error'
         className='absolute inset-x-0 bottom-0 h-10 w-full rounded-t-none'
         disabled={thumbnailReferenceCount + contentReferenceCount > 0}
+        loading={deleting}
         onClick={deleteImage}
       >
-        {deleting ? (
-          <Spinner />
-        ) : thumbnailReferenceCount + contentReferenceCount > 0 ? (
-          '삭제 불가'
-        ) : (
-          '삭제'
-        )}
+        {thumbnailReferenceCount + contentReferenceCount > 0
+          ? '삭제 불가'
+          : '삭제'}
       </ThemedButton>
     </div>
   )

@@ -17,11 +17,6 @@ import { Error } from 'components/Error'
 import { PopoverMenu } from 'components/PopoverMenu'
 import { Spinner } from 'components/Spinner'
 import { Tiptap } from 'components/Tiptap'
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger
-} from 'components/utils/Tooltip'
 
 import type { FC, ReactNode } from 'react'
 import type { Draft } from 'types/data'
@@ -106,14 +101,12 @@ export const DraftManager: FC<DraftManagerProps> = ({
         <ThemedButton
           className='h-8 px-2'
           variant='hover-text'
-          disabled={loadingDrafts || !drafts?.length}
+          disabled={!drafts?.length}
+          loading={loadingDrafts}
+          spinnerSize='xs'
           color='primary'
         >
-          {loadingDrafts ? (
-            <Spinner size='xs' />
-          ) : (
-            `임시 저장본 ${drafts?.length ? `(${drafts?.length})` : '없음'}`
-          )}
+          {`임시 저장본 ${drafts?.length ? `(${drafts?.length})` : '없음'}`}
         </ThemedButton>
       }
       onOpen={open}
@@ -154,25 +147,19 @@ export const DraftManager: FC<DraftManagerProps> = ({
                   >
                     {`${draft.summary} (${getRelativeTimeFromNow(draft.createdAt)})`}
                   </span>
-                  <Tooltip placement='right'>
-                    <TooltipTrigger asChild>
-                      <IconButton
-                        path=''
-                        variant='hover-text'
-                        color='error'
-                        iconProps={{
-                          path: mdiDelete,
-                          horizontal: true
-                        }}
-                        size={0.7}
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          deleteDraft(draft)
-                        }}
-                      />
-                    </TooltipTrigger>
-                    <TooltipContent>삭제</TooltipContent>
-                  </Tooltip>
+                  <IconButton
+                    path={mdiDelete}
+                    variant='hover-text'
+                    color='error'
+                    iconProps={{ horizontal: true }}
+                    size={0.7}
+                    tooltip='삭제'
+                    tooltipOptions={{ placement: 'right' }}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      deleteDraft(draft)
+                    }}
+                  />
                 </li>
               ))}
             </ul>

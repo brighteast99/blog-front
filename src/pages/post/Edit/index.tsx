@@ -27,11 +27,6 @@ import { Error } from 'components/Error'
 import { Spinner } from 'components/Spinner'
 import { Tiptap } from 'components/Tiptap'
 import { NavigationBlocker } from 'components/utils/NavigationBlocker'
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger
-} from 'components/utils/Tooltip'
 import { DraftManager } from './DraftManager'
 import { usePostInput } from './hooks'
 import { TemplateSelector } from './TemplateSelector'
@@ -349,10 +344,12 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
             <ThemedButton
               className='h-8 px-2'
               variant='flat'
+              loading={loadingCategories}
+              spinnerSize='xs'
               onClick={() => refetchCategories()}
               color='primary'
             >
-              {loadingCategories ? <Spinner size='xs' /> : '다시 시도'}
+              다시 시도
             </ThemedButton>
           )}
         </div>
@@ -367,24 +364,20 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
             onBlur={(e) => setTitle(e.target.value.trim())}
             required
           />
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <IconButton
-                path={postInput.isHidden ? mdiLock : mdiLockOpen}
-                variant='hover-text-toggle'
-                color='primary'
-                disabled={selectedCategory?.isHidden}
-                active={postInput.isHidden}
-                onClick={() => setIsHidden(!postInput.isHidden)}
-              />
-            </TooltipTrigger>
-            <TooltipContent>
-              {selectedCategory.isHidden
+          <IconButton
+            path={postInput.isHidden ? mdiLock : mdiLockOpen}
+            variant='hover-text-toggle'
+            color='primary'
+            disabled={selectedCategory?.isHidden}
+            tooltip={
+              selectedCategory.isHidden
                 ? '비공개 분류에 속하는 게시글입니다'
                 : (postInput.isHidden ? '공개 게시글' : '비공개 게시글') +
-                  '로 전환'}
-            </TooltipContent>
-          </Tooltip>
+                  '로 전환'
+            }
+            active={postInput.isHidden}
+            onClick={() => setIsHidden(!postInput.isHidden)}
+          />
         </div>
 
         {!loadingPost && !errorLoadingPost && (
@@ -408,33 +401,23 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
           className='mb-2 h-10 w-full py-0.5 text-lg'
           variant='flat'
           color='primary'
-          disabled={
-            !postInput.title || creatingDraft || creatingPost || updatingPost
-          }
+          disabled={!postInput.title}
+          loading={creatingDraft || creatingPost || updatingPost}
+          spinnerSize='xs'
           onClick={newPost ? createPost : updatePost}
         >
-          {creatingDraft || creatingPost || updatingPost ? (
-            <Spinner size='xs' />
-          ) : newPost ? (
-            '게시'
-          ) : (
-            '수정'
-          )}
+          {newPost ? '게시' : '수정'}
         </ThemedButton>
         <ThemedButton
           className='h-10 w-full py-0.5 text-lg'
           variant='text'
           color='secondary'
-          disabled={
-            !postInput.title || creatingDraft || creatingPost || updatingPost
-          }
+          disabled={!postInput.title}
+          loading={creatingDraft || creatingPost || updatingPost}
+          spinnerSize='xs'
           onClick={createDraft}
         >
-          {creatingDraft || creatingPost || updatingPost ? (
-            <Spinner size='xs' />
-          ) : (
-            '임시 저장'
-          )}
+          임시 저장
         </ThemedButton>
       </div>
     </>

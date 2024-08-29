@@ -21,11 +21,6 @@ import { IconButton } from 'components/Buttons/IconButton'
 import { Error } from 'components/Error'
 import { PostList } from 'components/postList'
 import { SuspendedText } from 'components/SuspendedText'
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger
-} from 'components/utils/Tooltip'
 
 import type { FC, FormEvent } from 'react'
 import type { Action } from 'components/Error'
@@ -213,23 +208,19 @@ export const CategoryPage: FC = () => {
       <div className='sticky top-0 z-10 -mt-28 h-32 w-full bg-background' />
       <div className='sticky top-32 z-10 mx-auto -mb-0.5 flex w-5/6 items-center gap-2 border-b-2 border-neutral-600 bg-background py-2'>
         {isLoggedIn && (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <IconButton
-                className='p-0'
-                path={mdiPlus}
-                variant='hover-text'
-                onClick={() => {
-                  let path = '/post/new'
-                  const id = Number(categoryId)
-                  if (typeof id === 'number' && id > 0)
-                    path += `?category=${categoryId}`
-                  navigate(path)
-                }}
-              />
-            </TooltipTrigger>
-            <TooltipContent>새 글 쓰기</TooltipContent>
-          </Tooltip>
+          <IconButton
+            className='p-0'
+            path={mdiPlus}
+            variant='hover-text'
+            tooltip='새 글 쓰기'
+            onClick={() => {
+              let path = '/post/new'
+              const id = Number(categoryId)
+              if (typeof id === 'number' && id > 0)
+                path += `?category=${categoryId}`
+              navigate(path)
+            }}
+          />
         )}
 
         <div className='grow' />

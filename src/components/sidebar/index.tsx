@@ -20,11 +20,6 @@ import { PopoverMenu } from 'components/PopoverMenu'
 import { PopoverMenuItem } from 'components/PopoverMenu/PopoverMenuItem'
 import { Spinner } from 'components/Spinner'
 import { SuspendedText } from 'components/SuspendedText'
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger
-} from 'components/utils/Tooltip'
 import { CategoryList } from './CategoryList'
 
 import type { FC } from 'react'
@@ -162,18 +157,14 @@ export const Sidebar: FC<SidebarProps> = ({
             />
           </PopoverMenu>
         ) : (
-          <Tooltip placement='right'>
-            <TooltipTrigger asChild>
-              <IconButton
-                className='w-fit'
-                path={mdiLogin}
-                color='primary'
-                variant='hover-text'
-                onClick={logIn}
-              />
-            </TooltipTrigger>
-            <TooltipContent>로그인</TooltipContent>
-          </Tooltip>
+          <IconButton
+            className='w-fit'
+            path={mdiLogin}
+            color='primary'
+            variant='hover-text'
+            tooltip='로그인'
+            onClick={logIn}
+          />
         )}
       </div>
     </>
