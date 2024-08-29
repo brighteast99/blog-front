@@ -42,7 +42,11 @@ export interface ImageData {
   id: number
   url: string
   name: string
+  size: number
+  width: number
+  height: number
   uploadedAt: Date
+  isReferenced: boolean
   templateThumbnailOf: Template[]
   templateContentOf: Template[]
   draftThumbnailOf: Draft[]
