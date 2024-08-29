@@ -89,13 +89,7 @@ export const ManageTemplatePage: FC = () => {
   return (
     <div className='flex justify-center gap-2 p-5'>
       <div className='w-1/3'>
-        <div
-          className='relative h-full overflow-y-auto rounded border border-neutral-200 bg-neutral-50'
-          onClick={(e) => {
-            if (e.target !== e.currentTarget) return
-            selectTemplate(undefined)
-          }}
-        >
+        <div className='relative h-full overflow-y-auto rounded border border-neutral-200 bg-neutral-50'>
           {loadingTemplates && (
             <Spinner className='absolute inset-0' size='sm' />
           )}
