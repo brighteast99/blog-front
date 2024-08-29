@@ -64,7 +64,7 @@ export const ManagePage: FC = () => {
           </div>
         ))}
       </div>
-      <div className='grow p-2 *:h-full'>
+      <div className='min-h-0 grow p-2 *:h-full'>
         <Outlet />
       </div>
     </div>
