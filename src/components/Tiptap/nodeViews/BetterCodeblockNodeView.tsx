@@ -1,14 +1,6 @@
-import { useState } from 'react'
 import { NodeViewContent, NodeViewWrapper } from '@tiptap/react'
 
-import { mdiContentCopy } from '@mdi/js'
 import { CopyButton } from 'components/Buttons/CopyButton'
-import { IconButton } from 'components/Buttons/IconButton'
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger
-} from 'components/utils/Tooltip'
 
 import type { FC } from 'react'
 import type { NodeViewProps } from '@tiptap/react'

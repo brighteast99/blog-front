@@ -59,7 +59,7 @@ export const ImageInfo: FC<{
         resetDeleteMutation()
       }
     })
-  }, [_deleteImage, onDelete, resetDeleteMutation, url])
+  }, [_deleteImage, onDelete, resetDeleteMutation, url, name])
 
   return (
     <div className='size-full px-4 py-6'>
