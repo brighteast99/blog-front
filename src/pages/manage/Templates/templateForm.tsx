@@ -31,6 +31,7 @@ export const TemplateForm: FC<{
     setTextContent,
     setThumbnail,
     addImage,
+    addImages,
     removeImage
   } = useTemplateInput({
     title: '',
@@ -132,9 +133,10 @@ export const TemplateForm: FC<{
             setContent(editor.getHTML())
             setTextContent(editor.getText())
           }}
-          onChangeThumbnail={setThumbnail}
           onImageUploaded={addImage}
+          onImageImported={addImages}
           onImageDeleted={removeImage}
+          onChangeThumbnail={setThumbnail}
         />
         <ThemedButton
           className='h-12 w-full'

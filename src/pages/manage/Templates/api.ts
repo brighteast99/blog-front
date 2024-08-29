@@ -36,6 +36,7 @@ export const GET_TEMPLATE: TypedDocumentNode<
       id
       title
       content
+      textContent
       thumbnail
       images
     }

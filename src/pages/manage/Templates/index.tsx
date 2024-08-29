@@ -163,7 +163,7 @@ export const ManageTemplatePage: FC = () => {
         <ErrorBoundary
           FallbackComponent={({ resetErrorBoundary }) => (
             <Error
-              message='게시판 정보를 불러오지 못했습니다'
+              message='템플릿을 불러오지 못했습니다'
               hideDefaultAction
               actions={[
                 {

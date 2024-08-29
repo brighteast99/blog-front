@@ -391,12 +391,12 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
           <Tiptap
             className='mb-5 min-h-40 grow'
             content={postInput.content}
+            thumbnail={postInput.thumbnail}
+            images={postInput.images}
             onChange={(editor) => {
               setContent(editor.getHTML())
               setTextContent(editor.getText())
             }}
-            thumbnail={postInput.thumbnail}
-            images={postInput.images}
             onImageUploaded={addImage}
             onImageImported={addImages}
             onImageDeleted={removeImage}
