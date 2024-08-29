@@ -8,3 +8,4 @@ export type NamedColors =
   | 'warning'
   | 'error'
   | 'unset'
+export type fileSizeUnitLiteral = 'B' | 'KB' | 'MB' | 'GB'
