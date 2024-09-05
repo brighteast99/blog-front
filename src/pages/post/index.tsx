@@ -8,7 +8,7 @@ import { UPDATE_POST } from './Edit/api'
 import { GET_CATEGORY_HIERARCHY } from 'pages/manage/Categories/api'
 
 import { useAppSelector } from 'store/hooks'
-import { selectIsAuthenticated } from 'store/slices/auth/authSlice'
+import { selectIsAuthenticatedAndActive } from 'store/slices/auth/authSlice'
 import { getRelativeTimeFromNow } from 'utils/dayJS'
 import { progress } from 'utils/useProgress'
 
@@ -27,7 +27,7 @@ import type { Action } from 'components/Error'
 export const PostPage: FC = () => {
   const titlebar = useRef<HTMLDivElement>(null)
   const contentArea = useRef<HTMLDivElement>(null)
-  const isLoggedIn = useAppSelector(selectIsAuthenticated)
+  const isLoggedIn = useAppSelector(selectIsAuthenticatedAndActive)
   const location = useLocation()
   const navigate = useNavigate()
   const { postId } = useParams()

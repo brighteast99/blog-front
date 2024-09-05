@@ -18,7 +18,7 @@ import { GET_CATEGORY_HIERARCHY } from 'pages/manage/Categories/api'
 import { GET_POST } from 'pages/post/api'
 
 import { useAppSelector } from 'store/hooks'
-import { selectIsAuthenticated } from 'store/slices/auth/authSlice'
+import { selectIsAuthenticatedAndActive } from 'store/slices/auth/authSlice'
 
 import { mdiLock, mdiLockOpen } from '@mdi/js'
 import { IconButton } from 'components/Buttons/IconButton'
@@ -38,7 +38,7 @@ import type { PostInput } from './api'
 export const EditPostPage: FC<{ newPost?: boolean }> = ({
   newPost = false
 }) => {
-  const isLoggedIn = useAppSelector(selectIsAuthenticated)
+  const isLoggedIn = useAppSelector(selectIsAuthenticatedAndActive)
   const location = useLocation()
   const navigate = useNavigate()
   const { postId } = useParams()

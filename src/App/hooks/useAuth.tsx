@@ -1,43 +1,24 @@
-import { useCallback, useLayoutEffect, useState } from 'react'
+import { useCallback, useLayoutEffect } from 'react'
 
 import { useAppDispatch, useAppSelector } from 'store/hooks'
 import {
   refreshToken,
   resetToken,
-  selectAuthStatus,
-  selectNeedRefresh,
+  selectExpiration,
+  selectIsAuthenticated,
   setToken,
   STORAGE_KEY
 } from 'store/slices/auth/authSlice'
+import { isPast } from 'utils/dayJS'
 
 export const useAuth = () => {
   const dispatch = useAppDispatch()
-  const authStatus = useAppSelector(selectAuthStatus)
-  const [refreshLoginTimer, setRefreshLoginTimer] =
-    useState<ReturnType<typeof setInterval>>()
-  const needRefresh = useAppSelector(selectNeedRefresh)
+  const isAuthenticated = useAppSelector(selectIsAuthenticated)
+  const expiration = useAppSelector(selectExpiration)
 
-  const refreshLoginToken = useCallback(
-    () => dispatch(refreshToken()),
-    [dispatch]
-  )
-
-  const setupTimer = useCallback(() => {
-    if (!refreshLoginTimer && document.hasFocus())
-      setRefreshLoginTimer(setInterval(refreshLoginToken, 1000 * 3))
-  }, [refreshLoginTimer, refreshLoginToken])
-
-  const cleanupTimer = useCallback(() => {
-    if (refreshLoginTimer) {
-      clearInterval(refreshLoginTimer)
-      setRefreshLoginTimer(undefined)
-    }
-  }, [refreshLoginTimer])
-
-  const startRefreshing = useCallback(() => {
-    if (needRefresh) refreshLoginToken()
-    setupTimer()
-  }, [needRefresh, refreshLoginToken, setupTimer])
+  const refreshLoginToken = useCallback(() => {
+    if (expiration && isPast(expiration * 1000)) dispatch(refreshToken())
+  }, [dispatch, expiration])
 
   const updateTokenFromStorage = useCallback(() => {
     let data =
@@ -48,18 +29,16 @@ export const useAuth = () => {
   }, [dispatch])
 
   useLayoutEffect(() => {
-    if (authStatus === 'AUTHORIZED') return
+    if (!isAuthenticated) return
 
-    startRefreshing()
-    window.addEventListener('focus', startRefreshing)
-    window.addEventListener('blur', cleanupTimer)
+    const timer = setInterval(refreshLoginToken, 1000 * 290)
+    window.addEventListener('focus', refreshLoginToken)
 
     return () => {
-      cleanupTimer()
-      window.removeEventListener('focus', startRefreshing)
-      window.removeEventListener('blur', cleanupTimer)
+      clearInterval(timer)
+      window.removeEventListener('focus', refreshLoginToken)
     }
-  }, [authStatus, startRefreshing, cleanupTimer])
+  }, [isAuthenticated, refreshLoginToken])
 
   useLayoutEffect(() => {
     window.addEventListener('storage', updateTokenFromStorage)
