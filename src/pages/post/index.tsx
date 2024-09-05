@@ -24,6 +24,7 @@ import { Tiptap } from 'components/Tiptap'
 import type { FC } from 'react'
 import type { Action } from 'components/Error'
 import type { PostSearchArgs } from 'components/postList'
+import type { Category } from 'types/data'
 
 export const PostPage: FC = () => {
   const titlebar = useRef<HTMLDivElement>(null)
@@ -45,23 +46,29 @@ export const PostPage: FC = () => {
     skip: !postId
   })
   const post = useMemo(() => postData?.post, [postData])
-  const searchArgs: PostSearchArgs = useMemo(
-    () => location.state?.searchArgs ?? {},
+  const searchArgs: PostSearchArgs | undefined = useMemo(
+    () => location.state?.searchArgs,
     [location.state]
   )
   const searchKeyword: string = useMemo(
     () =>
-      searchArgs.titleAndContent ||
-      searchArgs.title ||
-      searchArgs.content ||
+      searchArgs?.titleAndContent ||
+      searchArgs?.title ||
+      searchArgs?.content ||
       '',
     [searchArgs]
   )
-  const asPostOf = useMemo(() => {
-    if (searchArgs.categoryId === undefined) return
-    if (searchArgs.categoryId === post?.category?.id) return post.category
-    return post?.category.ancestors?.find(
-      (category) => category.id === searchArgs.categoryId
+  const asPostOf: Partial<Category> | undefined = useMemo(() => {
+    if (searchArgs === undefined) return post?.category
+    if (searchArgs.categoryId === post?.category?.id) return post?.category
+
+    return (
+      post?.category.ancestors?.find(
+        (category) => category.id === searchArgs.categoryId
+      ) ?? {
+        id: undefined,
+        name: '전체 게시글'
+      }
     )
   }, [searchArgs, post?.category])
 
@@ -355,17 +362,16 @@ export const PostPage: FC = () => {
         <div className='border-t border-neutral-300 bg-neutral-50'>
           <div className='relative mx-auto w-full max-w-[1280px] bg-inherit p-8 pb-0'>
             <p className='sticky top-0 z-10 -mt-0.5 border-b-2 border-neutral-600 bg-inherit py-2 text-2xl'>
-              <Link
-                to={`/category/${(asPostOf?.id ?? post.category?.id) || 0}`}
-              >
-                {asPostOf?.name ?? post.category.name}
-              </Link>
+              <Link to={`/category/${asPostOf?.id}`}>{asPostOf?.name}</Link>
               {searchKeyword
                 ? `의 검색 결과 (${searchKeyword})`
                 : '의 다른 게시글'}
             </p>
             <PostList
-              searchArgs={searchArgs}
+              searchArgs={{
+                ...searchArgs,
+                categoryId: asPostOf?.id
+              }}
               initialPagination={{ targetPost: post.id }}
             />
           </div>
