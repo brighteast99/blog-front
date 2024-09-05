@@ -135,8 +135,8 @@ export const PostPage: FC = () => {
         Number(contentArea.current?.clientHeight)
       setContentProgress(
         progress(
-          0,
-          Math.max(0, CONTENT_END - Number(target?.clientHeight)),
+          CONTENT_START,
+          Math.max(CONTENT_START, CONTENT_END - Number(target?.clientHeight)),
           scrollPosition
         )
       )
