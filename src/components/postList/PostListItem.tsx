@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useContext, useMemo } from 'react'
 import clsx from 'clsx'
 import { Link } from 'react-router-dom'
 
@@ -8,6 +8,7 @@ import { getRelativeTimeFromNow } from 'utils/dayJS'
 
 import Icon from '@mdi/react'
 import { mdiLock } from '@mdi/js'
+import { PostListSearchContext } from 'components/postList'
 import { HighlightedText } from 'components/utils/HighlightedText'
 
 import type { FC } from 'react'
@@ -17,6 +18,7 @@ export const PostListItem: FC<{ post: Post; isActive?: boolean }> = ({
   post,
   isActive
 }) => {
+  const searchArgs = useContext(PostListSearchContext)
   const breakpoint = useAppSelector(selectBreakpoint)
   const minimized = useMemo(() => breakpoint === 'mobile', [breakpoint])
 
@@ -40,7 +42,7 @@ export const PostListItem: FC<{ post: Post; isActive?: boolean }> = ({
         </Link>
       </span>
 
-      <Link to={`/post/${post.id}`}>
+      <Link to={`/post/${post.id}`} state={{ searchArgs }}>
         <HighlightedText
           className='inline truncate text-2xl font-medium'
           text={post.title}

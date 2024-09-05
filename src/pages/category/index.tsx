@@ -12,7 +12,7 @@ import { CATEGORY_INFO } from './api'
 import { PostSortConditions } from 'components/postList/api'
 
 import { useAppSelector } from 'store/hooks'
-import { selectIsAuthenticated } from 'store/slices/auth/authSlice'
+import { selectIsAuthenticatedAndActive } from 'store/slices/auth/authSlice'
 
 import Icon from '@mdi/react'
 import { mdiLock, mdiMagnify, mdiPlus } from '@mdi/js'
@@ -31,7 +31,7 @@ import type { SearchKey } from 'pages/category/hooks'
 export const CategoryPage: FC = () => {
   const navigate = useNavigate()
   const location = useLocation()
-  const isLoggedIn = useAppSelector(selectIsAuthenticated)
+  const isLoggedIn = useAppSelector(selectIsAuthenticatedAndActive)
 
   const { categoryId: _categoryId } = useParams()
   const categoryId =
@@ -292,7 +292,7 @@ export const CategoryPage: FC = () => {
       <div className='mx-auto w-5/6 bg-background'>
         <PostList
           pageSize={pageSize}
-          filterArgs={{
+          searchArgs={{
             categoryId,
             [searchBy]: searchKeyword
           }}

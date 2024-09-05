@@ -3,7 +3,7 @@ import clsx from 'clsx'
 import { useBlocker } from 'react-router-dom'
 
 import { useAppSelector } from 'store/hooks'
-import { selectIsAuthenticated } from 'store/slices/auth/authSlice'
+import { selectIsAuthenticatedAndActive } from 'store/slices/auth/authSlice'
 
 import { ThemedButton } from 'components/Buttons/ThemedButton'
 
@@ -22,7 +22,7 @@ export const NavigationBlocker: FC<NavigationBlockerProps> = ({
   localAlert = false,
   message = '페이지를 벗어나시겠습니까?'
 }) => {
-  const isLoggedIn = useAppSelector(selectIsAuthenticated)
+  const isLoggedIn = useAppSelector(selectIsAuthenticatedAndActive)
   const enabled = useMemo(
     () => _enabled && (!disableOnLoggedOut || isLoggedIn),
     [_enabled, disableOnLoggedOut, isLoggedIn]

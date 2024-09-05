@@ -9,7 +9,7 @@ import { GET_CATEGORY_HIERARCHY } from 'pages/manage/Categories/api'
 import { GET_INFO } from 'pages/manage/Info/api'
 
 import { useAppDispatch, useAppSelector } from 'store/hooks'
-import { revokeToken, selectIsAuthenticated } from 'store/slices/auth/authSlice'
+import { revokeToken, selectIsAuthenticatedAndActive } from 'store/slices/auth/authSlice'
 import { updateBlogInfo } from 'store/slices/blog/blogSlice'
 
 import { mdiCog, mdiLogin, mdiLogout, mdiMenu } from '@mdi/js'
@@ -42,7 +42,7 @@ export const Sidebar: FC<SidebarProps> = ({
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
   const location = useLocation()
-  const isLoggedIn = useAppSelector(selectIsAuthenticated)
+  const isLoggedIn = useAppSelector(selectIsAuthenticatedAndActive)
   const { data: blogInfoData, loading: loadingInfo } = useQuery(GET_INFO, {
     notifyOnNetworkStatusChange: true,
     onCompleted: (blogInfo) => dispatch(updateBlogInfo(blogInfo))

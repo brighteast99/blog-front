@@ -152,7 +152,7 @@ export const authSlice = createAuthSlice(initialState)
 
 export const { setToken, resetToken, updateRefreshToken } = authSlice.actions
 
-export const selectIsAuthenticated = (state: RootState) => {
+export const selectIsAuthenticatedAndActive = (state: RootState) => {
   if (
     !state.auth.info ||
     state.auth.status === 'UNAUTHORIZED' ||
@@ -169,8 +169,9 @@ export const selectIsAuthenticated = (state: RootState) => {
   return true
 }
 
-export const selectNeedRefresh = (state: RootState) =>
-  state.auth.status === 'EXPIRED'
+export const selectIsAuthenticated = (state: RootState) => !!state.auth.info
+
+export const selectExpiration = (state: RootState) => state.auth.info?.payload.exp
 
 export const selectAuthStatus = (state: RootState) => state.auth.status
 

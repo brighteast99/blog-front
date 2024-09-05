@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 
 import { useAppDispatch, useAppSelector } from 'store/hooks'
-import { selectIsAuthenticated, setToken } from 'store/slices/auth/authSlice'
+import { selectIsAuthenticatedAndActive, setToken } from 'store/slices/auth/authSlice'
 import { useToggle } from 'hooks/useToggle'
 import { auth, AuthFailedError, NetworkError } from 'utils/Auth'
 
@@ -18,7 +18,7 @@ export interface UserInfo {
 export const LoginPage: FC = () => {
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
-  const loggedIn = useAppSelector(selectIsAuthenticated)
+  const loggedIn = useAppSelector(selectIsAuthenticatedAndActive)
   const [searchParams] = useSearchParams()
   const [{ username, password }, setInput] = useState<UserInfo>({
     username: '',

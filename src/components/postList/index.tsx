@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef } from 'react'
+import { createContext, useCallback, useMemo, useRef } from 'react'
 import { useLocation, useSearchParams } from 'react-router-dom'
 
 import { useQuery } from '@apollo/client'
@@ -12,14 +12,16 @@ import { PostListItem } from './PostListItem'
 import type { FC } from 'react'
 import type { PostSortCondition } from './api'
 
+export interface PostSearchArgs {
+  categoryId?: number
+  titleAndContent?: string
+  title?: string
+  content?: string
+}
+
 export interface PostListProps {
   pageSize?: number
-  filterArgs?: {
-    categoryId?: number
-    titleAndContent?: string
-    title?: string
-    content?: string
-  }
+  searchArgs?: PostSearchArgs
   initialPagination?: {
     targetPost?: string
     offset?: number
@@ -29,9 +31,11 @@ export interface PostListProps {
   logHistory?: boolean
 }
 
+export const PostListSearchContext = createContext<PostSearchArgs>({})
+
 export const PostList: FC<PostListProps> = ({
   pageSize = 5,
-  filterArgs = {},
+  searchArgs = {},
   initialPagination = {},
   sortCondition = 'recent',
   useSearchParam,
@@ -49,7 +53,7 @@ export const PostList: FC<PostListProps> = ({
   } = useQuery(GET_POSTS, {
     variables: {
       pageSize,
-      ...filterArgs,
+      ...searchArgs,
       ...initialPagination,
       orderBy: sortCondition
     },
@@ -69,13 +73,13 @@ export const PostList: FC<PostListProps> = ({
         pageSize,
         offset: pageSize * page,
         targetPost: undefined,
-        ...filterArgs
+        ...searchArgs
       })
     },
     [
       refetch,
       pageSize,
-      filterArgs,
+      searchArgs,
       logHistory,
       searchParams,
       setSearchParams,
@@ -108,7 +112,7 @@ export const PostList: FC<PostListProps> = ({
     )
 
   return (
-    <>
+    <PostListSearchContext.Provider value={searchArgs}>
       <ul
         ref={listRef}
         className='divide-y border-neutral-600 *:border-neutral-600'
@@ -127,6 +131,6 @@ export const PostList: FC<PostListProps> = ({
         pages={pageInfo?.pages || 1}
         onPageChanged={handlePageChange}
       />
-    </>
+    </PostListSearchContext.Provider>
   )
 }

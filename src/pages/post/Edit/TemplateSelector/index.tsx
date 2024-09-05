@@ -5,7 +5,7 @@ import { useLazyQuery, useQuery } from '@apollo/client'
 import { GET_TEMPLATE, GET_TEMPLATES } from './api'
 
 import { useAppSelector } from 'store/hooks'
-import { selectIsAuthenticated } from 'store/slices/auth/authSlice'
+import { selectIsAuthenticatedAndActive } from 'store/slices/auth/authSlice'
 import { useToggle } from 'hooks/useToggle'
 
 import { ThemedButton } from 'components/Buttons/ThemedButton'
@@ -35,7 +35,7 @@ export const TemplateSelector: FC<TemplateSelectorProps> = ({
   onSelect
 }) => {
   const { value: isOpen, setTrue: open, setFalse: close } = useToggle(false)
-  const isLoggedIn = useAppSelector(selectIsAuthenticated)
+  const isLoggedIn = useAppSelector(selectIsAuthenticatedAndActive)
 
   const {
     data: templatesData,

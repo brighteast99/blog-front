@@ -6,7 +6,7 @@ import { useLazyQuery, useMutation, useQuery } from '@apollo/client'
 import { DELETE_DRAFT, GET_DRAFT, GET_DRAFTS } from './api'
 
 import { useAppSelector } from 'store/hooks'
-import { selectIsAuthenticated } from 'store/slices/auth/authSlice'
+import { selectIsAuthenticatedAndActive } from 'store/slices/auth/authSlice'
 import { useToggle } from 'hooks/useToggle'
 import { getRelativeTimeFromNow } from 'utils/dayJS'
 
@@ -38,7 +38,7 @@ export const DraftManager: FC<DraftManagerProps> = ({
   onSelect
 }) => {
   const { value: isOpen, setTrue: open, setFalse: close } = useToggle(false)
-  const isLoggedIn = useAppSelector(selectIsAuthenticated)
+  const isLoggedIn = useAppSelector(selectIsAuthenticatedAndActive)
 
   const {
     data: draftsData,

@@ -3,7 +3,7 @@ import clsx from 'clsx'
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
 
 import { useAppSelector } from 'store/hooks'
-import { selectIsAuthenticated } from 'store/slices/auth/authSlice'
+import { selectIsAuthenticatedAndActive } from 'store/slices/auth/authSlice'
 
 import { ManageCategoryPage } from './Categories'
 import { ManageImagePage } from './Images'
@@ -38,7 +38,7 @@ export const MANAGE_ROUTES = [
 export const ManagePage: FC = () => {
   const navigate = useNavigate()
   const location = useLocation()
-  const loggedIn = useAppSelector(selectIsAuthenticated)
+  const loggedIn = useAppSelector(selectIsAuthenticatedAndActive)
 
   useEffect(() => {
     if (!loggedIn) navigate(`/login?next=${location.pathname}`)
