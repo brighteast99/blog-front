@@ -292,7 +292,7 @@ export const CategoryPage: FC = () => {
       <div className='mx-auto w-5/6 bg-background'>
         <PostList
           pageSize={pageSize}
-          filterArgs={{
+          searchArgs={{
             categoryId,
             [searchBy]: searchKeyword
           }}

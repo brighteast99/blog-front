@@ -23,6 +23,7 @@ import { Tiptap } from 'components/Tiptap'
 
 import type { FC } from 'react'
 import type { Action } from 'components/Error'
+import type { PostSearchArgs } from 'components/postList'
 
 export const PostPage: FC = () => {
   const titlebar = useRef<HTMLDivElement>(null)
@@ -33,7 +34,6 @@ export const PostPage: FC = () => {
   const { postId } = useParams()
   const [titlebarTransform, setTitlebarTransform] = useState<number>(-1000)
   const [contentProgress, setContentProgress] = useState<number>(0)
-
   const {
     data: postData,
     loading,
@@ -45,6 +45,25 @@ export const PostPage: FC = () => {
     skip: !postId
   })
   const post = useMemo(() => postData?.post, [postData])
+  const searchArgs: PostSearchArgs = useMemo(
+    () => location.state?.searchArgs ?? {},
+    [location.state]
+  )
+  const searchKeyword: string = useMemo(
+    () =>
+      searchArgs.titleAndContent ||
+      searchArgs.title ||
+      searchArgs.content ||
+      '',
+    [searchArgs]
+  )
+  const asPostOf = useMemo(() => {
+    if (searchArgs.categoryId === undefined) return
+    if (searchArgs.categoryId === post?.category?.id) return post.category
+    return post?.category.ancestors?.find(
+      (category) => category.id === searchArgs.categoryId
+    )
+  }, [searchArgs, post?.category])
 
   const [_toggleIsHidden, { loading: updating, reset: resetUpdateMutation }] =
     useMutation(UPDATE_POST, { notifyOnNetworkStatusChange: true })
@@ -336,13 +355,17 @@ export const PostPage: FC = () => {
         <div className='border-t border-neutral-300 bg-neutral-50'>
           <div className='relative mx-auto w-full max-w-[1280px] bg-inherit p-8 pb-0'>
             <p className='sticky top-0 z-10 -mt-0.5 border-b-2 border-neutral-600 bg-inherit py-2 text-2xl'>
-              <Link to={`/category/${post.category?.id || 0}`}>
-                {post.category.name}
+              <Link
+                to={`/category/${(asPostOf?.id ?? post.category?.id) || 0}`}
+              >
+                {asPostOf?.name ?? post.category.name}
               </Link>
-              의 다른 게시물
+              {searchKeyword
+                ? `의 검색 결과 (${searchKeyword})`
+                : '의 다른 게시글'}
             </p>
             <PostList
-              filterArgs={{ categoryId: post.category?.id }}
+              searchArgs={searchArgs}
               initialPagination={{ targetPost: post.id }}
             />
           </div>
