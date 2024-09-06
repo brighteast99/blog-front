@@ -150,10 +150,14 @@ export const ManageCategoryPage: FC = () => {
   const deleteCategory = useCallback(() => {
     if (!selectedCategory) return
     if (!window.confirm('해당 분류 및 하위 분류가 모두 삭제됩니다.')) return
+    const deletePosts = window.confirm(
+      '게시글도 삭제할까요?\n삭제하지 않으면 분류 미지정으로 이동합니다.'
+    )
 
     _deleteCategory({
       variables: {
-        id: selectedCategory
+        id: selectedCategory,
+        deletePosts
       },
       refetchQueries: [
         {

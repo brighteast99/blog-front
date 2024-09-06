@@ -76,10 +76,10 @@ export const UPDATE_CATEGORY: TypedDocumentNode<
 
 export const DELETE_CATEGORY: TypedDocumentNode<
   { deleteCategory: { success: boolean } },
-  { id: number }
+  { id: number; deletePosts?: boolean }
 > = gql`
-  mutation DeleteCategory($id: Int!) {
-    deleteCategory(id: $id) {
+  mutation DeleteCategory($id: Int!, $deletePosts: Boolean) {
+    deleteCategory(id: $id, deletePosts: $deletePosts) {
       success
     }
   }
