@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit'
 
 import { refresh, revoke } from 'utils/Auth'
-import { isPast } from 'utils/dayJS'
+import { isFuture, isPast } from 'utils/dayJS'
 
 import type { RootState } from 'store'
 import type { AuthInfo } from 'types/auth'
@@ -33,6 +33,8 @@ export const refreshToken = createAsyncThunk<
   async (_payload, thunkAPI) => {
     // info가 undefined인 경우 condition에서 return false
     let info = thunkAPI.getState().auth.info as AuthInfo
+
+    if (isFuture(info.payload.exp * 1000)) return info
 
     try {
       return await refresh(info.refreshToken)
@@ -171,7 +173,8 @@ export const selectIsAuthenticatedAndActive = (state: RootState) => {
 
 export const selectIsAuthenticated = (state: RootState) => !!state.auth.info
 
-export const selectExpiration = (state: RootState) => state.auth.info?.payload.exp
+export const selectExpiration = (state: RootState) =>
+  state.auth.info?.payload.exp
 
 export const selectAuthStatus = (state: RootState) => state.auth.status
 

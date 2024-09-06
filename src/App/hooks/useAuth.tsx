@@ -1,24 +1,31 @@
-import { useCallback, useLayoutEffect } from 'react'
+import { useCallback, useLayoutEffect, useState } from 'react'
 
 import { useAppDispatch, useAppSelector } from 'store/hooks'
 import {
   refreshToken,
   resetToken,
-  selectExpiration,
   selectIsAuthenticated,
   setToken,
   STORAGE_KEY
 } from 'store/slices/auth/authSlice'
-import { isPast } from 'utils/dayJS'
+
+import type { AuthInfo } from 'types/auth'
 
 export const useAuth = () => {
   const dispatch = useAppDispatch()
   const isAuthenticated = useAppSelector(selectIsAuthenticated)
-  const expiration = useAppSelector(selectExpiration)
+  const [windowFocused, setWindowFocused] = useState<boolean>(true)
 
-  const refreshLoginToken = useCallback(() => {
-    if (expiration && isPast(expiration * 1000)) dispatch(refreshToken())
-  }, [dispatch, expiration])
+  const refreshLoginToken = useCallback(async () => {
+    let nextExpiration = 0
+
+    await dispatch(refreshToken()).then((result) => {
+      if (result.meta.requestStatus === 'rejected') return
+      nextExpiration = (result.payload as AuthInfo).payload.exp * 1000
+    })
+
+    return nextExpiration
+  }, [dispatch])
 
   const updateTokenFromStorage = useCallback(() => {
     let data =
@@ -29,16 +36,45 @@ export const useAuth = () => {
   }, [dispatch])
 
   useLayoutEffect(() => {
-    if (!isAuthenticated) return
+    const updateWindowFocused = (e: FocusEvent) =>
+      setWindowFocused(e.type === 'focus')
 
-    const timer = setInterval(refreshLoginToken, 1000 * 290)
-    window.addEventListener('focus', refreshLoginToken)
+    window.addEventListener('blur', updateWindowFocused)
+    window.addEventListener('focus', updateWindowFocused)
 
     return () => {
-      clearInterval(timer)
-      window.removeEventListener('focus', refreshLoginToken)
+      window.removeEventListener('blur', () => updateWindowFocused)
+      window.removeEventListener('focus', () => updateWindowFocused)
     }
-  }, [isAuthenticated, refreshLoginToken])
+  }, [])
+
+  useLayoutEffect(() => {
+    if (!isAuthenticated) return
+
+    if (!windowFocused) return
+
+    let timer: ReturnType<typeof setTimeout>
+    const refreshControl = (() => {
+      const refresh = async () => {
+        const timeout = Math.max(0, (await refreshLoginToken()) - Date.now())
+        timer = setTimeout(refresh, timeout)
+      }
+
+      return async (e: FocusEvent) => {
+        if (e.type === 'blur') clearTimeout(timer)
+        else await refresh()
+      }
+    })()
+    refreshControl(new FocusEvent('focus'))
+    window.addEventListener('focus', refreshControl)
+    window.addEventListener('blur', refreshControl)
+
+    return () => {
+      refreshControl(new FocusEvent('blur'))
+      window.removeEventListener('focus', refreshControl)
+      window.removeEventListener('blur', refreshControl)
+    }
+  }, [isAuthenticated, refreshLoginToken, windowFocused])
 
   useLayoutEffect(() => {
     window.addEventListener('storage', updateTokenFromStorage)

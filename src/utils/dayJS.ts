@@ -15,15 +15,15 @@ export function getRelativeTimeFromNow(date: Date | number): string {
 export function isSameTime(
   date1: Date | number,
   date2: Date | number
-): Boolean {
+): boolean {
   return dayjs(date1).isSame(dayjs(date2), 'milliseconds')
 }
 
-export function isPast(date: Date | number): Boolean {
+export function isPast(date: Date | number): boolean {
   return dayjs(date).isBefore(dayjs())
 }
 
-export function isFuture(date: Date | number): Boolean {
+export function isFuture(date: Date | number): boolean {
   return dayjs(date).isAfter(dayjs())
 }
 
