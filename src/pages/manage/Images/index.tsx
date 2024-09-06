@@ -59,8 +59,8 @@ export const ManageImagePage: FC = () => {
     >
       <div
         className={clsx(
-          'relative flex-1 overflow-y-auto rounded border border-neutral-200 bg-neutral-50 p-4',
-          isMobile ? 'w-full grow' : 'h-full grow-[0.75]'
+          'relative min-h-0 flex-1 rounded border border-neutral-200 bg-neutral-50',
+          isMobile ? 'w-full grow' : 'h-full w-3/4'
         )}
       >
         {(loading || deleting) && (
@@ -84,7 +84,7 @@ export const ManageImagePage: FC = () => {
         )}
         {images && (
           <div
-            className='grid gap-3'
+            className='grid max-h-full gap-3 overflow-y-auto p-4'
             style={{
               gridTemplateColumns: 'repeat(auto-fill, minmax(8rem, 1fr))',
               gridTemplateRows: 'auto'
@@ -122,12 +122,12 @@ export const ManageImagePage: FC = () => {
         )}
       </div>
 
+      {isMobile && <hr className='my-4 w-full border-neutral-400' />}
+
       <div
         className={clsx(
           'relative flex flex-col items-center justify-center rounded border border-neutral-200 bg-neutral-50 px-4 pb-4 pt-6',
-          isMobile
-            ? 'min-h-40 w-max min-w-100 max-w-[800px]'
-            : 'h-fit min-h-[32rem] flex-1 grow-[0.25]'
+          isMobile ? 'min-h-40 w-120' : 'h-fit min-h-[32rem] w-1/4'
         )}
       >
         <ErrorBoundary

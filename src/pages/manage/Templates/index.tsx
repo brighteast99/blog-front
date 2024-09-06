@@ -91,9 +91,7 @@ export const ManageTemplatePage: FC = () => {
   }, [selectedTemplate])
 
   return (
-    <div
-      className={clsx('flex justify-center gap-2 p-5', isMobile && 'flex-col')}
-    >
+    <div className={clsx('flex gap-2 p-5', isMobile && 'flex-col')}>
       <div className='flex-1 grow-[0.2]'>
         <div className='relative h-full overflow-y-auto rounded border border-neutral-200 bg-neutral-50'>
           {loadingTemplates && (

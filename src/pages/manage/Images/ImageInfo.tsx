@@ -83,7 +83,7 @@ export const ImageInfo: FC<{
           className={clsx('mx-auto', isMobile ? 'w-64' : 'w-5/6 max-w-64')}
           image={url}
         />
-        <table className='grow table-fixed'>
+        <table className={clsx('grow table-fixed', !isMobile && 'w-full')}>
           <colgroup>
             <col width='35%' />
           </colgroup>
