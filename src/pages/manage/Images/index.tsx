@@ -1,27 +1,32 @@
-import { Suspense, useLayoutEffect, useMemo, useState } from 'react'
+import {
+  Suspense,
+  useCallback,
+  useLayoutEffect,
+  useMemo,
+  useState
+} from 'react'
 import clsx from 'clsx'
 import { ErrorBoundary } from 'react-error-boundary'
 
-import { useLoadableQuery, useQuery } from '@apollo/client'
-import { GET_IMAGE, GET_IMAGES } from './api'
+import { useLoadableQuery, useMutation, useQuery } from '@apollo/client'
+import { DELETE_IMAGE, GET_IMAGE, GET_IMAGES } from './api'
 
 import { useAppSelector } from 'store/hooks'
 import { selectIsMobile } from 'store/slices/window/windowSlice'
 
 import Icon from '@mdi/react'
-import { mdiAlertCircle } from '@mdi/js'
-import { ImageInfo } from 'pages/manage/Images/ImageInfo'
+import { mdiAlertCircle, mdiDelete } from '@mdi/js'
+import { ThemedButton } from 'components/Buttons/ThemedButton'
 import { Error } from 'components/Error'
 import { ImagePreview } from 'components/ImagePreview'
+import { PopoverMenu } from 'components/PopoverMenu'
+import { PopoverMenuItem } from 'components/PopoverMenu/PopoverMenuItem'
 import { Spinner } from 'components/Spinner'
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger
-} from 'components/utils/Tooltip'
+import { ImageInfo } from './ImageInfo'
 
 import type { FC } from 'react'
 import type { fileSizeUnitLiteral } from 'types/commonProps'
+import type { ImageData } from 'types/data'
 
 const IMAGE_SIZE_UNIT: fileSizeUnitLiteral = 'MB'
 
@@ -32,7 +37,6 @@ export const ManageImagePage: FC = () => {
     fetchPolicy: 'cache-and-network',
     notifyOnNetworkStatusChange: true
   })
-  const [deleting, setDeleting] = useState<boolean>()
   const [selectedImage, setSelectedImage] = useState<string>()
   const [
     loadImageInfo,
@@ -41,7 +45,34 @@ export const ManageImagePage: FC = () => {
   ] = useLoadableQuery(GET_IMAGE, { fetchPolicy: 'cache-and-network' })
 
   const images = useMemo(() => data?.images ?? null, [data?.images])
-  const [deletedImages, setDeletedImages] = useState<string[]>([])
+  const unusedImages = useMemo(
+    () => images?.filter((image) => !image.isReferenced) ?? [],
+    [images]
+  )
+
+  const [_deleteImage, { loading: deleting, reset: resetDeleteMutation }] =
+    useMutation(DELETE_IMAGE, {
+      notifyOnNetworkStatusChange: true
+    })
+
+  const deleteImage = useCallback(
+    ({ name, url }: ImageData, force?: boolean) => {
+      if (!force && !window.confirm(`이미지 '${name}'를 삭제합니다.`)) return
+
+      _deleteImage({
+        variables: {
+          url: url
+        },
+        refetchQueries: [{ query: GET_IMAGES }],
+        onError: ({ networkError, graphQLErrors }) => {
+          if (networkError) alert('이미지 삭제 중 오류가 발생했습니다.')
+          else if (graphQLErrors.length) alert(graphQLErrors[0].message)
+          resetDeleteMutation()
+        }
+      })
+    },
+    [_deleteImage, resetDeleteMutation]
+  )
 
   useLayoutEffect(() => {
     if (selectedImage)
@@ -53,81 +84,114 @@ export const ManageImagePage: FC = () => {
   return (
     <div
       className={clsx(
-        'flex items-center justify-center gap-2 p-5',
+        'flex items-center justify-center rounded border border-neutral-200 bg-neutral-50',
         isMobile && 'flex-col-reverse'
       )}
     >
       <div
         className={clsx(
-          'relative min-h-0 flex-1 rounded border border-neutral-200 bg-neutral-50',
-          isMobile ? 'w-full grow' : 'h-full w-3/4'
+          'relative flex min-h-0',
+          isMobile ? 'w-full grow flex-col-reverse' : 'h-full w-3/4 flex-col'
         )}
       >
-        {(loading || deleting) && (
-          <div
-            className={clsx(
-              'absolute inset-0 z-10 size-full bg-neutral-50',
-              data && loading
-                ? 'pointer-events-none bg-opacity-0'
-                : 'bg-opacity-50'
-            )}
-          >
-            <Spinner className='absolute inset-0' />
-          </div>
-        )}
-        {error && (
-          <Error
-            code={500}
-            hideDefaultAction
-            actions={[{ label: '다시 시도', handler: refetch }]}
-          />
-        )}
-        {images && (
-          <div
-            className='grid max-h-full gap-3 overflow-y-auto p-4'
-            style={{
-              gridTemplateColumns: 'repeat(auto-fill, minmax(8rem, 1fr))',
-              gridTemplateRows: 'auto'
+        <div
+          className={clsx(
+            'flex h-12 flex-row items-end border-neutral-100 p-2',
+            isMobile ? 'border-t' : 'border-b'
+          )}
+        >
+          <span className='mr-1 text-lg font-semibold'>
+            {`${images?.length || 0}개 이미지`}
+          </span>
+          <ThemedButton
+            variant='hover-text'
+            color='error'
+            disabled={!unusedImages.length}
+            tooltip='미사용 이미지 정리'
+            tooltipOptions={{ placement: 'right' }}
+            onClick={() => {
+              if (!window.confirm('사용된 적 없는 이미지들을 모두 제거합니다'))
+                return
+              unusedImages.forEach((image) => deleteImage(image, true))
             }}
           >
-            {images?.length === 0 && (
-              <span className='absolute inset-0 m-auto size-fit text-xl text-foreground text-opacity-25'>
-                업로드된 이미지가 없습니다
-              </span>
-            )}
-            {images.map(({ id, url, isReferenced }) =>
-              deletedImages.includes(url) ? null : (
+            {`(미사용: ${unusedImages.length || '없음'})`}
+          </ThemedButton>
+          <div className='grow' />
+          {(loading || deleting) && (
+            <Spinner
+              className={clsx('m-0 block', deleting && 'text-error')}
+              size='xs'
+            />
+          )}
+        </div>
+
+        <div className='relative min-h-0 grow overflow-y-auto p-4'>
+          {deleting && (
+            <div className='absolute inset-0 z-20 size-full bg-neutral-700 bg-opacity-5' />
+          )}
+          {error && (
+            <Error
+              code={500}
+              hideDefaultAction
+              actions={[{ label: '다시 시도', handler: refetch }]}
+            />
+          )}
+          {images && (
+            <div
+              className='grid max-h-full gap-3'
+              style={{
+                gridTemplateColumns: 'repeat(auto-fill, minmax(8rem, 1fr))',
+                gridTemplateRows: 'auto'
+              }}
+            >
+              {images?.length === 0 && (
+                <span className='absolute inset-0 m-auto size-fit text-xl text-foreground text-opacity-25'>
+                  업로드된 이미지가 없습니다
+                </span>
+              )}
+              {images.map((image) => (
                 <ImagePreview
-                  image={url}
-                  key={id}
-                  active={selectedImage === url}
+                  image={image.url}
+                  key={image.id}
+                  active={selectedImage === image.url}
                   onClick={setSelectedImage}
                 >
-                  {!isReferenced && (
-                    <Tooltip>
-                      <TooltipTrigger asChild>
+                  {!image.isReferenced && (
+                    <PopoverMenu
+                      className='absolute bottom-1.5 left-1.5'
+                      tooltipPlacement='right'
+                      placement='bottom-start'
+                      description='사용되지 않는 이미지'
+                      menuBtn={
                         <Icon
-                          className='absolute bottom-1.5 left-1.5 text-warning'
+                          className='text-warning'
                           path={mdiAlertCircle}
                           size={0.8}
                         />
-                      </TooltipTrigger>
-                      <TooltipContent>사용되지 않는 이미지</TooltipContent>
-                    </Tooltip>
+                      }
+                    >
+                      <PopoverMenuItem
+                        className='text-error'
+                        icon={mdiDelete}
+                        title='이미지 삭제'
+                        loading={deleting}
+                        disabled={image.isReferenced}
+                        onClick={() => deleteImage(image)}
+                      />
+                    </PopoverMenu>
                   )}
                 </ImagePreview>
-              )
-            )}
-          </div>
-        )}
+              ))}
+            </div>
+          )}
+        </div>
       </div>
-
-      {isMobile && <hr className='my-4 w-full border-neutral-400' />}
 
       <div
         className={clsx(
-          'relative flex flex-col items-center justify-center rounded border border-neutral-200 bg-neutral-50 px-4 pb-4 pt-6',
-          isMobile ? 'min-h-40 w-120' : 'h-fit min-h-[32rem] w-1/4'
+          'relative flex flex-col items-center justify-center border-neutral-100 p-5',
+          isMobile ? 'min-h-40 w-full border-b' : 'h-full w-1/4 border-l'
         )}
       >
         <ErrorBoundary
@@ -149,21 +213,7 @@ export const ManageImagePage: FC = () => {
         >
           <Suspense fallback={<Spinner className='absolute inset-0' />}>
             {queryRef ? (
-              <ImageInfo
-                queryRef={queryRef}
-                sizeUnit={IMAGE_SIZE_UNIT}
-                onDelete={(promise) => {
-                  setDeleting(true)
-                  promise.then(() => {
-                    setDeleting(false)
-                    setDeletedImages((prev) => [
-                      ...prev,
-                      selectedImage as string
-                    ])
-                    setSelectedImage(undefined)
-                  })
-                }}
-              />
+              <ImageInfo queryRef={queryRef} sizeUnit={IMAGE_SIZE_UNIT} />
             ) : (
               <span className='absolute inset-0 m-auto block size-fit text-nowrap text-xl text-neutral-400'>
                 이미지를 선택하세요
