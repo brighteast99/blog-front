@@ -32,6 +32,7 @@ export const ManageImagePage: FC = () => {
     fetchPolicy: 'cache-and-network',
     notifyOnNetworkStatusChange: true
   })
+  const [deleting, setDeleting] = useState<boolean>()
   const [selectedImage, setSelectedImage] = useState<string>()
   const [
     loadImageInfo,
@@ -40,6 +41,7 @@ export const ManageImagePage: FC = () => {
   ] = useLoadableQuery(GET_IMAGE, { fetchPolicy: 'cache-and-network' })
 
   const images = useMemo(() => data?.images ?? null, [data?.images])
+  const [deletedImages, setDeletedImages] = useState<string[]>([])
 
   useLayoutEffect(() => {
     if (selectedImage)
@@ -61,7 +63,18 @@ export const ManageImagePage: FC = () => {
           isMobile ? 'w-full grow' : 'h-full grow-[0.75]'
         )}
       >
-        {loading && <Spinner className='absolute inset-0' />}
+        {(loading || deleting) && (
+          <div
+            className={clsx(
+              'absolute inset-0 z-10 size-full bg-neutral-50',
+              data && loading
+                ? 'pointer-events-none bg-opacity-0'
+                : 'bg-opacity-50'
+            )}
+          >
+            <Spinner className='absolute inset-0' />
+          </div>
+        )}
         {error && (
           <Error
             code={500}
@@ -82,36 +95,38 @@ export const ManageImagePage: FC = () => {
                 업로드된 이미지가 없습니다
               </span>
             )}
-            {images.map(({ id, url, isReferenced }) => (
-              <ImagePreview
-                image={url}
-                key={id}
-                active={selectedImage === url}
-                onClick={setSelectedImage}
-              >
-                {!isReferenced && (
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Icon
-                        className='absolute bottom-1.5 left-1.5 text-warning'
-                        path={mdiAlertCircle}
-                        size={0.8}
-                      />
-                    </TooltipTrigger>
-                    <TooltipContent>사용되지 않는 이미지</TooltipContent>
-                  </Tooltip>
-                )}
-              </ImagePreview>
-            ))}
+            {images.map(({ id, url, isReferenced }) =>
+              deletedImages.includes(url) ? null : (
+                <ImagePreview
+                  image={url}
+                  key={id}
+                  active={selectedImage === url}
+                  onClick={setSelectedImage}
+                >
+                  {!isReferenced && (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Icon
+                          className='absolute bottom-1.5 left-1.5 text-warning'
+                          path={mdiAlertCircle}
+                          size={0.8}
+                        />
+                      </TooltipTrigger>
+                      <TooltipContent>사용되지 않는 이미지</TooltipContent>
+                    </Tooltip>
+                  )}
+                </ImagePreview>
+              )
+            )}
           </div>
         )}
       </div>
 
       <div
         className={clsx(
-          'relative rounded border border-neutral-200 bg-neutral-50 px-4 pb-4 pt-6',
+          'relative flex flex-col items-center justify-center rounded border border-neutral-200 bg-neutral-50 px-4 pb-4 pt-6',
           isMobile
-            ? 'min-h-40 w-max max-w-[800px]'
+            ? 'min-h-40 w-max min-w-100 max-w-[800px]'
             : 'h-fit min-h-[32rem] flex-1 grow-[0.25]'
         )}
       >
@@ -137,10 +152,20 @@ export const ManageImagePage: FC = () => {
               <ImageInfo
                 queryRef={queryRef}
                 sizeUnit={IMAGE_SIZE_UNIT}
-                onDelete={() => setSelectedImage(undefined)}
+                onDelete={(promise) => {
+                  setDeleting(true)
+                  promise.then(() => {
+                    setDeleting(false)
+                    setDeletedImages((prev) => [
+                      ...prev,
+                      selectedImage as string
+                    ])
+                    setSelectedImage(undefined)
+                  })
+                }}
               />
             ) : (
-              <span className='absolute inset-0 m-auto block size-fit text-xl text-neutral-400'>
+              <span className='absolute inset-0 m-auto block size-fit text-nowrap text-xl text-neutral-400'>
                 이미지를 선택하세요
               </span>
             )}

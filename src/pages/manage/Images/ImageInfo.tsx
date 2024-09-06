@@ -14,7 +14,7 @@ import { ThemedButton } from 'components/Buttons/ThemedButton'
 import { ImagePreview } from 'components/ImagePreview'
 
 import type { FC } from 'react'
-import type { QueryRef } from '@apollo/client'
+import type { FetchResult, QueryRef } from '@apollo/client'
 import type {
   ImageQueryResult,
   ImageQueryVariables
@@ -24,7 +24,7 @@ import type { fileSizeUnitLiteral } from 'types/commonProps'
 export const ImageInfo: FC<{
   queryRef: QueryRef<ImageQueryResult, ImageQueryVariables>
   sizeUnit?: fileSizeUnitLiteral
-  onDelete?: (url: string) => any
+  onDelete?: (promise: Promise<FetchResult<{ success: boolean }>>) => any
 }> = ({ queryRef, sizeUnit = 'MB', onDelete }) => {
   const isMobile = useAppSelector(selectIsMobile)
   const {
@@ -56,23 +56,29 @@ export const ImageInfo: FC<{
   const deleteImage = useCallback(() => {
     if (!window.confirm(`이미지 '${name}'를 삭제합니다.`)) return
 
-    _deleteImage({
-      variables: {
-        url: url
-      },
-      refetchQueries: [{ query: GET_IMAGES }],
-      onCompleted: () => onDelete?.(url),
-      onError: ({ networkError, graphQLErrors }) => {
-        if (networkError) alert('이미지 삭제 중 오류가 발생했습니다.')
-        else if (graphQLErrors.length) alert(graphQLErrors[0].message)
-        resetDeleteMutation()
-      }
-    })
+    onDelete?.(
+      _deleteImage({
+        variables: {
+          url: url
+        },
+        refetchQueries: [{ query: GET_IMAGES }],
+        onError: ({ networkError, graphQLErrors }) => {
+          if (networkError) alert('이미지 삭제 중 오류가 발생했습니다.')
+          else if (graphQLErrors.length) alert(graphQLErrors[0].message)
+          resetDeleteMutation()
+        }
+      })
+    )
   }, [_deleteImage, onDelete, resetDeleteMutation, url, name])
 
   return (
     <>
-      <div className={clsx('flex gap-6', isMobile ? 'flex-row' : 'flex-col')}>
+      <div
+        className={clsx(
+          'flex w-full gap-6',
+          isMobile ? 'flex-row' : 'flex-col'
+        )}
+      >
         <ImagePreview
           className={clsx('mx-auto', isMobile ? 'w-64' : 'w-5/6 max-w-64')}
           image={url}
@@ -117,9 +123,8 @@ export const ImageInfo: FC<{
                     <summary>{thumbnailReferenceCount} 건</summary>
                     <ul className='ml-3 max-h-40 overflow-y-auto py-1'>
                       {templateThumbnailOf.map(({ id, title }) => (
-                        <li>
+                        <li key={`templte-${id}`}>
                           <Link
-                            key={`templte-${id}`}
                             to={`/manage/templates?template=${id}`}
                             className='block w-full truncate'
                           >
@@ -133,9 +138,8 @@ export const ImageInfo: FC<{
                         </li>
                       ))}
                       {postThumbnailOf.map(({ id, title }) => (
-                        <li>
+                        <li key={`templte-${id}`}>
                           <Link
-                            key={`templte-${id}`}
                             to={`/post/${id}`}
                             className='block w-full truncate'
                           >
