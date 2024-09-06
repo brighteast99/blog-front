@@ -22,7 +22,7 @@ export const GET_TEMPLATES: TypedDocumentNode<{ templates: Template[] }> = gql`
   query GetTemplates {
     templates {
       id
-      title
+      templateName
     }
   }
 `
@@ -34,6 +34,7 @@ export const GET_TEMPLATE: TypedDocumentNode<
   query GetTemplate($id: Int!) {
     template(id: $id) {
       id
+      templateName
       title
       content
       textContent

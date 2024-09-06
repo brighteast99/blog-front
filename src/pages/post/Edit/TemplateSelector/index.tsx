@@ -112,7 +112,7 @@ export const TemplateSelector: FC<TemplateSelectorProps> = ({
                     loadTemplate({ variables: { id: template.id } })
                   }}
                 >
-                  {template.title}
+                  {template.templateName}
                 </li>
               ))}
             </ul>
@@ -133,6 +133,9 @@ export const TemplateSelector: FC<TemplateSelectorProps> = ({
             )}
             {template && (
               <>
+                <div className='border-b border-dashed border-neutral-100 py-1.5 text-center'>
+                  {template.title}
+                </div>
                 <Tiptap
                   className='-mx-2 my-2 flex-grow overflow-y-auto'
                   editable={false}

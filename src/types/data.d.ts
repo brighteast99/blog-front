@@ -14,6 +14,7 @@ export interface Category {
 
 export interface Template {
   id: number
+  templateName: string
   title: string
   content: string
   textContent: srting
@@ -21,7 +22,7 @@ export interface Template {
   thumbnail?: string
 }
 
-export interface Draft extends Template {
+export interface Draft extends Omit<Template, 'templateName'> {
   category: Category
   summary: string
   isHidden: boolean
