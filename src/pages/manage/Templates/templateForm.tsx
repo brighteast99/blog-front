@@ -8,10 +8,10 @@ import {
   UPDATE_TEMPLATE
 } from './api'
 
-import { usePostInput as useTemplateInput } from 'pages/post/Edit/hooks'
 import { ThemedButton } from 'components/Buttons/ThemedButton'
 import { Tiptap } from 'components/Tiptap'
 import { NavigationBlocker } from 'components/utils/NavigationBlocker'
+import { useTemplateInput } from './hooks'
 
 import type { FC, MouseEvent } from 'react'
 import type { QueryRef } from '@apollo/client'
@@ -22,9 +22,17 @@ export const TemplateForm: FC<{
   onDelete?: () => any
 }> = ({ queryRef, onDelete }) => {
   const {
-    postInput: { title, content, textContent, thumbnail, images },
+    templateInput: {
+      templateName,
+      title,
+      content,
+      textContent,
+      thumbnail,
+      images
+    },
     hasChange,
     initialize,
+    setTemplateName,
     setTitle,
     setContent,
     setTextContent,
@@ -33,6 +41,7 @@ export const TemplateForm: FC<{
     addImages,
     removeImage
   } = useTemplateInput({
+    templateName: '',
     title: '',
     isHidden: false,
     content: '<p></p>',
@@ -55,6 +64,7 @@ export const TemplateForm: FC<{
       variables: {
         id: template.id,
         data: {
+          templateName,
           title,
           content,
           textContent,
@@ -98,15 +108,7 @@ export const TemplateForm: FC<{
   ])
 
   useEffect(() => {
-    if (template)
-      initialize({
-        title: template.title,
-        content: template.content,
-        textContent: template.textContent,
-        isHidden: false,
-        thumbnail: template.thumbnail,
-        images: template.images
-      })
+    if (template) initialize({ ...template, isHidden: false })
   }, [template, initialize])
 
   return (
@@ -116,7 +118,14 @@ export const TemplateForm: FC<{
         localAlert
         message={'수정 중인 내용이 있습니다.\n계속하시겠습니까?'}
       />
-      <div className='flex size-full flex-col gap-2'>
+      <div className='flex min-h-full flex-col gap-2'>
+        <input
+          className='mb-3 w-full px-1 text-2xl'
+          type='text'
+          value={templateName}
+          placeholder={template.templateName}
+          onChange={(e) => setTemplateName(e.target.value)}
+        />
         <input
           className='w-full px-1 text-2xl'
           type='text'
@@ -125,6 +134,7 @@ export const TemplateForm: FC<{
           onChange={(e) => setTitle(e.target.value)}
         />
         <Tiptap
+          className='min-h-0 grow'
           content={content}
           thumbnail={thumbnail}
           images={images}
@@ -138,7 +148,7 @@ export const TemplateForm: FC<{
           onChangeThumbnail={setThumbnail}
         />
         <ThemedButton
-          className='h-10 w-full'
+          className='h-10 w-full shrink-0'
           type='submit'
           variant='flat'
           color='primary'
@@ -150,7 +160,7 @@ export const TemplateForm: FC<{
           저장
         </ThemedButton>
         <ThemedButton
-          className='h-10 w-full'
+          className='h-10 w-full shrink-0'
           type='button'
           variant='text'
           color='error'

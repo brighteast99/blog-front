@@ -52,19 +52,20 @@ export const ManagePage: FC = () => {
   return (
     <div className='flex h-dvh min-h-[720px] flex-col p-5'>
       <p className='mb-12 text-center text-4xl'>블로그 관리</p>
-      <div className='flex border-b border-primary *:cursor-pointer *:rounded-t-sm *:px-3 *:py-1 *:text-xl'>
+      <div className='flex rounded-t border-b border-primary bg-neutral-100 *:cursor-pointer *:rounded-t-sm *:px-3 *:py-1.5 *:text-xl'>
         {MANAGE_ROUTES.map(({ path, label }) => (
           <div
             key={path}
             className={clsx(
-              location.pathname === path && 'bg-primary text-background'
+              location.pathname === path &&
+                'bg-primary font-semibold *:!text-background'
             )}
           >
             <Link to={path}>{label}</Link>
           </div>
         ))}
       </div>
-      <div className='min-h-0 grow p-2 *:h-full'>
+      <div className='min-h-0 grow rounded-b bg-neutral-50 *:h-full'>
         <Outlet />
       </div>
     </div>

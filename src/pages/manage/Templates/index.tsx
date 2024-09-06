@@ -1,17 +1,12 @@
 import { Suspense, useCallback, useLayoutEffect, useMemo } from 'react'
-import clsx from 'clsx'
 import { ErrorBoundary } from 'react-error-boundary'
-import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 
 import { useLoadableQuery, useMutation, useQuery } from '@apollo/client'
 import { CREATE_TEMPLATE, GET_TEMPLATE, GET_TEMPLATES } from './api'
 
-import { useAppSelector } from 'store/hooks'
-import { selectIsMobile } from 'store/slices/window/windowSlice'
-
-import Icon from '@mdi/react'
 import { mdiPlus } from '@mdi/js'
-import { ThemedButton } from 'components/Buttons/ThemedButton'
+import { IconButton } from 'components/Buttons/IconButton'
 import { Error } from 'components/Error'
 import { Spinner } from 'components/Spinner'
 import { TemplateForm } from './templateForm'
@@ -21,7 +16,6 @@ import type { FC } from 'react'
 export const ManageTemplatePage: FC = () => {
   const [searchParams, setSearchParams] = useSearchParams()
   const navigate = useNavigate()
-  const isMobile = useAppSelector(selectIsMobile)
 
   const {
     data,
@@ -63,7 +57,8 @@ export const ManageTemplatePage: FC = () => {
       _createTemplate({
         variables: {
           data: {
-            title: '새 템플릿',
+            templateName: '새 템플릿',
+            title: '제목',
             content: '<p></p>',
             textContent: '',
             images: []
@@ -91,66 +86,56 @@ export const ManageTemplatePage: FC = () => {
   }, [selectedTemplate])
 
   return (
-    <div className={clsx('flex gap-2 p-5', isMobile && 'flex-col')}>
-      <div className='flex-1 grow-[0.2]'>
-        <div className='relative h-full overflow-y-auto rounded border border-neutral-200 bg-neutral-50'>
-          {loadingTemplates && (
-            <Spinner className='absolute inset-0' size='sm' />
-          )}
-          {errorLoadingTemplates && (
-            <div className='absolute inset-0'>
-              <Error
-                code={500}
-                hideDefaultAction
-                actions={[{ label: '다시 시도', handler: refetchTemplates }]}
-              />
-            </div>
-          )}
-          {templates && (
-            <>
-              <ThemedButton
-                className='h-10 w-full'
-                variant='text'
-                color='primary'
-                loading={creating}
-                spinnerSize='xs'
-                onClick={createTemplate}
-              >
-                <Icon className='-mt-1 mr-1 inline' path={mdiPlus} size={1} />새
-                템플릿
-              </ThemedButton>
-              <ul className='text-lg'>
-                {templates.map((template) => (
-                  <li
-                    className={
-                      selectedTemplate === template.id
-                        ? 'bg-primary bg-opacity-25 hover:brightness-125'
-                        : 'hover:bg-neutral-100'
-                    }
-                    key={template.id}
-                  >
-                    <Link
-                      className={clsx(
-                        'block size-full px-2 py-1',
-                        selectedTemplate === template.id &&
-                          'pointer-events-none'
-                      )}
-                      to={`?template=${template.id}`}
-                      replace
-                    >
-                      {template.title}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </>
-          )}
-        </div>
+    <div className='flex flex-col divide-y divide-neutral-200'>
+      <div className='relative m-4 flex gap-2 rounded border border-neutral-200 bg-background p-1 focus-within:border-primary'>
+        {loadingTemplates && <Spinner className='mx-auto' size='sm' />}
+        {errorLoadingTemplates && (
+          <div className='absolute inset-0'>
+            <Error
+              code={500}
+              hideDefaultAction
+              actions={[{ label: '다시 시도', handler: refetchTemplates }]}
+            />
+          </div>
+        )}
+        {templates && (
+          <>
+            <select
+              className='grow border-b-0 p-1.5 text-lg'
+              onChange={(e) =>
+                navigate(`?template=${e.target.value}`, { replace: true })
+              }
+            >
+              <option value=''>템플릿 선택</option>
+              {templates.map((template) => (
+                <option
+                  className={
+                    selectedTemplate === template.id
+                      ? 'bg-primary bg-opacity-25 hover:brightness-125'
+                      : 'hover:bg-neutral-100'
+                  }
+                  key={template.id}
+                  value={template.id}
+                >
+                  {template.templateName}
+                </option>
+              ))}
+            </select>
+            <IconButton
+              variant='text'
+              color='primary'
+              path={mdiPlus}
+              loading={creating}
+              spinnerSize='xs'
+              size={1}
+              tooltip='새 템플릿'
+              onClick={createTemplate}
+            ></IconButton>
+          </>
+        )}
       </div>
 
-      {isMobile && <hr className='my-4 border-neutral-400' />}
-
-      <div className='relative max-w-[1280px] flex-1 grow-[0.8]'>
+      <div className='relative grow p-5'>
         <ErrorBoundary
           FallbackComponent={({ resetErrorBoundary }) => (
             <Error

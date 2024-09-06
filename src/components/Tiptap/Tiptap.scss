@@ -9,10 +9,10 @@
     }
 
     &:not(.Tiptap-viewer) {
-      @apply rounded transition-colors;
+      @apply rounded transition-colors flex flex-col;
 
       > div:not(:last-child):not(:first-child) {
-        @apply h-120 min-h-120 resize-y overflow-y-scroll border-x border-neutral-100 bg-neutral-50 bg-opacity-50;
+        @apply grow min-h-0 resize-y overflow-y-scroll border-x border-neutral-100 bg-neutral-50 bg-opacity-50 flex flex-col;
       }
 
       span.ProseMirror-selectednode {
@@ -25,7 +25,7 @@
     }
 
     div.ProseMirror {
-      @apply min-h-full p-5 focus:outline-0 caret-primary;
+      @apply p-5 grow focus:outline-0 caret-primary;
 
       > * + * {
         @apply mt-2;

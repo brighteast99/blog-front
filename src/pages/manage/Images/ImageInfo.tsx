@@ -1,20 +1,17 @@
-import { useCallback } from 'react'
 import clsx from 'clsx'
 import { Link } from 'react-router-dom'
 
-import { useMutation, useReadQuery } from '@apollo/client'
-import { DELETE_IMAGE, GET_IMAGES } from 'pages/manage/Images/api'
+import { useReadQuery } from '@apollo/client'
 
 import { useAppSelector } from 'store/hooks'
 import { selectIsMobile } from 'store/slices/window/windowSlice'
 import { getRelativeTimeFromNow } from 'utils/dayJS'
 
 import { CopyButton } from 'components/Buttons/CopyButton'
-import { ThemedButton } from 'components/Buttons/ThemedButton'
 import { ImagePreview } from 'components/ImagePreview'
 
 import type { FC } from 'react'
-import type { FetchResult, QueryRef } from '@apollo/client'
+import type { QueryRef } from '@apollo/client'
 import type {
   ImageQueryResult,
   ImageQueryVariables
@@ -24,8 +21,7 @@ import type { fileSizeUnitLiteral } from 'types/commonProps'
 export const ImageInfo: FC<{
   queryRef: QueryRef<ImageQueryResult, ImageQueryVariables>
   sizeUnit?: fileSizeUnitLiteral
-  onDelete?: (promise: Promise<FetchResult<{ success: boolean }>>) => any
-}> = ({ queryRef, sizeUnit = 'MB', onDelete }) => {
+}> = ({ queryRef, sizeUnit = 'MB' }) => {
   const isMobile = useAppSelector(selectIsMobile)
   const {
     data: {
@@ -36,7 +32,6 @@ export const ImageInfo: FC<{
         width,
         height,
         uploadedAt,
-        isReferenced,
         thumbnailReferenceCount,
         templateThumbnailOf,
         draftThumbnailOf,
@@ -48,42 +43,25 @@ export const ImageInfo: FC<{
       }
     }
   } = useReadQuery(queryRef)
-  const [_deleteImage, { loading: deleting, reset: resetDeleteMutation }] =
-    useMutation(DELETE_IMAGE, {
-      notifyOnNetworkStatusChange: true
-    })
-
-  const deleteImage = useCallback(() => {
-    if (!window.confirm(`이미지 '${name}'를 삭제합니다.`)) return
-
-    onDelete?.(
-      _deleteImage({
-        variables: {
-          url: url
-        },
-        refetchQueries: [{ query: GET_IMAGES }],
-        onError: ({ networkError, graphQLErrors }) => {
-          if (networkError) alert('이미지 삭제 중 오류가 발생했습니다.')
-          else if (graphQLErrors.length) alert(graphQLErrors[0].message)
-          resetDeleteMutation()
-        }
-      })
-    )
-  }, [_deleteImage, onDelete, resetDeleteMutation, url, name])
 
   return (
     <>
       <div
         className={clsx(
-          'flex w-full gap-6',
+          'flex w-full justify-center gap-6',
           isMobile ? 'flex-row' : 'flex-col'
         )}
       >
         <ImagePreview
-          className={clsx('mx-auto', isMobile ? 'w-64' : 'w-5/6 max-w-64')}
+          className={clsx(isMobile ? 'w-64' : 'w-full')}
           image={url}
         />
-        <table className={clsx('grow table-fixed', !isMobile && 'w-full')}>
+        <table
+          className={clsx(
+            'grow table-fixed',
+            isMobile ? 'max-w-[50%]' : 'w-full grow'
+          )}
+        >
           <colgroup>
             <col width='35%' />
           </colgroup>
@@ -196,18 +174,6 @@ export const ImageInfo: FC<{
           </tbody>
         </table>
       </div>
-
-      <ThemedButton
-        variant='text'
-        color='error'
-        className='mt-6 h-10 w-full'
-        disabled={isReferenced}
-        loading={deleting}
-        spinnerSize='xs'
-        onClick={deleteImage}
-      >
-        {isReferenced ? '삭제 불가' : '삭제'}
-      </ThemedButton>
     </>
   )
 }
