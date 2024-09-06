@@ -183,13 +183,41 @@ export const ManageCategoryPage: FC = () => {
   }, [selectedCategory])
 
   return (
-    <div className={clsx('flex gap-2 p-5', isMobile && 'flex-col')}>
-      <div className={clsx('flex flex-col', !isMobile && 'flex-1 grow-[0.3]')}>
+    <div
+      className={clsx(
+        'flex divide-neutral-200',
+        isMobile ? 'flex-col-reverse' : 'divide-x'
+      )}
+    >
+      <div
+        className={clsx(
+          'flex flex-col',
+          isMobile
+            ? 'min-h-0 grow border-t border-neutral-400'
+            : 'flex-1 grow-[0.3]'
+        )}
+      >
+        <div className='flex w-full gap-2 border-b border-neutral-200 *:w-1/2 *:rounded-none *:py-1.5'>
+          <IconButton
+            disabled={creating}
+            path={creating ? mdiLoading : mdiPlus}
+            variant='text'
+            color='primary'
+            iconProps={{ spin: creating }}
+            onClick={createCategory}
+          />
+          <IconButton
+            disabled={!selectedCategory}
+            path={deleting ? mdiLoading : mdiMinus}
+            variant='text'
+            color='error'
+            iconProps={{ spin: deleting }}
+            onClick={deleteCategory}
+          />
+        </div>
+
         <div
-          className={clsx(
-            'relative h-full overflow-y-auto rounded border border-neutral-200 bg-neutral-50',
-            isMobile && 'order-2 max-h-60'
-          )}
+          className='relative min-h-0 grow overflow-y-auto'
           onClick={(e) => {
             if (e.target !== e.currentTarget) return
             selectCategory(undefined)
@@ -216,30 +244,9 @@ export const ManageCategoryPage: FC = () => {
             </ul>
           )}
         </div>
-
-        <div className='flex w-full justify-end'>
-          <IconButton
-            disabled={creating}
-            path={creating ? mdiLoading : mdiPlus}
-            variant='hover-text'
-            color='primary'
-            iconProps={{ spin: creating }}
-            onClick={createCategory}
-          />
-          <IconButton
-            disabled={!selectedCategory}
-            path={deleting ? mdiLoading : mdiMinus}
-            variant='hover-text'
-            color='error'
-            iconProps={{ spin: deleting }}
-            onClick={deleteCategory}
-          />
-        </div>
       </div>
 
-      {isMobile && <hr className='my-4 border-neutral-400' />}
-
-      <div className='relative flex-1 grow-[0.7]'>
+      <div className='relative grow-[0.7] p-4'>
         <ErrorBoundary
           FallbackComponent={({ resetErrorBoundary }) => (
             <Error

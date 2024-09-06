@@ -84,7 +84,7 @@ export const ManageImagePage: FC = () => {
   return (
     <div
       className={clsx(
-        'flex items-center justify-center rounded border border-neutral-200 bg-neutral-50',
+        'flex items-center justify-center',
         isMobile && 'flex-col-reverse'
       )}
     >

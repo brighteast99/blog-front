@@ -86,8 +86,8 @@ export const ManageTemplatePage: FC = () => {
   }, [selectedTemplate])
 
   return (
-    <div className='mx-auto flex max-w-[1280px] flex-col gap-4'>
-      <div className='relative flex gap-2'>
+    <div className='flex flex-col divide-y divide-neutral-200'>
+      <div className='relative m-4 flex gap-2 rounded border border-neutral-200 bg-background p-1 focus-within:border-primary'>
         {loadingTemplates && <Spinner className='mx-auto' size='sm' />}
         {errorLoadingTemplates && (
           <div className='absolute inset-0'>
@@ -101,7 +101,7 @@ export const ManageTemplatePage: FC = () => {
         {templates && (
           <>
             <select
-              className='grow text-lg'
+              className='grow border-b-0 p-1.5 text-lg'
               onChange={(e) =>
                 navigate(`?template=${e.target.value}`, { replace: true })
               }
@@ -135,7 +135,7 @@ export const ManageTemplatePage: FC = () => {
         )}
       </div>
 
-      <div className='relative grow rounded border border-neutral-200 bg-neutral-50 p-4'>
+      <div className='relative grow p-5'>
         <ErrorBoundary
           FallbackComponent={({ resetErrorBoundary }) => (
             <Error
