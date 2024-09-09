@@ -64,6 +64,7 @@ export const ManageImagePage: FC = () => {
           url: url
         },
         refetchQueries: [{ query: GET_IMAGES }],
+        onCompleted: () => resetImage(),
         onError: ({ networkError, graphQLErrors }) => {
           if (networkError) alert('이미지 삭제 중 오류가 발생했습니다.')
           else if (graphQLErrors.length) alert(graphQLErrors[0].message)
@@ -71,7 +72,7 @@ export const ManageImagePage: FC = () => {
         }
       })
     },
-    [_deleteImage, resetDeleteMutation]
+    [_deleteImage, resetImage, resetDeleteMutation]
   )
 
   useLayoutEffect(() => {
@@ -127,9 +128,10 @@ export const ManageImagePage: FC = () => {
         </div>
 
         <div className='relative min-h-0 grow overflow-y-auto p-4'>
-          {deleting && (
-            <div className='absolute inset-0 z-20 size-full bg-neutral-700 bg-opacity-5' />
-          )}
+          {deleting ||
+            (images && loading && (
+              <div className='absolute inset-0 z-20 size-full bg-neutral-700 bg-opacity-5' />
+            ))}
           {error && (
             <Error
               code={500}
