@@ -102,9 +102,8 @@ export const ManageTemplatePage: FC = () => {
           <>
             <select
               className='grow border-b-0 p-1.5 text-lg'
-              onChange={(e) =>
-                navigate(`?template=${e.target.value}`, { replace: true })
-              }
+              value={selectedTemplate}
+              onChange={(e) => selectTemplate(Number(e.target.value))}
             >
               <option value=''>템플릿 선택</option>
               {templates.map((template) => (

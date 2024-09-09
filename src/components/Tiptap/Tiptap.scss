@@ -12,7 +12,7 @@
       @apply rounded transition-colors flex flex-col;
 
       > div:not(:last-child):not(:first-child) {
-        @apply grow min-h-0 resize-y overflow-y-scroll border-x border-neutral-100 bg-neutral-50 bg-opacity-50 flex flex-col;
+        @apply grow min-h-0 h-0 resize-y overflow-y-scroll border-x border-neutral-100 bg-neutral-50 bg-opacity-50 flex flex-col;
       }
 
       span.ProseMirror-selectednode {
