@@ -38,7 +38,27 @@ export type CodeBlockLanguage = (typeof Languages)[number]['value']
 const lowlight = createLowlight(common)
 lowlight.register({ django, dockerfile, nginx, pgsql })
 
+declare module '@tiptap/extension-code-block-lowlight' {
+  interface CodeBlockLowlightOptions {
+    minHeight: number | string
+    resizable: boolean
+  }
+}
+
 export const BetterCodeBlock = CodeBlockLowlight.extend({
+  addAttributes() {
+    return {
+      ...this.parent?.(),
+      height: { renderHTML: ({ height }) => ({ height }) }
+    }
+  },
+  addOptions() {
+    return {
+      ...this.parent?.(),
+      minHeight: '4.25rem',
+      resizable: true
+    }
+  },
   addNodeView() {
     return ReactNodeViewRenderer(BetterCodeBlockNodeView)
   }

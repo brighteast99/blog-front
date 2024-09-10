@@ -68,7 +68,6 @@ export const commonExtensions = (() => {
 
   return [
     BetterBlockquote,
-    BetterCodeBlock,
     BetterSubscript,
     BetterSuperscript,
     Callout,
@@ -94,6 +93,10 @@ export const commonExtensions = (() => {
 })()
 
 export const viewerExtensions = (() => {
+  const configuredCodeBlock = BetterCodeBlock.configure({
+    resizable: false
+  })
+
   const configuredStarterKit = StarterKit.configure({
     blockquote: false,
     codeBlock: false,
@@ -105,10 +108,14 @@ export const viewerExtensions = (() => {
     lastColumnResizable: false
   })
 
-  return [configuredStarterKit, configuredTable]
+  return [configuredCodeBlock, configuredStarterKit, configuredTable]
 })()
 
 export const editorExtensions = (() => {
+  const configuredCodeBlock = BetterCodeBlock.configure({
+    resizable: true
+  })
+
   const configuredStarterKit = StarterKit.configure({
     blockquote: false,
     codeBlock: false,
@@ -123,5 +130,5 @@ export const editorExtensions = (() => {
     allowTableNodeSelection: true
   })
 
-  return [configuredStarterKit, configuredTable]
+  return [configuredCodeBlock, configuredStarterKit, configuredTable]
 })()

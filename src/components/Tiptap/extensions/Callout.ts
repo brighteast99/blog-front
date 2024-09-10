@@ -33,13 +33,8 @@ export const Callout = Node.create({
       ...this.parent?.(),
       type: {
         default: 'note',
-        parseHTML: (element) => element.getAttribute('data-type') || 'note',
-        renderHTML: (attributes) => {
-          if (attributes.type) {
-            return { 'data-type': attributes.type }
-          }
-          return {}
-        }
+        parseHTML: (element) => element.getAttribute('data-type'),
+        renderHTML: ({ type }) => ({ 'data-type': type })
       }
     }
   },
