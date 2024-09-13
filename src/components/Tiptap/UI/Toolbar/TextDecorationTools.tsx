@@ -1,6 +1,7 @@
 import { useCurrentEditor } from '@tiptap/react'
 
 import {
+  mdiCodeBraces,
   mdiFormatBold,
   mdiFormatItalic,
   mdiFormatStrikethroughVariant,
@@ -21,6 +22,7 @@ export const TextDecorationTools: FC = () => {
   const italic = editor.isActive('italic')
   const underline = editor.isActive('underline')
   const strike = editor.isActive('strike')
+  const code = editor.isActive('code')
   const superscript = editor.isActive('superscript')
   const subscript = editor.isActive('subscript')
 
@@ -78,6 +80,19 @@ export const TextDecorationTools: FC = () => {
           offset: 3
         }}
         onClick={() => editor.chain().focus().toggleStrike().run()}
+      />
+
+      <IconButton
+        path={mdiCodeBraces}
+        color='primary'
+        variant='hover-text-toggle'
+        active={code}
+        tooltip='코드'
+        tooltipOptions={{
+          placement: 'bottom',
+          offset: 3
+        }}
+        onClick={() => editor.chain().focus().toggleCode().run()}
       />
 
       <IconButton

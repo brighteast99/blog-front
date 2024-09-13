@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import { useCurrentEditor } from '@tiptap/react'
 
 import {
-  mdiCodeBraces,
+  mdiCodeBlockBraces,
   mdiDetails,
   mdiFormatListBulleted,
   mdiFormatListCheckbox,
@@ -160,7 +160,7 @@ export const NodeBlockTools: FC = () => {
         onDelete={() => editor.chain().focus().toggleCodeBlock().run()}
       >
         <IconButton
-          path={mdiCodeBraces}
+          path={mdiCodeBlockBraces}
           color='primary'
           variant='hover-text-toggle'
           active={codeBlock.active}
