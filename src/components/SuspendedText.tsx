@@ -18,7 +18,7 @@ interface SuspendedTextProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 export const SuspendedTextVariants = cva(
-  `inline-flex max-w-full min-w-0 flex-col gap-2 w-full`,
+  `inline-flex max-w-full min-w-0 flex-col gap-2`,
   {
     variants: {
       align: {
