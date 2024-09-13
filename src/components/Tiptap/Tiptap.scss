@@ -39,12 +39,17 @@
         @apply whitespace-pre-wrap text-justify;
       }
 
-      h1,h2,h3,h4,h5,h6 {
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6 {
         @apply text-justify;
       }
 
       a {
-        @apply px-0.5 font-semibold text-info underline decoration-1 underline-offset-2 hover:brightness-125 hover:animate-pulse;
+        @apply px-0.5 font-semibold text-info underline decoration-1 underline-offset-2 hover:animate-pulse hover:brightness-125;
 
         &::after {
           @apply ml-0.5 inline-block size-[0.9em] bg-info align-middle;
@@ -110,6 +115,11 @@
 
       img {
         @apply inline-block h-auto max-w-full;
+      }
+
+      code:not([data-node-view-content]) {
+        font-family: 'JetBrainsMono', monospace;
+        @apply rounded p-1 text-sm whitespace-break-spaces bg-neutral-300 mx-1;
       }
 
       pre {
