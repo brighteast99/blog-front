@@ -1,11 +1,14 @@
 import Details from '@tiptap-pro/extension-details'
 import DetailsContent from '@tiptap-pro/extension-details-content'
 import DetailsSummary from '@tiptap-pro/extension-details-summary'
+import Bold from '@tiptap/extension-bold'
 import CharacterCount from '@tiptap/extension-character-count'
 import { Color } from '@tiptap/extension-color'
 import { Highlight } from '@tiptap/extension-highlight'
+import Italic from '@tiptap/extension-italic'
 import { Link } from '@tiptap/extension-link'
 import ListKeymap from '@tiptap/extension-list-keymap'
+import Strike from '@tiptap/extension-strike'
 import Table from '@tiptap/extension-table'
 import TableCell from '@tiptap/extension-table-cell'
 import TableHeader from '@tiptap/extension-table-header'
@@ -117,6 +120,9 @@ export const editorExtensions = (() => {
   })
 
   const configuredStarterKit = StarterKit.configure({
+    bold: false,
+    italic: false,
+    strike: false,
     blockquote: false,
     codeBlock: false,
     dropcursor: {
@@ -125,10 +131,44 @@ export const editorExtensions = (() => {
     }
   })
 
+  const configuredBold = Bold.extend({
+    addInputRules() {
+      return []
+    },
+    addPasteRules() {
+      return []
+    }
+  })
+
+  const configuredItalic = Italic.extend({
+    addInputRules() {
+      return []
+    },
+    addPasteRules() {
+      return []
+    }
+  })
+
+  const configuredStrike = Strike.extend({
+    addInputRules() {
+      return []
+    },
+    addPasteRules() {
+      return []
+    }
+  })
+
   const configuredTable = Table.configure({
     resizable: true,
     allowTableNodeSelection: true
   })
 
-  return [configuredCodeBlock, configuredStarterKit, configuredTable]
+  return [
+    configuredBold,
+    configuredCodeBlock,
+    configuredItalic,
+    configuredStarterKit,
+    configuredStrike,
+    configuredTable
+  ]
 })()

@@ -28,6 +28,7 @@ import type { Category } from 'types/data'
 
 export const PostPage: FC = () => {
   const titlebar = useRef<HTMLDivElement>(null)
+  const titleArea = useRef<HTMLDivElement>(null)
   const contentArea = useRef<HTMLDivElement>(null)
   const isLoggedIn = useAppSelector(selectIsAuthenticatedAndActive)
   const location = useLocation()
@@ -168,7 +169,7 @@ export const PostPage: FC = () => {
       )
 
       const TITLE_TRANSITION_AMOUNT = titlebar.current?.clientHeight || 0
-      const TITLE_SHOW_POINT = CONTENT_START - TITLE_TRANSITION_AMOUNT
+      const TITLE_SHOW_POINT = ((titleArea.current?.clientHeight ?? 0) * 2) / 5
       const TITLE_HIDE_POINT = CONTENT_END - TITLE_TRANSITION_AMOUNT
 
       if (scrollPosition < TITLE_SHOW_POINT || scrollPosition > CONTENT_END)
@@ -193,6 +194,7 @@ export const PostPage: FC = () => {
     return () => document.removeEventListener('scroll', handler)
   }, [])
 
+  // * 페이지 이동시 스크롤 위로 이동
   useLayoutEffect(() => {
     if (postId)
       window.scrollTo({
@@ -266,6 +268,17 @@ export const PostPage: FC = () => {
 
         <div className='relative h-16 pt-1.5 text-center'>
           <Link className='text-sm' to={`/category/${post?.category?.id || 0}`}>
+            {post?.category?.ancestors &&
+              post?.category.ancestors.map((ancestor) => {
+                return (
+                  <div key={ancestor.id} className='contents'>
+                    <Link to={`/category/${ancestor.id || 0}`}>
+                      {ancestor.name}
+                    </Link>
+                    <span className='mx-1.5'>/</span>
+                  </div>
+                )
+              })}
             {post?.category?.name}
           </Link>
           <p className='text-lg'>{post?.title}</p>
@@ -274,12 +287,15 @@ export const PostPage: FC = () => {
       </div>
 
       <div
-        className='relative h-64 border-b border-neutral-200 bg-neutral-500 bg-cover bg-center bg-no-repeat'
-        style={{
-          backgroundImage: `url(${post?.thumbnail})`
-        }}
+        className='sticky top-0 -mt-72 h-72 w-full bg-neutral-500 bg-cover bg-center bg-no-repeat'
+        style={{ backgroundImage: `url(${post?.thumbnail})` }}
+      />
+
+      <div
+        ref={titleArea}
+        className='relative h-72 border-b border-neutral-200 backdrop-blur-sm backdrop-brightness-50'
       >
-        <div className='flex size-full flex-col items-center justify-center gap-1 py-5 backdrop-blur backdrop-brightness-50'>
+        <div className='flex size-full flex-col items-center justify-center gap-1 py-5'>
           <div className='flex items-center justify-center text-lg text-neutral-800'>
             {post?.category?.ancestors &&
               post?.category.ancestors.map((ancestor) => {
@@ -338,7 +354,10 @@ export const PostPage: FC = () => {
         <MenuButton className='absolute right-5 top-2.5' />
       </div>
 
-      <div ref={contentArea} className='min-h-[30dvh] w-full px-5 py-12'>
+      <div
+        ref={contentArea}
+        className='relative min-h-[30dvh] w-full bg-background px-5 py-12'
+      >
         <div className='mx-auto w-full max-w-[1280px]'>
           {loading ? (
             <SuspendedText
@@ -359,7 +378,7 @@ export const PostPage: FC = () => {
       </div>
 
       {post && (
-        <div className='border-t border-neutral-300 bg-neutral-50'>
+        <div className='relative border-t border-neutral-300 bg-neutral-50'>
           <div className='relative mx-auto w-full max-w-[1280px] bg-inherit p-8 pb-0'>
             <p className='sticky top-0 z-10 -mt-0.5 border-b-2 border-neutral-600 bg-inherit py-2 text-2xl'>
               <Link to={`/category/${asPostOf?.id}`}>{asPostOf?.name}</Link>

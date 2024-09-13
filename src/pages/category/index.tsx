@@ -158,7 +158,7 @@ export const CategoryPage: FC = () => {
       {(loading || category?.coverImage) && (
         <div
           className={clsx(
-            'h-50 bg-cover bg-center blur-[2px] brightness-50',
+            'h-56 bg-cover bg-center blur-[2px] brightness-50',
             !category?.coverImage && 'animate-pulse !bg-neutral-700'
           )}
           style={{

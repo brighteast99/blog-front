@@ -13,10 +13,10 @@
     }
 
     &:not(.Tiptap-viewer) {
-      @apply rounded transition-colors flex flex-col;
+      @apply flex flex-col rounded transition-colors;
 
       > div:has(div.ProseMirror) {
-        @apply grow min-h-0 h-0 resize-y overflow-y-scroll border-x border-neutral-100 bg-neutral-50 bg-opacity-50 flex flex-col;
+        @apply flex h-0 min-h-0 grow resize-y flex-col overflow-y-scroll border-x border-neutral-100 bg-neutral-50 bg-opacity-50;
       }
 
       span.ProseMirror-selectednode {
@@ -25,7 +25,7 @@
     }
 
     div.ProseMirror {
-      @apply p-5 grow focus:outline-0 caret-primary;
+      @apply grow p-5 caret-primary focus:outline-0;
 
       > * + * {
         @apply mt-2;
@@ -35,13 +35,27 @@
         @apply border-t-foreground;
       }
 
-
       p {
         @apply whitespace-pre-wrap;
       }
 
       a {
-        @apply font-semibold text-primary decoration-1 underline-offset-4 transition-colors visited:text-secondary hover:underline;
+        @apply px-0.5 font-semibold text-info underline decoration-1 underline-offset-2 hover:brightness-125 hover:animate-pulse;
+
+        &::after {
+          @apply ml-0.5 inline-block size-[0.9em] bg-info align-middle;
+          mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ctitle%3Eopen-in-new%3C/title%3E%3Cpath d='M14,3V5H17.59L7.76,14.83L9.17,16.24L19,6.41V10H21V3M19,19H5V5H12V3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V12H19V19Z' /%3E%3C/svg%3E");
+          -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ctitle%3Eopen-in-new%3C/title%3E%3Cpath d='M14,3V5H17.59L7.76,14.83L9.17,16.24L19,6.41V10H21V3M19,19H5V5H12V3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V12H19V19Z' /%3E%3C/svg%3E");
+          mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ctitle%3Eopen-in-new%3C/title%3E%3Cpath d='M14,3V5H17.59L7.76,14.83L9.17,16.24L19,6.41V10H21V3M19,19H5V5H12V3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V12H19V19Z' /%3E%3C/svg%3E");
+          content: '';
+        }
+
+        &:visited {
+          @apply text-secondary;
+          &::after {
+            @apply bg-secondary;
+          }
+        }
       }
 
       ul {
@@ -98,7 +112,7 @@
         font-family: 'JetBrainsMono', monospace;
 
         code {
-          @apply block w-max py-6 px-4 text-sm text-inherit;
+          @apply block w-max px-4 py-6 text-sm text-inherit;
         }
 
         .hljs-comment,
