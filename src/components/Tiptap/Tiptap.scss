@@ -119,7 +119,7 @@
 
       code:not([data-node-view-content]) {
         font-family: 'JetBrainsMono', monospace;
-        @apply rounded p-1 text-sm whitespace-break-spaces bg-neutral-300 mx-1;
+        @apply mx-1 whitespace-break-spaces rounded bg-neutral-300 p-1 text-sm leading-7;
       }
 
       pre {
