@@ -84,3 +84,14 @@ export const DELETE_IMAGE: TypedDocumentNode<
     }
   }
 `
+
+export const DELETE_IMAGES: TypedDocumentNode<
+  { success: boolean },
+  { urls: string[] }
+> = gql`
+  mutation delteImage($urls: [String]!) {
+    deleteImages(urls: $urls) {
+      success
+    }
+  }
+`

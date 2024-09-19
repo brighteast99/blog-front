@@ -9,7 +9,7 @@ import clsx from 'clsx'
 import { ErrorBoundary } from 'react-error-boundary'
 
 import { useLoadableQuery, useMutation, useQuery } from '@apollo/client'
-import { DELETE_IMAGE, GET_IMAGE, GET_IMAGES } from './api'
+import { DELETE_IMAGE, DELETE_IMAGES, GET_IMAGE, GET_IMAGES } from './api'
 
 import { useAppSelector } from 'store/hooks'
 import { selectIsMobile } from 'store/slices/window/windowSlice'
@@ -46,7 +46,10 @@ export const ManageImagePage: FC = () => {
 
   const images = useMemo(() => data?.images ?? null, [data?.images])
   const unusedImages = useMemo(
-    () => images?.filter((image) => !image.isReferenced) ?? [],
+    () =>
+      images
+        ?.filter((image) => !image.isReferenced)
+        .map((image) => image.url) ?? [],
     [images]
   )
 
@@ -54,15 +57,17 @@ export const ManageImagePage: FC = () => {
     useMutation(DELETE_IMAGE, {
       notifyOnNetworkStatusChange: true
     })
+  const [_pruneImages, { loading: pruning, reset: resetPruneMutation }] =
+    useMutation(DELETE_IMAGES, {
+      notifyOnNetworkStatusChange: true
+    })
 
   const deleteImage = useCallback(
-    ({ name, url }: ImageData, force?: boolean) => {
-      if (!force && !window.confirm(`이미지 '${name}'를 삭제합니다.`)) return
+    ({ name, url }: ImageData) => {
+      if (!window.confirm(`이미지 '${name}'를 삭제합니다.`)) return
 
       _deleteImage({
-        variables: {
-          url: url
-        },
+        variables: { url },
         refetchQueries: [{ query: GET_IMAGES }],
         onCompleted: () => resetImage(),
         onError: ({ networkError, graphQLErrors }) => {
@@ -73,6 +78,24 @@ export const ManageImagePage: FC = () => {
       })
     },
     [_deleteImage, resetImage, resetDeleteMutation]
+  )
+
+  const pruneImages = useCallback(
+    (urls: string[]) => {
+      if (!window.confirm('사용된 적 없는 이미지들을 모두 제거합니다')) return
+
+      _pruneImages({
+        variables: { urls },
+        refetchQueries: [{ query: GET_IMAGES }],
+        onCompleted: () => resetImage(),
+        onError: ({ networkError, graphQLErrors }) => {
+          if (networkError) alert('이미지 삭제 중 오류가 발생했습니다.')
+          else if (graphQLErrors.length) alert(graphQLErrors[0].message)
+          resetPruneMutation()
+        }
+      })
+    },
+    [_pruneImages, resetImage, resetPruneMutation]
   )
 
   useLayoutEffect(() => {
@@ -110,18 +133,17 @@ export const ManageImagePage: FC = () => {
             disabled={!unusedImages.length}
             tooltip='미사용 이미지 정리'
             tooltipOptions={{ placement: 'right' }}
-            onClick={() => {
-              if (!window.confirm('사용된 적 없는 이미지들을 모두 제거합니다'))
-                return
-              unusedImages.forEach((image) => deleteImage(image, true))
-            }}
+            onClick={() => pruneImages(unusedImages)}
           >
             {`(미사용: ${unusedImages.length || '없음'})`}
           </ThemedButton>
           <div className='grow' />
-          {(loading || deleting) && (
+          {(loading || deleting || pruning) && (
             <Spinner
-              className={clsx('m-0 block', deleting && 'text-error')}
+              className={clsx(
+                'm-0 block',
+                (deleting || pruning) && 'text-error'
+              )}
               size='xs'
             />
           )}
@@ -129,6 +151,7 @@ export const ManageImagePage: FC = () => {
 
         <div className='relative min-h-0 grow overflow-y-auto p-4'>
           {deleting ||
+            pruning ||
             (images && loading && (
               <div className='absolute inset-0 z-20 size-full bg-neutral-700 bg-opacity-5' />
             ))}
