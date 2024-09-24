@@ -317,7 +317,6 @@ export const Tiptap: FC<EditorProps> = ({
           editor.setEditable(editable, false)
           editor.unregisterPlugin('history')
           editor.registerPlugin(history())
-          editor.commands.focus('end')
           setEditor(editor as ReactEditor)
         }}
         onUpdate={({ editor }) => {

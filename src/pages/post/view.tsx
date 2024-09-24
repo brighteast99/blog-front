@@ -149,18 +149,18 @@ export const PostPageView: FC<PostPageViewProps> = ({
         </div>
 
         <div className='relative h-16 pt-1.5 text-center'>
+          {post?.category?.ancestors &&
+            post?.category.ancestors.map((ancestor) => {
+              return (
+                <div key={ancestor.id} className='contents'>
+                  <Link to={`/category/${ancestor.id || 0}`}>
+                    {ancestor.name}
+                  </Link>
+                  <span className='mx-1.5'>/</span>
+                </div>
+              )
+            })}
           <Link className='text-sm' to={`/category/${post?.category?.id || 0}`}>
-            {post?.category?.ancestors &&
-              post?.category.ancestors.map((ancestor) => {
-                return (
-                  <div key={ancestor.id} className='contents'>
-                    <Link to={`/category/${ancestor.id || 0}`}>
-                      {ancestor.name}
-                    </Link>
-                    <span className='mx-1.5'>/</span>
-                  </div>
-                )
-              })}
             {post?.category?.name}
           </Link>
           <p className='text-lg'>{post?.title}</p>
