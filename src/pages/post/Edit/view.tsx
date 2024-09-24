@@ -8,6 +8,7 @@ import { DraftManager } from './DraftManager'
 import { TemplateSelector } from './TemplateSelector'
 
 import type { FC } from 'react'
+import type { SaveStatus } from 'components/Tiptap'
 import type { Category, Draft, Template } from 'types/data'
 import type { PostInput } from './api'
 
@@ -24,6 +25,7 @@ interface EditPostPageViewProps {
   importTemplate: (draft: Template) => any
   loadingPost: boolean
   inputs: PostInput
+  status: SaveStatus
   setTitle: (title: string) => any
   setCategory: (category?: number) => any
   setIsHidden: (isHidden: boolean) => any
@@ -36,9 +38,7 @@ interface EditPostPageViewProps {
   hasChange: boolean
   submitting: boolean
   submit: () => any
-  saving: boolean
   save: (asNew?: boolean) => any
-  saveFailed: boolean
 }
 
 export const EditPostPageView: FC<EditPostPageViewProps> = ({
@@ -54,6 +54,7 @@ export const EditPostPageView: FC<EditPostPageViewProps> = ({
   importTemplate,
   loadingPost,
   inputs,
+  status,
   setTitle,
   setCategory,
   setIsHidden,
@@ -66,9 +67,7 @@ export const EditPostPageView: FC<EditPostPageViewProps> = ({
   hasChange,
   submitting,
   submit,
-  saving,
-  save,
-  saveFailed
+  save
 }) => {
   const { title, category, isHidden, content, images, thumbnail } = inputs
 
@@ -158,15 +157,7 @@ export const EditPostPageView: FC<EditPostPageViewProps> = ({
           <Tiptap
             className='mb-5 min-h-40 grow'
             content={content}
-            status={
-              saving
-                ? 'saving'
-                : saveFailed
-                  ? 'error'
-                  : hasChange || !draftId
-                    ? 'need-save'
-                    : 'saved'
-            }
+            status={status}
             thumbnail={thumbnail}
             images={images}
             onChange={(editor) => {
