@@ -1,4 +1,4 @@
-import { Suspense, useCallback, useLayoutEffect, useMemo } from 'react'
+import { Suspense, useCallback, useEffect, useMemo } from 'react'
 import { ErrorBoundary } from 'react-error-boundary'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 
@@ -76,7 +76,7 @@ export const ManageTemplatePage: FC = () => {
     [_createTemplate, resetCreateMutation, selectTemplate]
   )
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (!selectedTemplate) resetTemplate()
     else
       loadTemplate({

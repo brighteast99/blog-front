@@ -1,4 +1,4 @@
-import { useCallback, useLayoutEffect } from 'react'
+import { useCallback, useEffect } from 'react'
 import { FloatingDelayGroup } from '@floating-ui/react'
 import { useCurrentEditor } from '@tiptap/react'
 import clsx from 'clsx'
@@ -176,7 +176,7 @@ export const ImageCatalogue: FC<ImageCatalogueProps> = ({
     for (const image of imagesToDelete) onDeleteImage(image, { force: true })
   }, [editor, images, thumbnail, onDeleteImage])
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     window.addEventListener('paste', handlePaste)
 
     return () => window.removeEventListener('paste', handlePaste)

@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { throttle } from 'throttle-debounce'
 
@@ -76,7 +76,7 @@ export const PostPageView: FC<PostPageViewProps> = ({
     ) : null
 
   // * 헤더 위치 조절
-  useLayoutEffect(() => {
+  useEffect(() => {
     const handler = throttle(20, (e: Event) => {
       const target = (e.target as Document)?.documentElement
       const scrollPosition = target?.scrollTop || 0

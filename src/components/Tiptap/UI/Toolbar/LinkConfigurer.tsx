@@ -1,4 +1,4 @@
-import { useLayoutEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import clsx from 'clsx'
 
 import { useToggle } from 'hooks/useToggle'
@@ -75,7 +75,7 @@ export const LinkConfigurer: FC<LinkConfigurerProps> = ({
     close()
   }
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     setInput({
       href,
       title,

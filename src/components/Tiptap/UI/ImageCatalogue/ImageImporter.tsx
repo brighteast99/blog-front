@@ -1,4 +1,4 @@
-import { useLayoutEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import clsx from 'clsx'
 
 import { useQuery } from '@apollo/client'
@@ -41,7 +41,7 @@ export const ImageImporter: FC<ImageImporterProps> = ({
     ? images.filter((image) => !hideExcluded || !exclude?.includes(image.url))
     : null
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (isOpen) refetch()
     else setSelectedImages([])
   }, [isOpen, refetch])

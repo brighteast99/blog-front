@@ -1,4 +1,4 @@
-import { useCallback, useLayoutEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Placement } from '@floating-ui/react'
 import clsx from 'clsx'
 
@@ -93,7 +93,7 @@ export const DraftManager: FC<DraftManagerProps> = ({
     [_deleteDraft, onDelete, resetDeleteMutation]
   )
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (!drafts?.length) close()
   }, [drafts, close])
 

@@ -1,4 +1,4 @@
-import { useLayoutEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import { useToggle } from 'hooks/useToggle'
 
@@ -47,7 +47,7 @@ export function AttributeSetter<T extends string | number>(
       close()
     }
 
-    useLayoutEffect(() => {
+    useEffect(() => {
       setOption(_option)
     }, [_option])
 
