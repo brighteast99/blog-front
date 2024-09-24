@@ -102,22 +102,10 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
     notifyOnNetworkStatusChange: true
   })
 
-  const [
-    _createDraft,
-    {
-      loading: creatingDraft,
-      error: errorCreatingDraft,
-      reset: resetCreateDraftMutation
-    }
-  ] = useMutation(CREATE_DRAFT)
-  const [
-    _updateDraft,
-    {
-      loading: updatingDraft,
-      error: errorUpdatingDraft,
-      reset: resetUpdateDraftMutation
-    }
-  ] = useMutation(UPDATE_DRAFT)
+  const [_createDraft, { loading: creatingDraft, error: errorCreatingDraft }] =
+    useMutation(CREATE_DRAFT)
+  const [_updateDraft, { loading: updatingDraft, error: errorUpdatingDraft }] =
+    useMutation(UPDATE_DRAFT)
   const [
     _createPost,
     { loading: creatingPost, reset: resetCreatePostMutation }
@@ -145,6 +133,7 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
       )
         return
 
+      setDraftId(draft.id)
       initialize({
         category: draft.category.id || undefined,
         title: draft.title,
@@ -181,48 +170,52 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
     [initialize]
   )
 
-  const saveChanges = useCallback(() => {
-    if (!hasChange) return
+  const saveChanges = useCallback(
+    (asNew?: boolean) => {
+      if (!hasChange && draftId) return
 
-    if (draftId)
-      _updateDraft({
-        variables: {
-          id: draftId as number,
-          data: {
-            ...inputRef.current,
-            isHidden: inputRef.current.isHidden || !!selectedCategory?.isHidden
+      if (!draftId || asNew)
+        _createDraft({
+          variables: {
+            data: {
+              ...inputRef.current,
+              isHidden:
+                inputRef.current.isHidden || !!selectedCategory?.isHidden
+            }
+          },
+          refetchQueries: [{ query: GET_DRAFTS }],
+          onCompleted: ({
+            createDraft: {
+              createdDraft: { id }
+            }
+          }) => {
+            initialize(inputRef.current)
+            setDraftId(id)
           }
-        },
-        refetchQueries: [{ query: GET_DRAFTS }],
-        onCompleted: () => initialize(inputRef.current),
-        onError: () => resetUpdateDraftMutation()
-      })
-    else
-      _createDraft({
-        variables: {
-          data: {
-            ...inputRef.current,
-            isHidden: inputRef.current.isHidden || !!selectedCategory?.isHidden
-          }
-        },
-        refetchQueries: [{ query: GET_DRAFTS }],
-        onCompleted: ({
-          createDraft: {
-            createdDraft: { id }
-          }
-        }) => setDraftId(id),
-        onError: () => resetCreateDraftMutation()
-      })
-  }, [
-    hasChange,
-    draftId,
-    _createDraft,
-    _updateDraft,
-    initialize,
-    resetCreateDraftMutation,
-    resetUpdateDraftMutation,
-    selectedCategory?.isHidden
-  ])
+        })
+      else
+        _updateDraft({
+          variables: {
+            id: draftId as number,
+            data: {
+              ...inputRef.current,
+              isHidden:
+                inputRef.current.isHidden || !!selectedCategory?.isHidden
+            }
+          },
+          refetchQueries: [{ query: GET_DRAFTS }],
+          onCompleted: () => initialize(inputRef.current)
+        })
+    },
+    [
+      hasChange,
+      draftId,
+      _createDraft,
+      _updateDraft,
+      initialize,
+      selectedCategory?.isHidden
+    ]
+  )
   const saveRef = useRef(saveChanges)
 
   const createPost = useCallback(
@@ -334,15 +327,16 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
   return (
     <EditPostPageView
       newPost={newPost}
+      draftId={draftId}
       categories={categoriesData?.categories}
       selectedCategory={selectedCategory}
       loadingCategories={loadingCategories}
       errorLoadingCategories={!!errorLoadingCategories}
       refetchCategories={refetchCategories}
       importDraft={importDraft}
-      onDraftDeleted={(id) => {
-        if (draftId === id) setDraftId(undefined)
-      }}
+      onDraftDeleted={(id) =>
+        setDraftId((prev) => (draftId === id ? undefined : prev))
+      }
       importTemplate={importTemplate}
       loadingPost={loadingPost || !loaded}
       inputs={postInput}

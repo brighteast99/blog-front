@@ -13,6 +13,7 @@ import type { PostInput } from './api'
 
 interface EditPostPageViewProps {
   newPost?: boolean
+  draftId?: number
   categories?: Category[]
   selectedCategory?: Category
   loadingCategories: boolean
@@ -36,12 +37,13 @@ interface EditPostPageViewProps {
   submitting: boolean
   submit: () => any
   saving: boolean
-  save: () => any
+  save: (asNew?: boolean) => any
   saveFailed: boolean
 }
 
 export const EditPostPageView: FC<EditPostPageViewProps> = ({
   newPost = false,
+  draftId,
   categories,
   selectedCategory,
   loadingCategories,
@@ -85,7 +87,11 @@ export const EditPostPageView: FC<EditPostPageViewProps> = ({
 
       <div className='mx-auto flex min-h-dvh w-full max-w-[1280px] flex-col p-10'>
         <div className='mb-3 flex w-full items-center justify-between gap-2'>
-          <DraftManager onSelect={importDraft} onDelete={onDraftDeleted} />
+          <DraftManager
+            activeDraft={draftId}
+            onSelect={importDraft}
+            onDelete={onDraftDeleted}
+          />
           <TemplateSelector onSelect={importTemplate} />
         </div>
 
@@ -128,6 +134,7 @@ export const EditPostPageView: FC<EditPostPageViewProps> = ({
             type='text'
             placeholder='게시글 제목'
             value={title}
+            maxLength={100}
             onChange={(e) => setTitle(e.target.value)}
             onBlur={(e) => setTitle(e.target.value.trim())}
             required
@@ -156,7 +163,7 @@ export const EditPostPageView: FC<EditPostPageViewProps> = ({
                 ? 'saving'
                 : saveFailed
                   ? 'error'
-                  : hasChange
+                  : hasChange || !draftId
                     ? 'need-save'
                     : 'saved'
             }
@@ -171,6 +178,7 @@ export const EditPostPageView: FC<EditPostPageViewProps> = ({
             onImageDeleted={removeImage}
             onChangeThumbnail={setThumbnail}
             onClickSaveStatus={save}
+            onDoubleClickSaveStatus={() => save(true)}
           />
         )}
 

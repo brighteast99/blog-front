@@ -128,8 +128,9 @@ export const TemplateForm: FC<{
         <input
           className='w-full px-1 text-2xl'
           type='text'
-          value={title}
           placeholder={template.title}
+          value={title}
+          maxLength={100}
           onChange={(e) => setTitle(e.target.value)}
         />
         <Tiptap
