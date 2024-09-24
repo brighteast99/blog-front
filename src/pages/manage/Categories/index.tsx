@@ -1,4 +1,4 @@
-import { Suspense, useCallback, useLayoutEffect, useMemo } from 'react'
+import { Suspense, useCallback, useEffect, useMemo } from 'react'
 import clsx from 'clsx'
 import { ErrorBoundary } from 'react-error-boundary'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
@@ -173,7 +173,7 @@ export const ManageCategoryPage: FC = () => {
     })
   }, [_deleteCategory, resetDeleteMutation, selectCategory, selectedCategory])
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (!selectedCategory) resetCategory()
     else
       loadCategory({

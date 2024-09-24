@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import { NodeViewContent, NodeViewWrapper } from '@tiptap/react'
 import clsx from 'clsx'
 import { debounce } from 'throttle-debounce'
@@ -19,7 +19,7 @@ export const BetterCodeBlockNodeView: FC<CodeBlockComponentProps> = ({
   const language: CodeBlockLanguage = node.attrs.language || 'plaintext'
   const codeblockRef = useRef<HTMLPreElement>(null)
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (!extension.options.resizable || !codeblockRef?.current) return
 
     const debouncedUpdateAttributes = debounce(100, (attr) =>

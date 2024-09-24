@@ -1,4 +1,4 @@
-import { useLayoutEffect, useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import clsx from 'clsx'
 import { useBlocker } from 'react-router-dom'
 
@@ -33,7 +33,7 @@ export const NavigationBlocker: FC<NavigationBlockerProps> = ({
       enabled && currentLocation !== nextLocation
   )
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     const blockLeave = (e: BeforeUnloadEvent) => e.preventDefault()
 
     if (enabled) window.addEventListener('beforeunload', blockLeave)

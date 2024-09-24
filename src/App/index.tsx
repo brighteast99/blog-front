@@ -76,7 +76,18 @@ function App() {
           )}
         </div>
 
-        <ErrorBoundary fallback={<Error />}>
+        <ErrorBoundary
+          FallbackComponent={({ resetErrorBoundary }) => (
+            <Error
+              actions={[
+                {
+                  label: '새로고침',
+                  handler: resetErrorBoundary
+                }
+              ]}
+            />
+          )}
+        >
           <Outlet />
         </ErrorBoundary>
       </div>

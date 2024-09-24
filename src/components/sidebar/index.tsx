@@ -1,15 +1,17 @@
-import { Suspense, useCallback, useLayoutEffect, useMemo } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { client } from 'ApolloContext'
 import clsx from 'clsx'
-import { ErrorBoundary } from 'react-error-boundary'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 
-import { useLoadableQuery, useQuery } from '@apollo/client'
+import { useQuery } from '@apollo/client'
 import { GET_CATEGORY_HIERARCHY } from 'pages/manage/Categories/api'
 import { GET_INFO } from 'pages/manage/Info/api'
 
 import { useAppDispatch, useAppSelector } from 'store/hooks'
-import { revokeToken, selectIsAuthenticatedAndActive } from 'store/slices/auth/authSlice'
+import {
+  revokeToken,
+  selectIsAuthenticatedAndActive
+} from 'store/slices/auth/authSlice'
 import { updateBlogInfo } from 'store/slices/blog/blogSlice'
 
 import { mdiCog, mdiLogin, mdiLogout, mdiMenu } from '@mdi/js'
@@ -23,6 +25,7 @@ import { SuspendedText } from 'components/SuspendedText'
 import { CategoryList } from './CategoryList'
 
 import type { FC } from 'react'
+import type { Category } from 'types/data'
 
 export interface SidebarProps {
   foldable?: boolean
@@ -48,8 +51,21 @@ export const Sidebar: FC<SidebarProps> = ({
     onCompleted: (blogInfo) => dispatch(updateBlogInfo(blogInfo))
   })
   const blogInfo = useMemo(() => blogInfoData?.blogInfo, [blogInfoData])
-  const [loadCategories, queryRef, { refetch: refetchCategories }] =
-    useLoadableQuery(GET_CATEGORY_HIERARCHY)
+  const {
+    data: categoriesData,
+    loading: loadingCategory,
+    error: errorLoadingCategory,
+    refetch: refetchCategories
+  } = useQuery(GET_CATEGORY_HIERARCHY, {
+    notifyOnNetworkStatusChange: true
+  })
+  const categoryHierarchy = useMemo(() => {
+    if (categoriesData?.categoryHierarchy)
+      return JSON.parse(
+        JSON.parse(categoriesData?.categoryHierarchy)
+      ) as Category[]
+    else return []
+  }, [categoriesData])
 
   const logIn = useCallback(
     () => navigate(`/login?next=${location.pathname}`),
@@ -62,11 +78,7 @@ export const Sidebar: FC<SidebarProps> = ({
     }
   }, [dispatch])
 
-  useLayoutEffect(() => {
-    if (!queryRef) loadCategories()
-  }, [queryRef, loadCategories])
-
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (foldOnLocationChange) fold?.()
   }, [foldOnLocationChange, location, fold])
 
@@ -117,29 +129,24 @@ export const Sidebar: FC<SidebarProps> = ({
         <hr className='mb-4 mt-2' />
 
         <div className='relative min-h-0 grow overflow-y-auto'>
-          <ErrorBoundary
-            FallbackComponent={({ resetErrorBoundary }) => (
-              <Error
-                message='오류가 발생했습니다'
-                hideDefaultAction
-                actions={[
-                  {
-                    label: '다시 시도',
-                    handler: () => {
-                      refetchCategories()
-                      resetErrorBoundary()
-                    }
-                  }
-                ]}
-              />
-            )}
-          >
-            <Suspense
-              fallback={<Spinner size='sm' className='absolute inset-0' />}
-            >
-              {queryRef && <CategoryList queryRef={queryRef} />}
-            </Suspense>
-          </ErrorBoundary>
+          {loadingCategory && (
+            <Spinner size='sm' className='absolute inset-0' />
+          )}
+          {errorLoadingCategory && (
+            <Error
+              message='오류가 발생했습니다'
+              hideDefaultAction
+              actions={[
+                {
+                  label: '다시 시도',
+                  handler: refetchCategories
+                }
+              ]}
+            />
+          )}
+          {categoryHierarchy && (
+            <CategoryList categoryHierarchy={categoryHierarchy} />
+          )}
         </div>
 
         {isLoggedIn ? (

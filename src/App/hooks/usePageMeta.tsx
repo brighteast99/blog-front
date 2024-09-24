@@ -1,4 +1,4 @@
-import { useLayoutEffect } from 'react'
+import { useEffect } from 'react'
 
 import { useAppSelector } from 'store/hooks'
 import { selectBlogInfo } from 'store/slices/blog/blogSlice'
@@ -8,12 +8,12 @@ export const usePageMeta = () => {
 
   // * Update title
   // Todo: Update title acording to current location
-  useLayoutEffect(() => {
+  useEffect(() => {
     document.title = title
   }, [title])
 
   // * Set favicon
-  useLayoutEffect(() => {
+  useEffect(() => {
     let link = document.querySelector("link[rel ~= 'icon']") as HTMLLinkElement
 
     if (favicon) {

@@ -1,4 +1,4 @@
-import { useLayoutEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   autoUpdate,
   flip,
@@ -96,19 +96,19 @@ export const PopoverMenu: FC<PopoverMenuProps> = ({
     dismiss
   ])
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (disabled) closeMenu()
   }, [disabled, closeMenu])
 
-  useLayoutEffect(() => setIsOpen(controlledOpen), [controlledOpen, setIsOpen])
+  useEffect(() => setIsOpen(controlledOpen), [controlledOpen, setIsOpen])
 
   // * 메뉴 열린 상태에서 상위 메뉴가 닫혀서 언마운트될 때 실행될 수 있도록
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (typeof onClose === 'function' && isOpen)
       return () => setEmitOnCloseTimer(setTimeout(onClose))
   }, [onClose, isOpen])
 
-  useLayoutEffect(() => clearTimeout(emitOnCloseTimer), [emitOnCloseTimer])
+  useEffect(() => clearTimeout(emitOnCloseTimer), [emitOnCloseTimer])
 
   return (
     <>

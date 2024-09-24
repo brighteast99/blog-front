@@ -1,4 +1,4 @@
-import { useCallback, useLayoutEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Placement } from '@floating-ui/react'
 import clsx from 'clsx'
 
@@ -28,6 +28,7 @@ interface DraftManagerProps {
   description?: string
   children?: ReactNode
   onSelect?: (data: Draft) => any
+  onDelete?: (id: number) => any
 }
 
 export const DraftManager: FC<DraftManagerProps> = ({
@@ -35,7 +36,8 @@ export const DraftManager: FC<DraftManagerProps> = ({
   placement = 'bottom-start',
   tooltipPlacement = 'bottom',
   description,
-  onSelect
+  onSelect,
+  onDelete
 }) => {
   const { value: isOpen, setTrue: open, setFalse: close } = useToggle(false)
   const isLoggedIn = useAppSelector(selectIsAuthenticatedAndActive)
@@ -47,6 +49,7 @@ export const DraftManager: FC<DraftManagerProps> = ({
     refetch: refetchDrafts
   } = useQuery(GET_DRAFTS, {
     notifyOnNetworkStatusChange: true,
+    fetchPolicy: 'cache-and-network',
     skip: !isLoggedIn
   })
   const drafts = useMemo(() => draftsData?.drafts, [draftsData])
@@ -59,7 +62,10 @@ export const DraftManager: FC<DraftManagerProps> = ({
       error: errorLoadingDraft,
       refetch: refetchDraft
     }
-  ] = useLazyQuery(GET_DRAFT, { notifyOnNetworkStatusChange: true })
+  ] = useLazyQuery(GET_DRAFT, {
+    notifyOnNetworkStatusChange: true,
+    fetchPolicy: 'cache-and-network'
+  })
   const draft = useMemo(() => draftData?.draft, [draftData])
   const [selectedDraft, setSelectedDraft] = useState<number>()
 
@@ -67,14 +73,16 @@ export const DraftManager: FC<DraftManagerProps> = ({
     useMutation(DELETE_DRAFT)
 
   const deleteDraft = useCallback(
-    (draft: Draft) => {
-      if (!window.confirm(`임시 저장본 '${draft.summary}'을(를) 삭제합니다.`))
-        return
+    ({ summary, id }: Draft) => {
+      if (!window.confirm(`임시 저장본 '${summary}'을(를) 삭제합니다.`)) return
 
       _deleteDraft({
-        variables: { id: Number(draft.id) },
+        variables: { id },
         refetchQueries: [{ query: GET_DRAFTS }],
-        onCompleted: () => setSelectedDraft(undefined),
+        onCompleted: () => {
+          setSelectedDraft(undefined)
+          onDelete?.(id)
+        },
         onError: ({ networkError, graphQLErrors }) => {
           if (networkError) alert('임시 저장본 삭제 중 오류가 발생했습니다.')
           else if (graphQLErrors.length) alert(graphQLErrors[0].message)
@@ -82,10 +90,10 @@ export const DraftManager: FC<DraftManagerProps> = ({
         }
       })
     },
-    [_deleteDraft, resetDeleteMutation]
+    [_deleteDraft, onDelete, resetDeleteMutation]
   )
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (!drafts?.length) close()
   }, [drafts, close])
 
@@ -110,7 +118,10 @@ export const DraftManager: FC<DraftManagerProps> = ({
         </ThemedButton>
       }
       onOpen={open}
-      onClose={close}
+      onClose={() => {
+        close()
+        setSelectedDraft(undefined)
+      }}
     >
       <div className='w-120 max-w-[90dvw] bg-neutral-50'>
         <div className='relative flex max-h-40 flex-col'>
@@ -145,7 +156,7 @@ export const DraftManager: FC<DraftManagerProps> = ({
                       selectedDraft === draft.id && 'text-primary'
                     )}
                   >
-                    {`${draft.summary} (${getRelativeTimeFromNow(draft.createdAt)})`}
+                    {`${draft.summary} (${getRelativeTimeFromNow(draft.updatedAt)})`}
                   </span>
                   <IconButton
                     path={mdiDelete}

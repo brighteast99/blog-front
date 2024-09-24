@@ -82,7 +82,10 @@ export const TemplateSelector: FC<TemplateSelectorProps> = ({
         </ThemedButton>
       }
       onOpen={open}
-      onClose={close}
+      onClose={() => {
+        close()
+        setSelectedTemplate(undefined)
+      }}
     >
       <div className='w-120 max-w-[90dvw] bg-neutral-50'>
         <div className='relative flex max-h-40 flex-col'>

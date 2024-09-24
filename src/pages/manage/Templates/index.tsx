@@ -1,4 +1,4 @@
-import { Suspense, useCallback, useLayoutEffect, useMemo } from 'react'
+import { Suspense, useCallback, useEffect, useMemo } from 'react'
 import { ErrorBoundary } from 'react-error-boundary'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 
@@ -76,7 +76,7 @@ export const ManageTemplatePage: FC = () => {
     [_createTemplate, resetCreateMutation, selectTemplate]
   )
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (!selectedTemplate) resetTemplate()
     else
       loadTemplate({
@@ -129,7 +129,7 @@ export const ManageTemplatePage: FC = () => {
               size={1}
               tooltip='새 템플릿'
               onClick={createTemplate}
-            ></IconButton>
+            />
           </>
         )}
       </div>
@@ -156,9 +156,7 @@ export const ManageTemplatePage: FC = () => {
             {queryRef ? (
               <TemplateForm
                 queryRef={queryRef}
-                onDelete={() => {
-                  selectTemplate(undefined, true)
-                }}
+                onDelete={() => selectTemplate(undefined, true)}
               />
             ) : (
               <span className='absolute inset-0 m-auto block size-fit text-xl text-neutral-400'>

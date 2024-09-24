@@ -1,4 +1,4 @@
-import { useCallback, useLayoutEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 import { useAppDispatch, useAppSelector } from 'store/hooks'
 import {
@@ -35,7 +35,7 @@ export const useAuth = () => {
     else dispatch(setToken({ authInfo: JSON.parse(data), keepLogin: true }))
   }, [dispatch])
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     const updateWindowFocused = (e: FocusEvent) =>
       setWindowFocused(e.type === 'focus')
 
@@ -48,7 +48,7 @@ export const useAuth = () => {
     }
   }, [])
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (!isAuthenticated) return
 
     if (!windowFocused) return
@@ -76,7 +76,7 @@ export const useAuth = () => {
     }
   }, [isAuthenticated, refreshLoginToken, windowFocused])
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     window.addEventListener('storage', updateTokenFromStorage)
     return () => window.removeEventListener('storage', updateTokenFromStorage)
   }, [updateTokenFromStorage])

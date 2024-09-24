@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 
 import type { TypedDocumentNode } from '@apollo/client'
-import type { Category, Post } from 'types/data'
+import type { Category, Draft, Post } from 'types/data'
 
 export interface PostInput
   extends Omit<
@@ -25,7 +25,7 @@ export const GET_POSTABLE_CATEGORIES: TypedDocumentNode<{
 `
 
 export const CREATE_DRAFT: TypedDocumentNode<
-  { createDraft: { createdDraft: Post } },
+  { createDraft: { createdDraft: Draft } },
   { data: PostInput }
 > = gql`
   mutation CreateDraft($data: DraftInput!) {
@@ -33,6 +33,17 @@ export const CREATE_DRAFT: TypedDocumentNode<
       createdDraft {
         id
       }
+    }
+  }
+`
+
+export const UPDATE_DRAFT: TypedDocumentNode<
+  { updateDraft: { success: boolean } },
+  { id: number; data: PostInput }
+> = gql`
+  mutation UpdateDraft($id: Int!, $data: DraftInput!) {
+    updateDraft(id: $id, data: $data) {
+      success
     }
   }
 `

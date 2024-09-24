@@ -1,10 +1,4 @@
-import {
-  Suspense,
-  useCallback,
-  useLayoutEffect,
-  useMemo,
-  useState
-} from 'react'
+import { Suspense, useCallback, useEffect, useMemo, useState } from 'react'
 import clsx from 'clsx'
 import { ErrorBoundary } from 'react-error-boundary'
 
@@ -98,7 +92,7 @@ export const ManageImagePage: FC = () => {
     [_pruneImages, resetImage, resetPruneMutation]
   )
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (selectedImage)
       loadImageInfo({ url: selectedImage, unit: IMAGE_SIZE_UNIT })
     else resetImage()

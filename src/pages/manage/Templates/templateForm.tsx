@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react'
+import { useCallback, useLayoutEffect } from 'react'
 
 import { useMutation, useReadQuery } from '@apollo/client'
 import {
@@ -22,6 +22,17 @@ export const TemplateForm: FC<{
   onDelete?: () => any
 }> = ({ queryRef, onDelete }) => {
   const {
+    data: { template }
+  } = useReadQuery(queryRef)
+  const [
+    _updateTemplate,
+    {
+      loading: updating,
+      error: errorUpdatingTemplate,
+      reset: resetUpdateMutation
+    }
+  ] = useMutation(UPDATE_TEMPLATE)
+  const {
     templateInput: {
       templateName,
       title,
@@ -40,19 +51,7 @@ export const TemplateForm: FC<{
     addImage,
     addImages,
     removeImage
-  } = useTemplateInput({
-    templateName: '',
-    title: '',
-    isHidden: false,
-    content: '<p></p>',
-    textContent: '',
-    images: []
-  })
-  const {
-    data: { template }
-  } = useReadQuery(queryRef)
-  const [_updateTemplate, { loading: updating, reset: resetUpdateMutation }] =
-    useMutation(UPDATE_TEMPLATE)
+  } = useTemplateInput(template)
 
   const [_deleteTemplate, { loading: deleting, reset: resetDeleteMutation }] =
     useMutation(DELETE_TEMPLATE)
@@ -73,7 +72,7 @@ export const TemplateForm: FC<{
         }
       },
       refetchQueries: [
-        { query: GET_TEMPLATE },
+        { query: GET_TEMPLATES },
         { query: GET_TEMPLATE, variables: { id: template.id } }
       ],
       onError: ({ networkError, graphQLErrors }) => {
@@ -107,8 +106,8 @@ export const TemplateForm: FC<{
     template.title
   ])
 
-  useEffect(() => {
-    if (template) initialize({ ...template, isHidden: false })
+  useLayoutEffect(() => {
+    initialize(template)
   }, [template, initialize])
 
   return (
@@ -134,8 +133,18 @@ export const TemplateForm: FC<{
           onChange={(e) => setTitle(e.target.value)}
         />
         <Tiptap
+          key={template.id}
           className='min-h-0 grow'
           content={content}
+          status={
+            updating
+              ? 'saving'
+              : errorUpdatingTemplate
+                ? 'error'
+                : hasChange
+                  ? 'need-save'
+                  : 'saved'
+          }
           thumbnail={thumbnail}
           images={images}
           onChange={(editor) => {
