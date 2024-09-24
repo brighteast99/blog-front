@@ -340,6 +340,15 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
       importTemplate={importTemplate}
       loadingPost={loadingPost || !loaded}
       inputs={postInput}
+      status={
+        creatingDraft || updatingDraft
+          ? 'saving'
+          : errorCreatingDraft || errorUpdatingDraft
+            ? 'error'
+            : hasChange || (!draftId && newPost)
+              ? 'need-save'
+              : 'saved'
+      }
       setTitle={setTitle}
       setCategory={setCategory}
       setIsHidden={setIsHidden}
@@ -352,9 +361,7 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
       hasChange={hasChange}
       submitting={creatingPost || updatingPost}
       submit={newPost ? createPost : updatePost}
-      saving={creatingDraft || updatingDraft}
       save={saveChanges}
-      saveFailed={!!(errorCreatingDraft || errorUpdatingDraft)}
     />
   )
 }
