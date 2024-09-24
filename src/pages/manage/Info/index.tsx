@@ -131,9 +131,10 @@ export const ManageInfoPage: FC = () => {
               className='h-8 grow px-1.5'
               type='text'
               required
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
               placeholder={blogInfo?.title || '블로그 제목'}
+              value={title}
+              maxLength={100}
+              onChange={(e) => setTitle(e.target.value)}
             />
           </div>
 

@@ -27,6 +27,7 @@ interface DraftManagerProps {
   tooltipPlacement?: Placement
   description?: string
   children?: ReactNode
+  activeDraft?: number
   onSelect?: (data: Draft) => any
   onDelete?: (id: number) => any
 }
@@ -36,6 +37,7 @@ export const DraftManager: FC<DraftManagerProps> = ({
   placement = 'bottom-start',
   tooltipPlacement = 'bottom',
   description,
+  activeDraft,
   onSelect,
   onDelete
 }) => {
@@ -140,7 +142,7 @@ export const DraftManager: FC<DraftManagerProps> = ({
               {drafts.map((draft) => (
                 <li
                   className={clsx(
-                    'flex justify-between px-1 py-0.5',
+                    'flex items-center px-1 py-0.5',
                     selectedDraft !== draft.id &&
                       'text-neutral-600 hover:text-foreground'
                   )}
@@ -150,14 +152,23 @@ export const DraftManager: FC<DraftManagerProps> = ({
                     loadDraft({ variables: { id: draft.id } })
                   }}
                 >
-                  <span
+                  <p
                     className={clsx(
-                      'transition-colors',
+                      'truncate transition-colors',
                       selectedDraft === draft.id && 'text-primary'
                     )}
                   >
-                    {`${draft.summary} (${getRelativeTimeFromNow(draft.updatedAt)})`}
-                  </span>
+                    {draft.summary}
+                  </p>
+                  <p
+                    className={clsx(
+                      'ml-1 text-nowrap transition-colors',
+                      selectedDraft === draft.id && 'text-primary'
+                    )}
+                  >
+                    {`(${getRelativeTimeFromNow(draft.updatedAt)}${activeDraft === draft.id ? ', 편집중' : ''})`}
+                  </p>
+                  <div className='grow' />
                   <IconButton
                     path={mdiDelete}
                     variant='hover-text'

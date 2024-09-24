@@ -26,14 +26,15 @@ import { ImageCatalogue } from './UI/ImageCatalogue'
 import { TableTools } from './UI/TableTools'
 import { Toolbar } from './UI/Toolbar'
 
-import type { FC } from 'react'
+import type { FC, MouseEvent } from 'react'
 import type { AnyExtension } from '@tiptap/react'
 
 import './Tiptap.scss'
 
-import { IconButton } from 'components/Buttons/IconButton'
+import { debounce } from 'throttle-debounce'
 
-import type { NamedColors } from 'types/commonProps'
+import Icon from '@mdi/react'
+import { ThemedButton } from 'components/Buttons/ThemedButton'
 
 export type SaveStatus = 'saved' | 'need-save' | 'saving' | 'error'
 
@@ -51,6 +52,7 @@ interface EditorProps {
   onImageDeleted?: (image: string) => any
   onChangeThumbnail?: (image: string | null) => any
   onClickSaveStatus?: (_?: any) => any
+  onDoubleClickSaveStatus?: (_?: any) => any
 }
 
 export const Tiptap: FC<EditorProps> = ({
@@ -66,7 +68,8 @@ export const Tiptap: FC<EditorProps> = ({
   onImageImported,
   onImageDeleted,
   onChangeThumbnail,
-  onClickSaveStatus
+  onClickSaveStatus,
+  onDoubleClickSaveStatus
 }) => {
   const [editor, setEditor] = useState<ReactEditor>()
   const { value: initialized, setTrue: initialize } = useToggle(false)
@@ -83,35 +86,40 @@ export const Tiptap: FC<EditorProps> = ({
   const [_uploadImage] = useMutation(UPLOAD_IMAGE)
 
   const statusIconProps = useMemo(() => {
-    let color: NamedColors
     let path
     let spin = false
 
     switch (status) {
       case 'need-save':
-        color = 'warning'
         path = mdiContentSaveEdit
         break
       case 'saving':
-        color = 'info'
         path = mdiLoading
         spin = true
         break
       case 'error':
-        color = 'error'
         path = mdiContentSaveAlert
         break
       default:
-        color = 'unset'
         path = mdiContentSaveCheck
     }
 
     return {
-      color,
       path,
-      iconProps: {
-        spin
-      }
+      spin
+    }
+  }, [status])
+
+  const statusColors = useMemo(() => {
+    switch (status) {
+      case 'need-save':
+        return 'warning'
+      case 'saving':
+        return 'info'
+      case 'error':
+        return 'error'
+      default:
+        return 'unset'
     }
   }, [status])
 
@@ -257,9 +265,10 @@ export const Tiptap: FC<EditorProps> = ({
     return extensions
   }, [editable, onFileReceived])
 
-  useEffect(() => {
-    editor?.setEditable(editable, false)
-  }, [editor, editable])
+  const debouncedClick = debounce(300, (e: MouseEvent<HTMLButtonElement>) => {
+    if (e.detail >= 2) return onDoubleClickSaveStatus?.()
+    else return onClickSaveStatus?.()
+  })
 
   useEffect(() => {
     if (!editor) return
@@ -283,15 +292,27 @@ export const Tiptap: FC<EditorProps> = ({
         slotAfter={
           editable && (
             <>
-              <div className='mb-3 flex items-center justify-between rounded-b border border-neutral-100 bg-neutral-100 bg-opacity-50 px-1 py-0.5'>
-                <IconButton
-                  {...statusIconProps}
+              <div className='mb-3 flex items-center rounded-b border border-neutral-100 bg-neutral-100 bg-opacity-50 px-1 py-0.5'>
+                <ThemedButton
+                  className='px-1 py-0.5'
+                  color={statusColors}
                   variant='text'
-                  disabled={status === 'saved'}
-                  tooltip={statusTooltip}
+                  tooltip={
+                    status === 'saved' ? '' : '임시 저장(더블클릭: 새로 저장)'
+                  }
+                  disabled={status === 'saving'}
                   tooltipOptions={{ placement: 'right' }}
-                  onClick={onClickSaveStatus}
-                />
+                  onClick={debouncedClick}
+                  onDoubleClick={debouncedClick}
+                >
+                  <Icon
+                    className='mr-1 inline-block'
+                    size={0.75}
+                    {...statusIconProps}
+                  />
+                  {statusTooltip}
+                </ThemedButton>
+                <div className='grow' />
                 <span className='text-right text-sm text-neutral-600'>
                   {`${editor?.storage.characterCount.words() || 0} 단어 (${editor?.storage.characterCount.characters() || 0} 자)`}
                 </span>
