@@ -129,7 +129,7 @@ export const ManageTemplatePage: FC = () => {
               size={1}
               tooltip='새 템플릿'
               onClick={createTemplate}
-            ></IconButton>
+            />
           </>
         )}
       </div>
@@ -156,9 +156,7 @@ export const ManageTemplatePage: FC = () => {
             {queryRef ? (
               <TemplateForm
                 queryRef={queryRef}
-                onDelete={() => {
-                  selectTemplate(undefined, true)
-                }}
+                onDelete={() => selectTemplate(undefined, true)}
               />
             ) : (
               <span className='absolute inset-0 m-auto block size-fit text-xl text-neutral-400'>

@@ -27,6 +27,7 @@ export interface Draft extends Omit<Template, 'templateName'> {
   summary: string
   isHidden: boolean
   createdAt: Date
+  updatedAt: Date
 }
 
 export interface Post extends Omit<Draft, 'id' | 'summary'> {
@@ -35,7 +36,6 @@ export interface Post extends Omit<Draft, 'id' | 'summary'> {
   contentHighlights?: number[][]
   isDeleted: boolean
   createdAt: Date
-  updatedAt: Date
   deletedAt?: Date
 }
 

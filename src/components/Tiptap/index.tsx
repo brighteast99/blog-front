@@ -1,21 +1,29 @@
-import {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-  useState
-} from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import FileHandler from '@tiptap-pro/extension-file-handler'
 import { Editor as CoreEditor } from '@tiptap/core'
+import { history } from '@tiptap/pm/history'
 import {
   BubbleMenu,
   EditorProvider,
   Editor as ReactEditor
 } from '@tiptap/react'
 
+import { useMutation } from '@apollo/client'
+import { UPLOAD_IMAGE } from './api'
+
+import { useSet } from 'hooks/useSet'
+import { useToggle } from 'hooks/useToggle'
 import { cn } from 'utils/handleClassName'
 
+import {
+  mdiContentSaveAlert,
+  mdiContentSaveCheck,
+  mdiContentSaveEdit,
+  mdiLoading
+} from '@mdi/js'
 import { commonExtensions, editorExtensions, viewerExtensions } from './editor'
 import { ImageCatalogue } from './UI/ImageCatalogue'
+import { TableTools } from './UI/TableTools'
 import { Toolbar } from './UI/Toolbar'
 
 import type { FC } from 'react'
@@ -23,18 +31,16 @@ import type { AnyExtension } from '@tiptap/react'
 
 import './Tiptap.scss'
 
-import FileHandler from '@tiptap-pro/extension-file-handler'
+import { IconButton } from 'components/Buttons/IconButton'
 
-import { useMutation } from '@apollo/client'
-import { UPLOAD_IMAGE } from './api'
+import type { NamedColors } from 'types/commonProps'
 
-import { useSet } from 'hooks/useSet'
-
-import { TableTools } from './UI/TableTools'
+export type SaveStatus = 'saved' | 'need-save' | 'saving' | 'error'
 
 interface EditorProps {
   className?: string
   content?: string
+  status?: SaveStatus
   thumbnail?: string
   images?: string[]
   editable?: boolean
@@ -44,11 +50,13 @@ interface EditorProps {
   onImageImported?: (images: string[]) => any
   onImageDeleted?: (image: string) => any
   onChangeThumbnail?: (image: string | null) => any
+  onClickSaveStatus?: (_?: any) => any
 }
 
 export const Tiptap: FC<EditorProps> = ({
   className,
   content = '<p></p>',
+  status,
   thumbnail,
   images = [],
   editable = true,
@@ -57,9 +65,11 @@ export const Tiptap: FC<EditorProps> = ({
   onImageUploaded,
   onImageImported,
   onImageDeleted,
-  onChangeThumbnail
+  onChangeThumbnail,
+  onClickSaveStatus
 }) => {
   const [editor, setEditor] = useState<ReactEditor>()
+  const { value: initialized, setTrue: initialize } = useToggle(false)
   const {
     value: uploadQueue,
     addItem: addUploadQueue,
@@ -71,6 +81,52 @@ export const Tiptap: FC<EditorProps> = ({
     deleteItem: deleteFailedFile
   } = useSet<File>()
   const [_uploadImage] = useMutation(UPLOAD_IMAGE)
+
+  const statusIconProps = useMemo(() => {
+    let color: NamedColors
+    let path
+    let spin = false
+
+    switch (status) {
+      case 'need-save':
+        color = 'warning'
+        path = mdiContentSaveEdit
+        break
+      case 'saving':
+        color = 'info'
+        path = mdiLoading
+        spin = true
+        break
+      case 'error':
+        color = 'error'
+        path = mdiContentSaveAlert
+        break
+      default:
+        color = 'unset'
+        path = mdiContentSaveCheck
+    }
+
+    return {
+      color,
+      path,
+      iconProps: {
+        spin
+      }
+    }
+  }, [status])
+
+  const statusTooltip = useMemo(() => {
+    switch (status) {
+      case 'saved':
+        return '저장됨'
+      case 'need-save':
+        return '저장 필요'
+      case 'saving':
+        return '저장중'
+      case 'error':
+        return '저장 실패'
+    }
+  }, [status])
 
   const uploadImage = useCallback(
     (file: File) => {
@@ -108,7 +164,7 @@ export const Tiptap: FC<EditorProps> = ({
       let largeFiles: string[] = []
       let imageCache = new Set()
 
-      const SIZE_LIMIT = 5 // MB
+      const SIZE_LIMIT = 5 // unit: MB
       files.forEach((file) => {
         if (file.size > 1024 * 1024 * SIZE_LIMIT)
           return largeFiles.push(
@@ -201,8 +257,8 @@ export const Tiptap: FC<EditorProps> = ({
     return extensions
   }, [editable, onFileReceived])
 
-  useLayoutEffect(() => {
-    editor?.setEditable(editable)
+  useEffect(() => {
+    editor?.setEditable(editable, false)
   }, [editor, editable])
 
   useEffect(() => {
@@ -226,11 +282,19 @@ export const Tiptap: FC<EditorProps> = ({
         slotBefore={editable && <Toolbar className='rounded-t' />}
         slotAfter={
           editable && (
-            <div className='contents'>
-              <div className='mb-3 rounded-b border border-neutral-100 bg-neutral-100 bg-opacity-50 px-1 py-0.5'>
-                <p className='text-right text-sm text-neutral-600'>
+            <>
+              <div className='mb-3 flex items-center justify-between rounded-b border border-neutral-100 bg-neutral-100 bg-opacity-50 px-1 py-0.5'>
+                <IconButton
+                  {...statusIconProps}
+                  variant='text'
+                  disabled={status === 'saved'}
+                  tooltip={statusTooltip}
+                  tooltipOptions={{ placement: 'right' }}
+                  onClick={onClickSaveStatus}
+                />
+                <span className='text-right text-sm text-neutral-600'>
                   {`${editor?.storage.characterCount.words() || 0} 단어 (${editor?.storage.characterCount.characters() || 0} 자)`}
-                </p>
+                </span>
               </div>
               <ImageCatalogue
                 thumbnail={thumbnail}
@@ -244,15 +308,20 @@ export const Tiptap: FC<EditorProps> = ({
                 onRetryUpload={retryUpload}
                 changeThumbnail={onChangeThumbnail}
               />
-            </div>
+            </>
           )
         }
         autofocus={autofocus}
         onCreate={({ editor }) => {
-          editor.commands.setContent(content)
+          editor.commands.setContent(content, false)
+          editor.setEditable(editable, false)
+          editor.unregisterPlugin('history')
+          editor.registerPlugin(history())
+          editor.commands.focus('end')
           setEditor(editor as ReactEditor)
         }}
         onUpdate={({ editor }) => {
+          if (!initialized) return initialize()
           if (editor.getHTML() !== content) onChange?.(editor as ReactEditor)
         }}
       >

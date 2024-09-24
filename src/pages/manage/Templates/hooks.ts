@@ -5,7 +5,7 @@ import { createSetter } from 'utils/stateSetter'
 
 import type { PostInput } from 'pages/post/Edit/api'
 
-interface TemplateInput extends PostInput {
+interface TemplateInput extends Omit<PostInput, 'isHidden'> {
   templateName: string
 }
 
@@ -72,10 +72,6 @@ export const useTemplateInput = (initialValue: TemplateInput) => {
     setTextContent: createSetter<string, TemplateInput>(
       setTemplateInput,
       'textContent'
-    ),
-    setIsHidden: createSetter<boolean, TemplateInput>(
-      setTemplateInput,
-      'isHidden'
     ),
     setImages: createSetter<string[], TemplateInput>(
       setTemplateInput,

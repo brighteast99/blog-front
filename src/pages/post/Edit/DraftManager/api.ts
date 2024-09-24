@@ -9,7 +9,7 @@ export const GET_DRAFTS: TypedDocumentNode<{ drafts: Draft[] }> = gql`
     drafts {
       id
       summary
-      createdAt
+      updatedAt
     }
   }
 `
