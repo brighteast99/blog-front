@@ -44,7 +44,7 @@ export const PostListItem: FC<{ post: Post; isActive?: boolean }> = ({
 
       <Link to={`/post/${post.id}`} state={{ searchArgs }}>
         <HighlightedText
-          className='inline-block w-full truncate text-2xl font-medium'
+          className='inline-block max-w-full truncate text-2xl font-medium'
           text={post.title}
           highlights={post.titleHighlights}
         />
@@ -52,7 +52,7 @@ export const PostListItem: FC<{ post: Post; isActive?: boolean }> = ({
           <Icon
             path={mdiLock}
             size={0.6}
-            className='mb-0.5 ml-1 inline align-text-bottom text-neutral-700'
+            className='mb-0.5 ml-1 inline align-baseline text-neutral-700'
           />
         )}
       </Link>
