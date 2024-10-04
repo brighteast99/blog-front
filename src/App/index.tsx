@@ -45,7 +45,7 @@ function App() {
     document.documentElement.style.fontSize =
       breakpoint === 'mobile' ? '12px' : '16px'
 
-    setSidebarFolded(sidebarFoldable)
+    setSidebarFolded(breakpoint === 'mobile')
   }, [breakpoint, sidebarFoldable, setSidebarFolded])
 
   return (
