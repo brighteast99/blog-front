@@ -28,7 +28,7 @@
       @apply grow p-5 caret-primary focus:outline-0;
 
       > * + * {
-        @apply mt-2;
+        @apply mt-3;
       }
 
       > div.ProseMirror-gapcursor::after {
@@ -36,7 +36,7 @@
       }
 
       p {
-        @apply whitespace-pre-wrap text-justify;
+        @apply whitespace-pre-wrap text-justify leading-7;
       }
 
       h1,
@@ -119,7 +119,7 @@
 
       code:not([data-node-view-content]) {
         font-family: 'JetBrainsMono', monospace;
-        @apply mx-0.5 whitespace-break-spaces rounded bg-neutral-300 p-1 text-sm leading-7;
+        @apply mx-0.5 whitespace-break-spaces rounded border border-primary border-opacity-30 bg-primary bg-opacity-10 p-1;
       }
 
       pre {
