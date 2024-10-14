@@ -4,9 +4,13 @@ import Icon from '@mdi/react'
 import {
   mdiFormatColorHighlight,
   mdiFormatColorText,
+  mdiFormatFontSizeDecrease,
+  mdiFormatFontSizeIncrease,
   mdiFormatSize
 } from '@mdi/js'
+import { IconButton } from 'components/Buttons/IconButton'
 import { ThemedButton } from 'components/Buttons/ThemedButton'
+import { FontSize } from 'components/Tiptap/extensions/FontSize'
 import {
   Tooltip,
   TooltipContent,
@@ -15,8 +19,6 @@ import {
 import { ColorSelector } from './ColorSelector'
 
 import type { FC } from 'react'
-
-const FontSizes = [10, 12, 16, 18, 22, 28, 32, 38, 48, 60, 72, 88, 100]
 
 function rgbStringToHex(string: string): string {
   if (/^#[0-9a-zA-Z]{6}$/.test(string)) return string
@@ -38,7 +40,9 @@ export const TextStyleTools: FC = () => {
 
   if (!editor) return null
 
-  const fontSize = editor.getAttributes('textStyle')?.fontSize || '1rem'
+  const fontSize = Number.parseFloat(
+    editor.getAttributes('textStyle')?.fontSize ?? '1rem'
+  )
   const textColor = rgbStringToHex(editor.getAttributes('textStyle')?.color)
   const highlightColor = editor.getAttributes('highlight')?.color
 
@@ -50,16 +54,21 @@ export const TextStyleTools: FC = () => {
             <Icon path={mdiFormatSize} size={1} />
             <select
               className='form-input w-28 border-none py-1 pl-2 pr-4 text-center'
-              value={fontSize || '1rem'}
+              value={fontSize}
               onChange={(e) => {
-                if (e.target.value === '1rem')
+                if (e.target.value === '16')
                   editor.chain().focus().unsetFontSize().run()
-                else editor.chain().focus().setFontSize(e.target.value).run()
+                else
+                  editor
+                    .chain()
+                    .focus()
+                    .setFontSize(Number.parseFloat(e.target.value))
+                    .run()
               }}
             >
-              {FontSizes.map((size) => (
-                <option key={`font-size-${size}`} value={`${size / 16}rem`}>
-                  {`${size} px`}
+              {FontSize.options.sizeOptions.map((size) => (
+                <option key={`font-size-${size}`} value={size}>
+                  {`${Math.trunc(size * 16)} px`}
                 </option>
               ))}
             </select>
@@ -67,6 +76,35 @@ export const TextStyleTools: FC = () => {
         </TooltipTrigger>
         <TooltipContent>글꼴 크기</TooltipContent>
       </Tooltip>
+
+      <IconButton
+        path={mdiFormatFontSizeDecrease}
+        color='primary'
+        variant='hover-text'
+        disabled={fontSize <= FontSize.options.sizeOptions[0]}
+        tooltip='글꼴 작게'
+        tooltipOptions={{
+          placement: 'bottom',
+          offset: 3
+        }}
+        onClick={() => editor.chain().focus().shrinkFontSize().run()}
+      />
+
+      <IconButton
+        path={mdiFormatFontSizeIncrease}
+        color='primary'
+        variant='hover-text'
+        disabled={
+          fontSize >=
+          FontSize.options.sizeOptions[FontSize.options.sizeOptions.length - 1]
+        }
+        tooltip='글꼴 크게'
+        tooltipOptions={{
+          placement: 'bottom',
+          offset: 3
+        }}
+        onClick={() => editor.chain().focus().enlargeFontSize().run()}
+      />
 
       <ColorSelector
         className='h-fit'
