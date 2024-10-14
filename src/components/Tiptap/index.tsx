@@ -112,6 +112,8 @@ export const Tiptap: FC<EditorProps> = ({
 
   const statusColors = useMemo(() => {
     switch (status) {
+      case 'saved':
+        return 'primary'
       case 'need-save':
         return 'warning'
       case 'saving':
@@ -128,11 +130,13 @@ export const Tiptap: FC<EditorProps> = ({
       case 'saved':
         return '저장됨'
       case 'need-save':
-        return '저장 필요'
+        return '변경됨'
       case 'saving':
         return '저장중'
       case 'error':
         return '저장 실패'
+      default:
+        return ''
     }
   }, [status])
 
@@ -300,7 +304,7 @@ export const Tiptap: FC<EditorProps> = ({
                   tooltip={
                     status === 'saved' ? '' : '임시 저장(더블클릭: 새로 저장)'
                   }
-                  disabled={status === 'saving'}
+                  disabled={status === 'saving' || status === 'saved'}
                   tooltipOptions={{ placement: 'right' }}
                   onClick={debouncedClick}
                   onDoubleClick={debouncedClick}
