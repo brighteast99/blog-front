@@ -15,7 +15,7 @@ interface SpinnerProps extends HTMLAttributes<HTMLDivElement> {
   size?: sizeLiteral
 }
 
-export const SpinnerVariants = cva(`aspect-square m-auto`, {
+export const SpinnerVariants = cva(`aspect-square m-auto animate-pulse`, {
   variants: {
     size: {
       xs: 'size-8',

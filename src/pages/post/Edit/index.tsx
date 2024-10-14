@@ -36,7 +36,7 @@ import { usePostInput } from './hooks'
 import type { FC } from 'react'
 import type { Draft, Template } from 'types/data'
 
-export const EditPostPage: FC<{ newPost?: boolean }> = ({
+const EditPostPage: FC<{ newPost?: boolean }> = ({
   newPost = false
 }) => {
   const isLoggedIn = useAppSelector(selectIsAuthenticatedAndActive)
@@ -365,3 +365,5 @@ export const EditPostPage: FC<{ newPost?: boolean }> = ({
     />
   )
 }
+
+export default EditPostPage

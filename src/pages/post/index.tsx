@@ -17,7 +17,7 @@ import type { Action } from 'components/Error'
 import type { PostSearchArgs } from 'components/postList'
 import type { Category } from 'types/data'
 
-export const PostPage: FC = () => {
+const PostPage: FC = () => {
   const isLoggedIn = useAppSelector(selectIsAuthenticatedAndActive)
   const location = useLocation()
   const navigate = useNavigate()
@@ -168,3 +168,5 @@ export const PostPage: FC = () => {
     />
   )
 }
+
+export default PostPage

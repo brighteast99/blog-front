@@ -28,7 +28,7 @@ import type { PostSortCondition } from 'components/postList/api'
 import type { GraphQLFormattedError } from 'graphql'
 import type { SearchKey } from 'pages/category/hooks'
 
-export const CategoryPage: FC = () => {
+const CategoryPage: FC = () => {
   const navigate = useNavigate()
   const location = useLocation()
   const isLoggedIn = useAppSelector(selectIsAuthenticatedAndActive)
@@ -307,3 +307,5 @@ export const CategoryPage: FC = () => {
     </div>
   )
 }
+
+export default CategoryPage

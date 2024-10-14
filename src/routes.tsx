@@ -1,17 +1,31 @@
-import App from 'App'
+import { lazy, Suspense } from 'react'
 import { createBrowserRouter } from 'react-router-dom'
 
-import { CategoryPage } from 'pages/category'
-import { LoginPage } from 'pages/login'
-import { MainPage } from 'pages/main'
-import { MANAGE_ROUTES, ManagePage } from 'pages/manage'
-import { PostPage } from 'pages/post'
-import { EditPostPage } from 'pages/post/Edit'
+import { MANAGE_ROUTES } from 'pages/manage'
 import { Error } from 'components/Error'
+import { Spinner } from 'components/Spinner'
+
+const App = lazy(() => import('App'))
+const MainPage = lazy(() => import('./pages/main'))
+const LoginPage = lazy(() => import('pages/login'))
+const ManagePage = lazy(() => import('pages/manage'))
+const CategoryPage = lazy(() => import('pages/category'))
+const PostPage = lazy(() => import('pages/post'))
+const EditPostPage = lazy(() => import('pages/post/Edit'))
 
 export const router = createBrowserRouter([
   {
-    element: <App />,
+    element: (
+      <Suspense
+        fallback={
+          <div className='relative h-dvh w-dvw bg-neutral-50 bg-opacity-50'>
+            <Spinner className='absolute inset-0' size='2xl' />
+          </div>
+        }
+      >
+        <App />
+      </Suspense>
+    ),
     children: [
       { path: '/', element: <MainPage /> },
       { path: '/login', element: <LoginPage /> },

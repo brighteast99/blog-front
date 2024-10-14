@@ -4,7 +4,7 @@ import { selectBreakpoint } from 'store/slices/window/windowSlice'
 import Icon from '@mdi/react'
 import { mdiChevronLeft } from '@mdi/js'
 
-export function MainPage() {
+export default function MainPage() {
   const breakpoint = useAppSelector(selectBreakpoint)
   return (
     <div className='relative size-full'>

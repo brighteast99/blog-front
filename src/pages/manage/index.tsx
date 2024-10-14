@@ -35,7 +35,7 @@ export const MANAGE_ROUTES = [
   }
 ]
 
-export const ManagePage: FC = () => {
+const ManagePage: FC = () => {
   const navigate = useNavigate()
   const location = useLocation()
   const loggedIn = useAppSelector(selectIsAuthenticatedAndActive)
@@ -71,3 +71,5 @@ export const ManagePage: FC = () => {
     </div>
   )
 }
+
+export default ManagePage

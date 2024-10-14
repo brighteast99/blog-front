@@ -1,4 +1,4 @@
-import { useLayoutEffect, useMemo } from 'react'
+import { Suspense, useLayoutEffect, useMemo } from 'react'
 import clsx from 'clsx'
 import { ErrorBoundary } from 'react-error-boundary'
 import { Outlet } from 'react-router-dom'
@@ -14,6 +14,7 @@ import { useToggle } from 'hooks/useToggle'
 import { Error } from 'components/Error'
 import { Sidebar } from 'components/sidebar'
 import { SidebarHandle } from 'components/sidebar/SidebarHandle'
+import { Spinner } from 'components/Spinner'
 import { useAuth, usePageMeta } from './hooks'
 
 function App() {
@@ -88,7 +89,15 @@ function App() {
             />
           )}
         >
-          <Outlet />
+          <Suspense
+            fallback={
+              <div className='relative size-full bg-neutral-50 bg-opacity-50'>
+                <Spinner className='absolute inset-0' size='2xl' />
+              </div>
+            }
+          >
+            <Outlet />
+          </Suspense>
         </ErrorBoundary>
       </div>
     </div>

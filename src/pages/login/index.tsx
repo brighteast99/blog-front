@@ -2,7 +2,10 @@ import { useCallback, useEffect, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 
 import { useAppDispatch, useAppSelector } from 'store/hooks'
-import { selectIsAuthenticatedAndActive, setToken } from 'store/slices/auth/authSlice'
+import {
+  selectIsAuthenticatedAndActive,
+  setToken
+} from 'store/slices/auth/authSlice'
 import { useToggle } from 'hooks/useToggle'
 import { auth, AuthFailedError, NetworkError } from 'utils/Auth'
 
@@ -15,7 +18,7 @@ export interface UserInfo {
   password: string
 }
 
-export const LoginPage: FC = () => {
+const LoginPage: FC = () => {
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
   const loggedIn = useAppSelector(selectIsAuthenticatedAndActive)
@@ -119,3 +122,4 @@ export const LoginPage: FC = () => {
     </div>
   )
 }
+export default LoginPage
