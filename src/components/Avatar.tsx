@@ -16,15 +16,15 @@ interface AvatarProps extends HTMLAttributes<HTMLDivElement> {
   src?: string
 }
 
-export const AvatarVariants = cva('aspect-square overflow-clip rounded-full', {
+export const AvatarVariants = cva('aspect-square overflow-clip', {
   variants: {
     size: {
-      xs: 'size-12',
-      sm: 'size-16',
-      md: 'size-20',
-      lg: 'size-24',
-      xl: 'size-32',
-      '2xl': 'size-40'
+      xs: 'size-12 rounded-[0.9rem]',
+      sm: 'size-16 rounded-[1.2rem]',
+      md: 'size-20 rounded-[1.5rem]',
+      lg: 'size-24 rounded-[1.8rem]',
+      xl: 'size-32 rounded-[2.4rem]',
+      '2xl': 'size-40 rounded-[3rem]'
     }
   },
   defaultVariants: {

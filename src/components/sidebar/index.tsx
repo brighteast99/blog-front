@@ -96,8 +96,8 @@ export const Sidebar: FC<SidebarProps> = ({
       )}
       <div
         className={clsx(
-          'fixed z-50 flex h-dvh w-72 flex-col overflow-hidden bg-neutral-200 px-4 py-8 transition-transform',
-          isFolded && '-translate-x-72'
+          'fixed z-50 flex h-dvh w-72 flex-col overflow-hidden bg-neutral-100 px-4 py-8 transition-transform will-change-transform',
+          foldable && isFolded && '-translate-x-72'
         )}
       >
         <Avatar

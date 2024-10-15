@@ -39,7 +39,7 @@ module.exports = {
       {
         light: {
           ...colors,
-          primary: '#43a047',
+          primary: '#303030',
           secondary: '#6d4c41',
           info: '#4397c7',
           success: '#367c3c',
@@ -91,9 +91,9 @@ module.exports = {
             950: '#f5f5f6'
           },
           neutral: {
-            50: '#1a1a1a',
-            100: '#2f2f2f',
-            200: '#353535',
+            50: '#070707',
+            100: '#202020',
+            200: '#303030',
             300: '#404040',
             400: '#555555',
             500: '#606060',
@@ -337,22 +337,19 @@ module.exports = {
             900: '#ffe4ec',
             950: '#fff1f5'
           },
-          primary: '#9ccc65',
+          primary: '#d5dcdf',
           secondary: '#bcaaa4',
           info: '#5da9d3',
           success: '#499e50',
           warning: '#f1a046',
           error: '#de3324',
-          background: '#202020',
+          background: '#121212',
           foreground: '#ffffff',
           shadow: '#171717'
         }
       },
       {
-        defaultTheme: {
-          light: 'light',
-          dark: 'dark'
-        }
+        defaultTheme: 'dark'
       }
     )
   ]

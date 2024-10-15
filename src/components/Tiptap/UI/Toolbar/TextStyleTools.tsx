@@ -56,7 +56,7 @@ export const TextStyleTools: FC = () => {
               className='form-input w-28 border-none py-1 pl-2 pr-4 text-center'
               value={fontSize}
               onChange={(e) => {
-                if (e.target.value === '16')
+                if (e.target.value === '14')
                   editor.chain().focus().unsetFontSize().run()
                 else
                   editor
@@ -68,7 +68,7 @@ export const TextStyleTools: FC = () => {
             >
               {FontSize.options.sizeOptions.map((size) => (
                 <option key={`font-size-${size}`} value={size}>
-                  {`${Math.trunc(size * 16)} px`}
+                  {`${Math.trunc(size * 14)} px`}
                 </option>
               ))}
             </select>

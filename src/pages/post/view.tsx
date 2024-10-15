@@ -6,7 +6,7 @@ import { getRelativeTimeFromNow } from 'utils/dayJS'
 import { progress } from 'utils/useProgress'
 
 import Icon from '@mdi/react'
-import { mdiDelete, mdiLoading, mdiLock, mdiLockOpen, mdiPencil } from '@mdi/js'
+import { mdiDelete, mdiLock, mdiLockOpen, mdiPencil } from '@mdi/js'
 import { PopoverMenu } from 'components/PopoverMenu'
 import { PopoverMenuItem } from 'components/PopoverMenu/PopoverMenuItem'
 import { PostList } from 'components/postList'
@@ -49,9 +49,20 @@ export const PostPageView: FC<PostPageViewProps> = ({
   const [titlebarTransform, setTitlebarTransform] = useState<number>(-1000)
   const [contentProgress, setContentProgress] = useState<number>(0)
 
-  const MenuButton = ({ className }: { className?: string }) =>
+  const MenuButton = ({
+    className,
+    disabled
+  }: {
+    className?: string
+    disabled?: boolean
+  }) =>
     showMenu ? (
-      <PopoverMenu className={className} size={0.9} closeOnScroll>
+      <PopoverMenu
+        className={className}
+        size={0.9}
+        closeOnScroll
+        disabled={disabled}
+      >
         <PopoverMenuItem
           icon={mdiPencil}
           title='수정'
@@ -59,14 +70,16 @@ export const PostPageView: FC<PostPageViewProps> = ({
           onClick={() => navigate(`/post/edit/${post?.id}`)}
         />
         <PopoverMenuItem
-          icon={updating ? mdiLoading : post?.isHidden ? mdiLock : mdiLockOpen}
+          icon={post?.isHidden ? mdiLock : mdiLockOpen}
+          loading={updating}
           disabled={updating || deleting}
           title={post?.isHidden ? '비공개 게시글' : '공개 게시글'}
           description={post?.isHidden ? '게시글 보이기' : '게시글 숨기기'}
           onClick={toggleIsHidden}
         />
         <PopoverMenuItem
-          icon={deleting ? mdiLoading : mdiDelete}
+          icon={mdiDelete}
+          loading={deleting}
           disabled={deleting}
           title='삭제'
           className='bg-error text-error'
@@ -134,10 +147,10 @@ export const PostPageView: FC<PostPageViewProps> = ({
         className='sticky top-0 z-10 w-full bg-background bg-opacity-75 backdrop-blur-sm will-change-auto'
         style={{
           transform: `translateY(${titlebarTransform}%)`,
-          marginTop: '-4.125rem'
+          marginTop: '-4.13rem'
         }}
       >
-        <div className='relative h-0.5 bg-neutral-50'>
+        <div className='relative h-0.5'>
           <div
             className='absolute h-full w-full bg-primary will-change-transform'
             style={{
@@ -163,13 +176,32 @@ export const PostPageView: FC<PostPageViewProps> = ({
           <Link className='text-sm' to={`/category/${post?.category?.id || 0}`}>
             {post?.category?.name}
           </Link>
-          <p className='text-lg'>{post?.title}</p>
-          <MenuButton className='absolute inset-y-0 right-5 my-auto h-fit' />
+          {post?.category.isHidden && (
+            <Icon
+              path={mdiLock}
+              size={0.4}
+              className='ml-0.5 mt-0.5 inline align-baseline'
+            />
+          )}
+          <p className='text-lg'>
+            {post?.title}
+            {!post?.category.isHidden && post?.isHidden && (
+              <Icon
+                path={mdiLock}
+                size={0.5}
+                className='ml-0.5 inline align-middle text-neutral-700'
+              />
+            )}
+          </p>
+          <MenuButton
+            className='absolute inset-y-0 right-5 my-auto h-fit'
+            disabled={loading}
+          />
         </div>
       </div>
 
       <div
-        className='sticky top-0 -mt-72 h-72 w-full bg-neutral-500 bg-cover bg-center bg-no-repeat'
+        className='sticky top-0 -mt-72 h-72 w-full bg-neutral-200 bg-cover bg-center bg-no-repeat'
         style={{ backgroundImage: `url(${post?.thumbnail})` }}
       />
 
@@ -201,8 +233,8 @@ export const PostPageView: FC<PostPageViewProps> = ({
             {post?.category.isHidden && (
               <Icon
                 path={mdiLock}
-                size={0.6}
-                className='ml-0.5 mt-1 inline align-text-bottom'
+                size={0.5}
+                className='ml-0.5 mt-0.5 inline align-baseline'
               />
             )}
           </div>
@@ -219,8 +251,8 @@ export const PostPageView: FC<PostPageViewProps> = ({
             {!post?.category.isHidden && post?.isHidden && (
               <Icon
                 path={mdiLock}
-                size={0.7}
-                className='mb-1 ml-1 inline self-end text-neutral-700'
+                size={0.8}
+                className='ml-1 mt-3.5 inline align-baseline text-neutral-700'
               />
             )}
           </div>
@@ -238,9 +270,9 @@ export const PostPageView: FC<PostPageViewProps> = ({
 
       <div
         ref={contentArea}
-        className='relative min-h-[30dvh] w-full bg-background px-5 py-12'
+        className='relative min-h-[30dvh] w-full bg-background px-5 pb-32 pt-12'
       >
-        <div className='mx-auto w-full max-w-[1280px]'>
+        <div className='mx-auto w-full max-w-[1080px]'>
           {loading ? (
             <SuspendedText
               className='font-thin'
@@ -260,7 +292,7 @@ export const PostPageView: FC<PostPageViewProps> = ({
       </div>
 
       {post && (
-        <div className='relative border-t border-neutral-300 bg-neutral-50'>
+        <div className='relative bg-background'>
           <div className='relative mx-auto w-full max-w-[1280px] bg-inherit p-8 pb-0'>
             <p className='sticky top-0 z-10 -mt-0.5 border-b-2 border-neutral-600 bg-inherit py-2 text-2xl'>
               <Link to={`/category/${asPostOf?.id}`}>{asPostOf?.name}</Link>

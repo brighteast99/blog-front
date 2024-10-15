@@ -24,7 +24,7 @@ export const PostListItem: FC<{ post: Post; isActive?: boolean }> = ({
 
   const titleArea = (
     <>
-      <span className='text-sm font-light text-neutral-700'>
+      <span className='text-base font-light text-neutral-700'>
         {post.category?.ancestors &&
           post.category.ancestors.map((ancestor) => {
             return (
@@ -37,12 +37,16 @@ export const PostListItem: FC<{ post: Post; isActive?: boolean }> = ({
         <Link to={`/category/${post.category?.id}`}>
           {post.category?.name || '분류 미지정'}
           {post.category.isHidden && (
-            <Icon className='ml-0.5 inline' path={mdiLock} size={0.5} />
+            <Icon className='mb-0.5 ml-0.5 inline' path={mdiLock} size={0.5} />
           )}
         </Link>
       </span>
 
-      <Link to={`/post/${post.id}`} state={{ searchArgs }}>
+      <Link
+        className={clsx(isActive && 'pointer-events-none text-primary')}
+        to={`/post/${post.id}`}
+        state={{ searchArgs }}
+      >
         <HighlightedText
           className='inline-block max-w-full truncate text-2xl font-medium'
           text={post.title}
@@ -51,8 +55,8 @@ export const PostListItem: FC<{ post: Post; isActive?: boolean }> = ({
         {!post.category.isHidden && post.isHidden && (
           <Icon
             path={mdiLock}
-            size={0.6}
-            className='mb-0.5 ml-1 inline align-baseline text-neutral-700'
+            size={0.7}
+            className='mb-1 ml-1 inline align-baseline text-neutral-700'
           />
         )}
       </Link>
@@ -67,7 +71,7 @@ export const PostListItem: FC<{ post: Post; isActive?: boolean }> = ({
     <li
       className={clsx(
         'flex h-72 flex-col px-2 py-4 last-of-type:!border-b-0',
-        isActive && 'bg-secondary bg-opacity-10'
+        isActive && 'bg-primary bg-opacity-5'
       )}
     >
       {minimized && (

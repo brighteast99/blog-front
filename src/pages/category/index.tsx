@@ -155,21 +155,18 @@ const CategoryPage: FC = () => {
   }
   return (
     <div className='relative h-fit'>
-      {(loading || category?.coverImage) && (
-        <div
-          className={clsx(
-            'h-56 bg-cover bg-center blur-[2px] brightness-50',
-            !category?.coverImage && 'animate-pulse !bg-neutral-700'
-          )}
-          style={{
-            backgroundImage: `url(${category?.coverImage})`
-          }}
-        />
-      )}
       <div
         className={clsx(
-          'sticky top-0 z-20 px-6 py-2',
-          (loading || category?.coverImage) && '-mt-8 mb-8',
+          'h-72 bg-neutral-300 bg-cover bg-center blur-[2px] brightness-50',
+          loading && 'animate-pulse'
+        )}
+        style={{
+          backgroundImage: `url(${category?.coverImage})`
+        }}
+      />
+      <div
+        className={clsx(
+          'sticky top-0 z-20 -mt-8 mb-8 px-6 py-2',
           loading && 'animate-pulse'
         )}
       >
@@ -185,7 +182,7 @@ const CategoryPage: FC = () => {
               <Icon
                 path={mdiLock}
                 size={1.2}
-                className='ml-1 self-end text-neutral-700'
+                className='ml-1 mt-5 align-baseline text-neutral-700'
               />
             )}
           </div>

@@ -17,7 +17,7 @@ import { SidebarHandle } from 'components/sidebar/SidebarHandle'
 import { Spinner } from 'components/Spinner'
 import { useAuth, usePageMeta } from './hooks'
 
-function App() {
+export default function App() {
   usePageMeta()
   useAuth()
   const dispatch = useAppDispatch()
@@ -28,7 +28,6 @@ function App() {
     setTrue: fold,
     toggle
   } = useToggle(breakpoint === 'mobile')
-  const sidebarFoldable = useMemo(() => breakpoint !== 'desktop', [breakpoint])
 
   // * Update window size
   useLayoutEffect(() => {
@@ -44,15 +43,15 @@ function App() {
   // * Update font size & sidebar state according to breakpoint
   useLayoutEffect(() => {
     document.documentElement.style.fontSize =
-      breakpoint === 'mobile' ? '12px' : '16px'
+      breakpoint === 'mobile' ? '12px' : '14px'
 
     setSidebarFolded(breakpoint === 'mobile')
-  }, [breakpoint, sidebarFoldable, setSidebarFolded])
+  }, [breakpoint, setSidebarFolded])
 
   return (
     <div className='min-w-dvw flex min-h-dvh'>
       <Sidebar
-        foldable={sidebarFoldable}
+        foldable
         isFolded={sidebarFolded}
         useScrim={breakpoint === 'mobile'}
         foldOnLocationChange={breakpoint === 'mobile'}
@@ -61,20 +60,18 @@ function App() {
       <div
         id='spacer'
         className={clsx(
-          'transition-size',
+          'transition-size will-change-transform',
           breakpoint === 'mobile' || sidebarFolded ? 'w-0' : 'w-72'
         )}
       />
 
       <div className='relative min-w-0 flex-1 bg-background'>
         <div className='fixed z-40 h-lvh'>
-          {sidebarFoldable && (
-            <SidebarHandle
-              className='absolute inset-y-0 left-4 my-auto'
-              sidebarFolded={sidebarFolded}
-              toggle={toggle}
-            />
-          )}
+          <SidebarHandle
+            className='absolute inset-y-0 left-4 my-auto'
+            sidebarFolded={sidebarFolded}
+            toggle={toggle}
+          />
         </div>
 
         <ErrorBoundary
@@ -103,5 +100,3 @@ function App() {
     </div>
   )
 }
-
-export default App

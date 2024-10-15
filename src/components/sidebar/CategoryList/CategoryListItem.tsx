@@ -23,7 +23,7 @@ export const CategoryListItem: FC<{ category: Category }> = ({ category }) => {
           {category.name}
           {category.isHidden && (
             <Icon
-              className='ml-0.5 inline text-neutral-700'
+              className='ml-0.5 inline align-middle text-neutral-700'
               path={mdiLock}
               size={0.45}
             />
