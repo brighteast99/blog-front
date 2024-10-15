@@ -131,7 +131,7 @@ export const PostPageView: FC<PostPageViewProps> = ({
     <>
       <div
         ref={titlebar}
-        className='sticky top-0 z-10 w-full bg-neutral-100 bg-opacity-75 shadow-lg backdrop-blur-sm will-change-auto'
+        className='sticky top-0 z-10 w-full bg-background bg-opacity-75 backdrop-blur-sm will-change-auto'
         style={{
           transform: `translateY(${titlebarTransform}%)`,
           marginTop: '-4.125rem'
