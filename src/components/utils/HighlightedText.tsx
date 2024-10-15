@@ -15,7 +15,7 @@ export const HighlightedText: FC<
   truncateStart = false,
   BeforeFirstHighlight = 100,
   highlights = [],
-  highlightClass = 'font-bold text-primary',
+  highlightClass = 'font-bold text-success',
   ...props
 }) => {
   let offset = 0
