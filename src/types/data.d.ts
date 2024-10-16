@@ -32,11 +32,16 @@ export interface Draft extends Omit<Template, 'templateName'> {
 
 export interface Post extends Omit<Draft, 'id' | 'summary'> {
   id: string
-  titleHighlights?: number[][]
-  contentHighlights?: number[][]
   isDeleted: boolean
   createdAt: Date
   deletedAt?: Date
+}
+
+export type HighlightInterval = [number, number]
+
+export interface PostSearchResult extends Post {
+  titleHighlights?: HighlightInterval[]
+  contentHighlights?: HighlightInterval[]
 }
 
 export interface ImageData {

@@ -12,12 +12,12 @@ import { PostListSearchContext } from 'components/postList'
 import { HighlightedText } from 'components/utils/HighlightedText'
 
 import type { FC } from 'react'
-import type { Post } from 'types/data'
+import type { PostSearchResult } from 'types/data'
 
-export const PostListItem: FC<{ post: Post; isActive?: boolean }> = ({
-  post,
-  isActive
-}) => {
+export const PostListItem: FC<{
+  post: PostSearchResult
+  isActive?: boolean
+}> = ({ post, isActive }) => {
   const searchArgs = useContext(PostListSearchContext)
   const breakpoint = useAppSelector(selectBreakpoint)
   const minimized = useMemo(() => breakpoint === 'mobile', [breakpoint])
