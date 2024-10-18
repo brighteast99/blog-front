@@ -22,7 +22,7 @@ export const HighlightedText: FC<
   let offset = 0
   let content: (string | ReactElement)[] = []
 
-  if (truncateStart && highlights?.[0][0] > BeforeFirstHighlight) {
+  if (truncateStart && highlights?.[0]?.[0] > BeforeFirstHighlight) {
     offset = highlights[0][0] - BeforeFirstHighlight
     content.push('...')
   }
