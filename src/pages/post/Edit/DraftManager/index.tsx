@@ -10,7 +10,8 @@ import { selectIsAuthenticatedAndActive } from 'store/slices/auth/authSlice'
 import { useToggle } from 'hooks/useToggle'
 import { getRelativeTimeFromNow } from 'utils/dayJS'
 
-import { mdiDelete } from '@mdi/js'
+import { mdiDelete, mdiPound } from '@mdi/js'
+import { Badge } from 'components/Badge'
 import { IconButton } from 'components/Buttons/IconButton'
 import { ThemedButton } from 'components/Buttons/ThemedButton'
 import { Error } from 'components/Error'
@@ -189,7 +190,7 @@ export const DraftManager: FC<DraftManagerProps> = ({
         </div>
 
         {selectedDraft && (
-          <div className='relative flex h-100 flex-col border-t border-neutral-100'>
+          <div className='relative flex h-100 flex-col border-t border-neutral-200'>
             {loadingDraft && <Spinner className='absolute inset-0 m-auto' />}
             {errorLoadingDraft && (
               <div className='absolute inset-0'>
@@ -207,6 +208,18 @@ export const DraftManager: FC<DraftManagerProps> = ({
                   editable={false}
                   content={draft.content}
                 />
+                <div className='flex min-h-9 flex-wrap items-center gap-0.5 border-t border-dashed border-neutral-200 p-1'>
+                  {draft.tags.map((tag) => (
+                    <Badge key={tag} size='xs' icon={mdiPound}>
+                      {tag}
+                    </Badge>
+                  ))}
+                  {draft.tags.length == 0 && (
+                    <span className='text-sm text-neutral-600'>
+                      태그 미지정
+                    </span>
+                  )}
+                </div>
                 <ThemedButton
                   className='h-8 shrink-0 rounded-none'
                   color='primary'

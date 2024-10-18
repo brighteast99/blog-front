@@ -8,6 +8,8 @@ import { useAppSelector } from 'store/hooks'
 import { selectIsAuthenticatedAndActive } from 'store/slices/auth/authSlice'
 import { useToggle } from 'hooks/useToggle'
 
+import { mdiPound } from '@mdi/js'
+import { Badge } from 'components/Badge'
 import { ThemedButton } from 'components/Buttons/ThemedButton'
 import { Error } from 'components/Error'
 import { PopoverMenu } from 'components/PopoverMenu'
@@ -123,7 +125,7 @@ export const TemplateSelector: FC<TemplateSelectorProps> = ({
         </div>
 
         {selectedTemplate && (
-          <div className='relative flex h-100 flex-col border-t border-neutral-100'>
+          <div className='relative flex h-100 flex-col border-t border-neutral-200'>
             {loadingTemplate && <Spinner className='absolute inset-0 m-auto' />}
             {errorLoadingTemplate && (
               <div className='absolute inset-0'>
@@ -136,7 +138,7 @@ export const TemplateSelector: FC<TemplateSelectorProps> = ({
             )}
             {template && (
               <>
-                <div className='border-b border-dashed border-neutral-100 py-1.5 text-center'>
+                <div className='border-b border-dashed border-neutral-200 py-1.5 text-center'>
                   {template.title}
                 </div>
                 <Tiptap
@@ -144,6 +146,18 @@ export const TemplateSelector: FC<TemplateSelectorProps> = ({
                   editable={false}
                   content={template.content}
                 />
+                <div className='flex min-h-9 flex-wrap items-center gap-0.5 border-t border-dashed border-neutral-200 p-1'>
+                  {template.tags.map((tag) => (
+                    <Badge key={tag} size='xs' icon={mdiPound}>
+                      {tag}
+                    </Badge>
+                  ))}
+                  {template.tags.length == 0 && (
+                    <span className='text-sm text-neutral-600'>
+                      태그 미지정
+                    </span>
+                  )}
+                </div>
                 <ThemedButton
                   className='rounded-t-none py-1'
                   color='primary'

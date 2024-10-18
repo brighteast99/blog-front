@@ -6,7 +6,8 @@ import { getRelativeTimeFromNow } from 'utils/dayJS'
 import { progress } from 'utils/useProgress'
 
 import Icon from '@mdi/react'
-import { mdiDelete, mdiLock, mdiLockOpen, mdiPencil } from '@mdi/js'
+import { mdiDelete, mdiLock, mdiLockOpen, mdiPencil, mdiPound } from '@mdi/js'
+import { Badge } from 'components/Badge'
 import { PopoverMenu } from 'components/PopoverMenu'
 import { PopoverMenuItem } from 'components/PopoverMenu/PopoverMenuItem'
 import { PostList } from 'components/postList'
@@ -270,7 +271,7 @@ export const PostPageView: FC<PostPageViewProps> = ({
 
       <div
         ref={contentArea}
-        className='relative min-h-[30dvh] w-full bg-background px-5 pb-32 pt-12'
+        className='relative min-h-[30dvh] w-full bg-background px-5 py-12'
       >
         <div className='mx-auto w-full max-w-[1080px]'>
           {loading ? (
@@ -282,11 +283,28 @@ export const PostPageView: FC<PostPageViewProps> = ({
               length={100}
             />
           ) : (
-            <Tiptap
-              className='bg-transparent'
-              editable={false}
-              content={post?.content}
-            />
+            <>
+              <Tiptap
+                className='mb-20 bg-transparent'
+                editable={false}
+                content={post?.content}
+              />
+              <div>
+                <p className='font-semebold mb-3 text-xl text-neutral-900'>
+                  이 게시글의 태그
+                </p>
+                <div className='flex flex-wrap gap-2'>
+                  {post?.tags.map((tag) => (
+                    <Badge key={tag} size='md' icon={mdiPound} interactive>
+                      {tag}
+                    </Badge>
+                  ))}
+                </div>
+                {post?.tags.length == 0 && (
+                  <span className='text-lg text-neutral-600'>태그 미지정</span>
+                )}
+              </div>
+            </>
           )}
         </div>
       </div>

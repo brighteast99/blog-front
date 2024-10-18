@@ -7,7 +7,8 @@ import { selectBreakpoint } from 'store/slices/window/windowSlice'
 import { getRelativeTimeFromNow } from 'utils/dayJS'
 
 import Icon from '@mdi/react'
-import { mdiLock } from '@mdi/js'
+import { mdiLock, mdiPound } from '@mdi/js'
+import { Badge } from 'components/Badge'
 import { PostListSearchContext } from 'components/postList'
 import { HighlightedText } from 'components/utils/HighlightedText'
 
@@ -23,8 +24,8 @@ export const PostListItem: FC<{
   const minimized = useMemo(() => breakpoint === 'mobile', [breakpoint])
 
   const titleArea = (
-    <>
-      <span className='text-base font-light text-neutral-700'>
+    <div className='flex flex-col gap-0.5'>
+      <div className='text-base font-light text-neutral-700'>
         {post.category?.ancestors &&
           post.category.ancestors.map((ancestor) => {
             return (
@@ -40,7 +41,7 @@ export const PostListItem: FC<{
             <Icon className='mb-0.5 ml-0.5 inline' path={mdiLock} size={0.5} />
           )}
         </Link>
-      </span>
+      </div>
 
       <Link
         className={clsx(isActive && 'pointer-events-none text-primary')}
@@ -64,7 +65,7 @@ export const PostListItem: FC<{
       <p className='text-sm text-neutral-700'>
         {getRelativeTimeFromNow(post.createdAt)}
       </p>
-    </>
+    </div>
   )
 
   return (
@@ -87,7 +88,7 @@ export const PostListItem: FC<{
       >
         <div
           className={clsx(
-            'flex min-w-0 grow flex-col',
+            'flex h-full min-w-0 grow flex-col justify-between py-2',
             !minimized && 'justify-center gap-2 py-5'
           )}
         >
@@ -99,6 +100,17 @@ export const PostListItem: FC<{
             highlights={post.contentHighlights}
             truncateStart
           />
+
+          <div className='flex flex-wrap gap-2 justify-self-end'>
+            {post.tags.map((tag) => (
+              <Badge key={tag} size='sm' icon={mdiPound} interactive>
+                {tag}
+              </Badge>
+            ))}
+            {post.tags.length == 0 && (
+              <span className='text-sm text-neutral-600'>태그 미지정</span>
+            )}
+          </div>
         </div>
 
         {post.thumbnail && (
