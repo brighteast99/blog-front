@@ -21,6 +21,7 @@ export const GET_POST: TypedDocumentNode<{ post: Post }, { id?: string }> = gql`
       textContent
       images
       thumbnail
+      tags
       isHidden
       createdAt
     }

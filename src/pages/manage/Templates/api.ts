@@ -40,6 +40,7 @@ export const GET_TEMPLATE: TypedDocumentNode<
       textContent
       thumbnail
       images
+      tags
     }
   }
 `

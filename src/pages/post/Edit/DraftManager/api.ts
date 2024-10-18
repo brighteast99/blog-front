@@ -29,6 +29,7 @@ export const GET_DRAFT: TypedDocumentNode<{ draft: Draft }, { id: number }> =
         isHidden
         thumbnail
         images
+        tags
       }
     }
   `

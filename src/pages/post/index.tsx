@@ -83,6 +83,7 @@ const PostPage: FC = () => {
           content: post.content,
           textContent: post.textContent,
           images: post.images,
+          tags: post.tags,
           thumbnail: post.thumbnail,
           isHidden: !post.isHidden
         }

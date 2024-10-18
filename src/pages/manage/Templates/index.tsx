@@ -61,7 +61,8 @@ export const ManageTemplatePage: FC = () => {
             title: '제목',
             content: '<p></p>',
             textContent: '',
-            images: []
+            images: [],
+            tags: []
           }
         },
         refetchQueries: [{ query: GET_TEMPLATES }],

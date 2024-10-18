@@ -39,6 +39,7 @@ export const GET_POSTS: TypedDocumentNode<
     $titleAndContent: String
     $title: String
     $content: String
+    $tag: [String]
     $offset: Int
     $targetPost: ID
     $pageSize: Int
@@ -49,6 +50,7 @@ export const GET_POSTS: TypedDocumentNode<
       titleAndContent: $titleAndContent
       title: $title
       content: $content
+      tag: $tag
       offset: $offset
       targetPost: $targetPost
       pageSize: $pageSize
@@ -70,6 +72,7 @@ export const GET_POSTS: TypedDocumentNode<
         textContent
         contentHighlights
         thumbnail
+        tags
         isHidden
         createdAt
       }

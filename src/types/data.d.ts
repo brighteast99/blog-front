@@ -20,6 +20,7 @@ export interface Template {
   textContent: srting
   images: string[]
   thumbnail?: string
+  tags: string[]
 }
 
 export interface Draft extends Omit<Template, 'templateName'> {

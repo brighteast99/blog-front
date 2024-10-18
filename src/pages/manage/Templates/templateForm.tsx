@@ -39,7 +39,8 @@ export const TemplateForm: FC<{
       content,
       textContent,
       thumbnail,
-      images
+      images,
+      tags
     },
     hasChange,
     initialize,
@@ -68,7 +69,8 @@ export const TemplateForm: FC<{
           content,
           textContent,
           thumbnail: thumbnail,
-          images: images
+          images: images,
+          tags: tags
         }
       },
       refetchQueries: [

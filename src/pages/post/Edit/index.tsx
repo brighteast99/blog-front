@@ -36,9 +36,7 @@ import { usePostInput } from './hooks'
 import type { FC } from 'react'
 import type { Draft, Template } from 'types/data'
 
-const EditPostPage: FC<{ newPost?: boolean }> = ({
-  newPost = false
-}) => {
+const EditPostPage: FC<{ newPost?: boolean }> = ({ newPost = false }) => {
   const isLoggedIn = useAppSelector(selectIsAuthenticatedAndActive)
   const location = useLocation()
   const navigate = useNavigate()
@@ -59,6 +57,7 @@ const EditPostPage: FC<{ newPost?: boolean }> = ({
     setThumbnail,
     addImage,
     addImages,
+    setTags,
     removeImage
   } = usePostInput({
     title: '',
@@ -66,7 +65,8 @@ const EditPostPage: FC<{ newPost?: boolean }> = ({
     isHidden: false,
     content: '<p></p>',
     textContent: '',
-    images: []
+    images: [],
+    tags: []
   })
   const inputRef = useRef(postInput)
 
@@ -87,7 +87,8 @@ const EditPostPage: FC<{ newPost?: boolean }> = ({
         textContent: post.textContent,
         isHidden: post.isHidden,
         thumbnail: post.thumbnail,
-        images: post.images
+        images: post.images,
+        tags: post.tags
       })
     }
   })
@@ -141,7 +142,8 @@ const EditPostPage: FC<{ newPost?: boolean }> = ({
         textContent: draft.textContent,
         isHidden: draft.isHidden,
         thumbnail: draft.thumbnail,
-        images: draft.images
+        images: draft.images,
+        tags: draft.tags
       })
     },
     [initialize]
@@ -164,7 +166,8 @@ const EditPostPage: FC<{ newPost?: boolean }> = ({
         textContent: template.textContent,
         isHidden: prev.isHidden,
         thumbnail: template.thumbnail,
-        images: template.images
+        images: template.images,
+        tags: template.tags
       }))
     },
     [initialize]

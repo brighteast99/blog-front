@@ -67,6 +67,7 @@ export const usePostInput = (initialValue: PostInput) => {
     ),
     addImage,
     addImages,
+    setTags: createSetter<string[], PostInput>(setPostInput, 'tags'),
     removeImage
   }
 }
