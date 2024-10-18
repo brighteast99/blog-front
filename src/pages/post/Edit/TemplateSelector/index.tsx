@@ -152,7 +152,7 @@ export const TemplateSelector: FC<TemplateSelectorProps> = ({
                       {tag}
                     </Badge>
                   ))}
-                  {template.tags.length == 0 && (
+                  {template.tags.length === 0 && (
                     <span className='text-sm text-neutral-600'>
                       태그 미지정
                     </span>

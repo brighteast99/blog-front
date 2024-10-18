@@ -84,7 +84,7 @@ export const Badge: FC<BadgeProps> = ({
         >
           {icon && (
             <Icon
-              className={clsx(iconPosition == 'Right' && 'order-1')}
+              className={clsx(iconPosition === 'Right' && 'order-1')}
               path={icon}
               size='1em'
             />

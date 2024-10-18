@@ -300,7 +300,7 @@ export const PostPageView: FC<PostPageViewProps> = ({
                     </Badge>
                   ))}
                 </div>
-                {post?.tags.length == 0 && (
+                {post?.tags.length === 0 && (
                   <span className='text-lg text-neutral-600'>태그 미지정</span>
                 )}
               </div>

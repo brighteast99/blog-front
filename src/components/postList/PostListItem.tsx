@@ -107,7 +107,7 @@ export const PostListItem: FC<{
                 {tag}
               </Badge>
             ))}
-            {post.tags.length == 0 && (
+            {post.tags.length === 0 && (
               <span className='text-sm text-neutral-600'>태그 미지정</span>
             )}
           </div>

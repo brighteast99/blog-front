@@ -214,7 +214,7 @@ export const DraftManager: FC<DraftManagerProps> = ({
                       {tag}
                     </Badge>
                   ))}
-                  {draft.tags.length == 0 && (
+                  {draft.tags.length === 0 && (
                     <span className='text-sm text-neutral-600'>
                       태그 미지정
                     </span>

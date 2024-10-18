@@ -1,4 +1,4 @@
-import { Suspense, useLayoutEffect, useMemo } from 'react'
+import { Suspense, useLayoutEffect } from 'react'
 import clsx from 'clsx'
 import { ErrorBoundary } from 'react-error-boundary'
 import { Outlet } from 'react-router-dom'
