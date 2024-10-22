@@ -92,7 +92,7 @@ export const FontSize = Extension.create<FontSizeOptions>({
 
           const options = this.options.sizeOptions
           currentSize = approximateFontSize(currentSize, options)
-          const currentIndex = options.findIndex((size) => size == currentSize)
+          const currentIndex = options.findIndex((size) => size === currentSize)
 
           return chain()
             .setFontSize(options[Math.max(0, currentIndex - 1)])
@@ -107,7 +107,7 @@ export const FontSize = Extension.create<FontSizeOptions>({
 
           const options = this.options.sizeOptions
           currentSize = approximateFontSize(currentSize, options)
-          const currentIndex = options.findIndex((size) => size == currentSize)
+          const currentIndex = options.findIndex((size) => size === currentSize)
 
           return chain()
             .setFontSize(
