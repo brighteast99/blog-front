@@ -103,9 +103,16 @@ export const PostListItem: FC<{
 
           <div className='flex flex-wrap gap-2 justify-self-end'>
             {post.tags.map((tag) => (
-              <Badge key={tag} size='sm' icon={mdiPound} interactive>
-                {tag}
-              </Badge>
+              <Link key={tag} to={`/category/all?key=tag&value=${tag}`}>
+                <Badge
+                  size='sm'
+                  color={searchArgs.tag?.includes(tag) ? 'success' : 'primary'}
+                  icon={mdiPound}
+                  interactive
+                >
+                  {tag}
+                </Badge>
+              </Link>
             ))}
             {post.tags.length === 0 && (
               <span className='text-sm text-neutral-600'>태그 미지정</span>

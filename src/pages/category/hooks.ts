@@ -7,7 +7,8 @@ import type { PositiveInteger } from 'types/commonTypes'
 export const SearchKeys = [
   { name: '제목+내용', value: 'titleAndContent' },
   { name: '제목', value: 'title' },
-  { name: '내용', value: 'content' }
+  { name: '내용', value: 'content' },
+  { name: '태그', value: 'tag' }
 ] as const
 export type SearchKey = (typeof SearchKeys)[number]['value']
 

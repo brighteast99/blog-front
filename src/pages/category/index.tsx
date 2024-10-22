@@ -18,6 +18,7 @@ import Icon from '@mdi/react'
 import { mdiLock, mdiMagnify, mdiPlus } from '@mdi/js'
 import { SearchKeys, useSearchCondition } from 'pages/category/hooks'
 import { IconButton } from 'components/Buttons/IconButton'
+import { Combobox } from 'components/Combobox'
 import { Error } from 'components/Error'
 import { PostList } from 'components/postList'
 import { SuspendedText } from 'components/SuspendedText'
@@ -100,10 +101,11 @@ const CategoryPage: FC = () => {
   }, [_categoryId, navigate])
 
   useLayoutEffect(() => {
+    const searchKeyword = searchParams.get('value') ?? ''
     initializeSearchCondition({
       searchBy: (searchParams.get('key') as SearchKey) || 'titleAndContent',
-      searchKeyword: searchParams.get('value') || '',
-      sortCondition: searchParams.get('value')
+      searchKeyword,
+      sortCondition: searchKeyword
         ? (searchParams.get('sort') as PostSortCondition) || 'relavant'
         : undefined,
       pageSize: Math.max(
@@ -262,7 +264,11 @@ const CategoryPage: FC = () => {
             className='w-30 px-2 py-0.5 text-center'
             name='filterBy'
             value={_searchBy}
-            onChange={(e) => setSearchBy(e.target.value as SearchKey)}
+            onChange={(e) => {
+              setSearchBy(e.target.value as SearchKey)
+              if (_searchBy === 'tag' || e.target.value === 'tag')
+                setSearchKeyword('')
+            }}
           >
             {SearchKeys.map(({ name, value }) => (
               <option key={value} value={value}>
@@ -271,11 +277,19 @@ const CategoryPage: FC = () => {
             ))}
           </select>
 
-          <input
-            type='text'
-            value={_searchKeyword}
-            onChange={(e) => setSearchKeyword(e.target.value)}
-          />
+          {_searchBy === 'tag' ? (
+            <Combobox
+              className='max-h-16 min-w-44 max-w-120'
+              value={_searchKeyword ? _searchKeyword.split(' ') : []}
+              onChange={(value) => setSearchKeyword(value.join(' '))}
+            />
+          ) : (
+            <input
+              type='text'
+              value={_searchKeyword}
+              onChange={(e) => setSearchKeyword(e.target.value)}
+            />
+          )}
 
           <IconButton
             className='ml-1 p-0'
@@ -291,7 +305,12 @@ const CategoryPage: FC = () => {
           pageSize={pageSize}
           searchArgs={{
             categoryId,
-            [searchBy]: searchKeyword
+            [searchBy]:
+              searchBy === 'tag'
+                ? searchKeyword
+                  ? searchKeyword.split(' ')
+                  : []
+                : searchKeyword
           }}
           initialPagination={{
             offset: pageSize * pageIdx

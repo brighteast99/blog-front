@@ -295,7 +295,15 @@ export const PostPageView: FC<PostPageViewProps> = ({
                 </p>
                 <div className='flex flex-wrap gap-2'>
                   {post?.tags.map((tag) => (
-                    <Badge key={tag} size='md' icon={mdiPound} interactive>
+                    <Badge
+                      key={tag}
+                      icon={mdiPound}
+                      size='md'
+                      color={
+                        searchArgs?.tag?.includes(tag) ? 'success' : 'primary'
+                      }
+                      interactive
+                    >
                       {tag}
                     </Badge>
                   ))}
@@ -313,10 +321,24 @@ export const PostPageView: FC<PostPageViewProps> = ({
         <div className='relative bg-background'>
           <div className='relative mx-auto w-full max-w-[1280px] bg-inherit p-8 pb-0'>
             <p className='sticky top-0 z-10 -mt-0.5 border-b-2 border-neutral-600 bg-inherit py-2 text-2xl'>
-              <Link to={`/category/${asPostOf?.id}`}>{asPostOf?.name}</Link>
-              {searchKeyword
-                ? `의 검색 결과 (${searchKeyword})`
-                : '의 다른 게시글'}
+              <Link to={`/category/${asPostOf?.id ?? ''}`}>
+                {asPostOf?.name}
+              </Link>
+              {searchKeyword ? (
+                `의 검색 결과 (${searchKeyword})`
+              ) : searchArgs?.tag ? (
+                <div className='inline-flex gap-1'>
+                  의 검색 결과 (
+                  {searchArgs.tag.map((tag) => (
+                    <Badge key={tag} icon={mdiPound} size='sm'>
+                      {tag}
+                    </Badge>
+                  ))}
+                  )
+                </div>
+              ) : (
+                '의 다른 게시글'
+              )}
             </p>
             <PostList
               searchArgs={{

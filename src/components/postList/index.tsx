@@ -17,6 +17,7 @@ export interface PostSearchArgs {
   titleAndContent?: string
   title?: string
   content?: string
+  tag?: string[]
 }
 
 export interface PostListProps {
