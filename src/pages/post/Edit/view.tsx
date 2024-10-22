@@ -1,6 +1,7 @@
 import { mdiLock, mdiLockOpen } from '@mdi/js'
 import { IconButton } from 'components/Buttons/IconButton'
 import { ThemedButton } from 'components/Buttons/ThemedButton'
+import { Combobox } from 'components/Combobox'
 import { Spinner } from 'components/Spinner'
 import { Tiptap } from 'components/Tiptap'
 import { NavigationBlocker } from 'components/utils/NavigationBlocker'
@@ -25,7 +26,7 @@ interface EditPostPageViewProps {
   importTemplate: (draft: Template) => any
   loadingPost: boolean
   inputs: PostInput
-  status: SaveStatus
+  status?: SaveStatus
   setTitle: (title: string) => any
   setCategory: (category?: number) => any
   setIsHidden: (isHidden: boolean) => any
@@ -35,6 +36,7 @@ interface EditPostPageViewProps {
   addImage: (image: string) => any
   addImages: (images: string[]) => any
   removeImage: (image: string) => any
+  setTags: (tags: string[]) => any
   hasChange: boolean
   submitting: boolean
   submit: () => any
@@ -64,12 +66,13 @@ export const EditPostPageView: FC<EditPostPageViewProps> = ({
   addImage,
   addImages,
   removeImage,
+  setTags,
   hasChange,
   submitting,
   submit,
   save
 }) => {
-  const { title, category, isHidden, content, images, thumbnail } = inputs
+  const { title, category, isHidden, content, images, thumbnail, tags } = inputs
 
   return (
     <>
@@ -155,7 +158,7 @@ export const EditPostPageView: FC<EditPostPageViewProps> = ({
 
         {!loadingPost && (
           <Tiptap
-            className='mb-5 min-h-40 grow'
+            className='mb-2 min-h-40 grow'
             content={content}
             status={status}
             thumbnail={thumbnail}
@@ -172,6 +175,11 @@ export const EditPostPageView: FC<EditPostPageViewProps> = ({
             onDoubleClickSaveStatus={() => save(true)}
           />
         )}
+
+        <div>
+          <span>태그</span>
+          <Combobox className='mb-5 max-h-16' value={tags} onChange={setTags} />
+        </div>
 
         <ThemedButton
           className='mb-2 h-10 w-full py-0.5 text-lg'

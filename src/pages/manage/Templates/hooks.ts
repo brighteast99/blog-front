@@ -81,6 +81,7 @@ export const useTemplateInput = (initialValue: TemplateInput) => {
       setTemplateInput,
       'thumbnail'
     ),
+    setTags: createSetter<string[], TemplateInput>(setTemplateInput, 'tags'),
     addImage,
     addImages,
     removeImage

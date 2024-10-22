@@ -9,6 +9,7 @@ import {
 } from './api'
 
 import { ThemedButton } from 'components/Buttons/ThemedButton'
+import { Combobox } from 'components/Combobox'
 import { Tiptap } from 'components/Tiptap'
 import { NavigationBlocker } from 'components/utils/NavigationBlocker'
 import { useTemplateInput } from './hooks'
@@ -49,6 +50,7 @@ export const TemplateForm: FC<{
     setContent,
     setTextContent,
     setThumbnail,
+    setTags,
     addImage,
     addImages,
     removeImage
@@ -68,9 +70,9 @@ export const TemplateForm: FC<{
           title,
           content,
           textContent,
-          thumbnail: thumbnail,
-          images: images,
-          tags: tags
+          thumbnail,
+          images,
+          tags
         }
       },
       refetchQueries: [
@@ -159,6 +161,10 @@ export const TemplateForm: FC<{
           onImageDeleted={removeImage}
           onChangeThumbnail={setThumbnail}
         />
+        <div>
+          <span>태그</span>
+          <Combobox className='mb-5 max-h-16' value={tags} onChange={setTags} />
+        </div>
         <ThemedButton
           className='h-10 w-full shrink-0'
           type='submit'

@@ -348,9 +348,11 @@ const EditPostPage: FC<{ newPost?: boolean }> = ({ newPost = false }) => {
           ? 'saving'
           : errorCreatingDraft || errorUpdatingDraft
             ? 'error'
-            : hasChange || (!draftId && newPost)
+            : hasChange
               ? 'need-save'
-              : 'saved'
+              : !newPost
+                ? 'saved'
+                : undefined
       }
       setTitle={setTitle}
       setCategory={setCategory}
@@ -361,6 +363,7 @@ const EditPostPage: FC<{ newPost?: boolean }> = ({ newPost = false }) => {
       addImage={addImage}
       addImages={addImages}
       removeImage={removeImage}
+      setTags={setTags}
       hasChange={hasChange}
       submitting={creatingPost || updatingPost}
       submit={newPost ? createPost : updatePost}

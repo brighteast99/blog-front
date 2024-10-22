@@ -296,26 +296,28 @@ export const Tiptap: FC<EditorProps> = ({
         slotAfter={
           editable && (
             <>
-              <div className='mb-3 flex items-center rounded-b border border-neutral-100 bg-neutral-100 bg-opacity-50 px-1 py-0.5'>
-                <ThemedButton
-                  className='px-1 py-0.5'
-                  color={statusColors}
-                  variant='text'
-                  tooltip={
-                    status === 'saved' ? '' : '임시 저장(더블클릭: 새로 저장)'
-                  }
-                  disabled={status === 'saving' || status === 'saved'}
-                  tooltipOptions={{ placement: 'right' }}
-                  onClick={debouncedClick}
-                  onDoubleClick={debouncedClick}
-                >
-                  <Icon
-                    className='mr-1 inline-block'
-                    size={0.75}
-                    {...statusIconProps}
-                  />
-                  {statusTooltip}
-                </ThemedButton>
+              <div className='mb-3 flex h-8 items-center rounded-b border border-neutral-100 bg-neutral-100 bg-opacity-50 px-1 py-0.5'>
+                {status && (
+                  <ThemedButton
+                    className='px-1 py-0.5'
+                    color={statusColors}
+                    variant='text'
+                    tooltip={
+                      status === 'saved' ? '' : '임시 저장(더블클릭: 새로 저장)'
+                    }
+                    disabled={status === 'saving' || status === 'saved'}
+                    tooltipOptions={{ placement: 'right' }}
+                    onClick={debouncedClick}
+                    onDoubleClick={debouncedClick}
+                  >
+                    <Icon
+                      className='mr-1 inline-block'
+                      size={0.75}
+                      {...statusIconProps}
+                    />
+                    {statusTooltip}
+                  </ThemedButton>
+                )}
                 <div className='grow' />
                 <span className='text-right text-sm text-neutral-600'>
                   {`${editor?.storage.characterCount.words() || 0} 단어 (${editor?.storage.characterCount.characters() || 0} 자)`}

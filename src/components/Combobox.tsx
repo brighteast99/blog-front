@@ -39,6 +39,7 @@ export const Combobox: FC<ComboboxProps> = ({
       }
 
       if (!inputKeys.includes(e.key)) return
+      e.preventDefault()
 
       const newVal = target.value.trim()
       if (newVal && !value.includes(newVal)) {
@@ -52,14 +53,14 @@ export const Combobox: FC<ComboboxProps> = ({
   return (
     <div
       className={cn(
-        'flex flex-wrap overflow-y-auto border-b border-neutral-400 bg-transparent py-1',
+        'flex flex-wrap overflow-y-auto border-b border-neutral-400 bg-transparent p-1',
         !disabled &&
           'transition-colors hover:border-neutral-600 focus:border-primary focus:outline-none',
         className
       )}
     >
       {value.map((val) => (
-        <Badge key={val} size='sm' className='mx-1'>
+        <Badge key={val} size='sm' className='mr-1'>
           {val}
           <IconButton
             className='inline-block p-0'
@@ -67,9 +68,9 @@ export const Combobox: FC<ComboboxProps> = ({
             variant='hover-text'
             path={mdiClose}
             size='1em'
-            onClick={() => {
+            tabIndex={-1}
+            onClick={(e) => {
               const index = value.findIndex((_val) => _val === val)
-              console.log(index)
 
               onChange?.(value.toSpliced(index, 1))
             }}
