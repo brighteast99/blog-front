@@ -71,28 +71,30 @@ export const Badge: FC<BadgeProps> = ({
   onClick,
   ...props
 }) => {
-  return (
-    <Tooltip open={tooltip ? undefined : false} placement={tooltipPlacement}>
-      <TooltipTrigger>
-        <span
-          className={cn(
-            SpinnerVariants({ size, color, interactive }),
-            className
-          )}
-          {...props}
-          onClick={interactive ? onClick : undefined}
-        >
-          {icon && (
-            <Icon
-              className={clsx(iconPosition === 'Right' && 'order-1')}
-              path={icon}
-              size='1em'
-            />
-          )}
-          {props?.children}
-        </span>
-      </TooltipTrigger>
-      <TooltipContent>{tooltip}</TooltipContent>
-    </Tooltip>
+  const BadgeElement = (
+    <span
+      className={cn(SpinnerVariants({ size, color, interactive }), className)}
+      {...props}
+      onClick={interactive ? onClick : undefined}
+    >
+      {icon && (
+        <Icon
+          className={clsx(iconPosition === 'Right' && 'order-1')}
+          path={icon}
+          size='1em'
+        />
+      )}
+      {props?.children}
+    </span>
   )
+
+  if (tooltip)
+    return (
+      <Tooltip placement={tooltipPlacement}>
+        <TooltipTrigger>{BadgeElement}</TooltipTrigger>
+        <TooltipContent>{tooltip}</TooltipContent>
+      </Tooltip>
+    )
+
+  return BadgeElement
 }
