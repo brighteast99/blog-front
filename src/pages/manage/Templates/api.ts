@@ -3,6 +3,7 @@ import { Template } from 'types/data'
 import { gql } from '@apollo/client'
 
 import type { TypedDocumentNode } from '@apollo/client'
+import type { Hashtag } from 'types/data'
 
 export interface TemplateInput extends Omit<Template, 'id'> {}
 
@@ -63,6 +64,17 @@ export const DELETE_TEMPLATE: TypedDocumentNode<
   mutation DeleteTemplate($id: Int!) {
     deleteTemplate(id: $id) {
       success
+    }
+  }
+`
+
+export const SEARCH_HASHTAGS: TypedDocumentNode<
+  { hashtags: Hashtag[] },
+  { keyword?: string; limit?: number }
+> = gql`
+  query Hashtags($keyword: String, $limit: Int) {
+    hashtags(keyword: $keyword, limit: $limit) {
+      name
     }
   }
 `

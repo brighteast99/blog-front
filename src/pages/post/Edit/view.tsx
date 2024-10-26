@@ -38,6 +38,9 @@ interface EditPostPageViewProps {
   removeImage: (image: string) => any
   setTags: (tags: string[]) => any
   hasChange: boolean
+  hashtags: string[]
+  loadingHashtags: boolean
+  searchHashtags: (keyword: string) => any
   submitting: boolean
   submit: () => any
   save: (asNew?: boolean) => any
@@ -68,6 +71,9 @@ export const EditPostPageView: FC<EditPostPageViewProps> = ({
   removeImage,
   setTags,
   hasChange,
+  hashtags,
+  loadingHashtags,
+  searchHashtags,
   submitting,
   submit,
   save
@@ -176,10 +182,17 @@ export const EditPostPageView: FC<EditPostPageViewProps> = ({
           />
         )}
 
-        <div>
-          <span>태그</span>
-          <Combobox className='mb-5 max-h-16' value={tags} onChange={setTags} />
-        </div>
+        <Combobox
+          className='mb-5 max-h-16'
+          name='태그'
+          value={tags}
+          placeholder='태그 선택'
+          allowNewValue
+          items={hashtags}
+          loading={loadingHashtags}
+          onChange={setTags}
+          onInputChange={searchHashtags}
+        />
 
         <ThemedButton
           className='mb-2 h-10 w-full py-0.5 text-lg'

@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 
 import type { TypedDocumentNode } from '@apollo/client'
-import type { Category, Draft, Post } from 'types/data'
+import type { Category, Draft, Hashtag, Post } from 'types/data'
 
 export interface PostInput
   extends Omit<
@@ -79,6 +79,17 @@ export const DELETE_IMAGE: TypedDocumentNode<
   mutation DeleteImage($url: String!) {
     deleteImage(url: $url) {
       success
+    }
+  }
+`
+
+export const SEARCH_HASHTAGS: TypedDocumentNode<
+  { hashtags: Hashtag[] },
+  { keyword?: string; limit?: number }
+> = gql`
+  query Hashtags($keyword: String, $limit: Int) {
+    hashtags(keyword: $keyword, limit: $limit) {
+      name
     }
   }
 `

@@ -1,10 +1,12 @@
-import { useCallback, useLayoutEffect } from 'react'
+import { useCallback, useLayoutEffect, useMemo, useState } from 'react'
+import { debounce } from 'throttle-debounce'
 
-import { useMutation, useReadQuery } from '@apollo/client'
+import { useLazyQuery, useMutation, useReadQuery } from '@apollo/client'
 import {
   DELETE_TEMPLATE,
   GET_TEMPLATE,
   GET_TEMPLATES,
+  SEARCH_HASHTAGS,
   UPDATE_TEMPLATE
 } from './api'
 
@@ -16,7 +18,7 @@ import { useTemplateInput } from './hooks'
 
 import type { FC, MouseEvent } from 'react'
 import type { QueryRef } from '@apollo/client'
-import type { Template } from 'types/data'
+import type { Hashtag, Template } from 'types/data'
 
 export const TemplateForm: FC<{
   queryRef: QueryRef<{ template: Template }, { id: number }>
@@ -56,8 +58,28 @@ export const TemplateForm: FC<{
     removeImage
   } = useTemplateInput(template)
 
+  const [loadHashtags, { loading: loadingHashtags, data: _hashtagData }] =
+    useLazyQuery(SEARCH_HASHTAGS, { fetchPolicy: 'cache-and-network' })
+  const [hashtagData, setHashtagData] = useState<Hashtag[]>([])
+  const hashtags = useMemo(
+    () => hashtagData.map((hashtag) => hashtag.name) ?? [],
+    [hashtagData]
+  )
   const [_deleteTemplate, { loading: deleting, reset: resetDeleteMutation }] =
     useMutation(DELETE_TEMPLATE)
+
+  const searchHashtags = useMemo(
+    () =>
+      debounce(250, (keyword: string) => {
+        loadHashtags({
+          variables: {
+            keyword,
+            limit: 5
+          }
+        }).then(({ data }) => setHashtagData(data?.hashtags ?? []))
+      }),
+    [loadHashtags, setHashtagData]
+  )
 
   function updateTemplate(e: MouseEvent<HTMLButtonElement>) {
     e.preventDefault()
@@ -114,6 +136,11 @@ export const TemplateForm: FC<{
     initialize(template)
   }, [template, initialize])
 
+  // * load all hashtags for the first time
+  useLayoutEffect(() => {
+    if (hashtagData === undefined) searchHashtags('')
+  }, [hashtagData, searchHashtags])
+
   return (
     <>
       <NavigationBlocker
@@ -161,10 +188,17 @@ export const TemplateForm: FC<{
           onImageDeleted={removeImage}
           onChangeThumbnail={setThumbnail}
         />
-        <div>
-          <span>태그</span>
-          <Combobox className='mb-5 max-h-16' value={tags} onChange={setTags} />
-        </div>
+        <Combobox
+          className='mb-5 max-h-16'
+          name='태그'
+          value={tags}
+          placeholder='태그 선택'
+          allowNewValue
+          items={hashtags}
+          loading={loadingHashtags}
+          onChange={setTags}
+          onInputChange={searchHashtags}
+        />
         <ThemedButton
           className='h-10 w-full shrink-0'
           type='submit'

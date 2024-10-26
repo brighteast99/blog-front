@@ -12,12 +12,14 @@ import {
   useParams,
   useSearchParams
 } from 'react-router-dom'
+import { debounce } from 'throttle-debounce'
 
-import { useMutation, useQuery } from '@apollo/client'
+import { useLazyQuery, useMutation, useQuery } from '@apollo/client'
 import {
   CREATE_DRAFT,
   CREATE_POST,
   GET_POSTABLE_CATEGORIES,
+  SEARCH_HASHTAGS,
   UPDATE_DRAFT,
   UPDATE_POST
 } from './api'
@@ -34,7 +36,7 @@ import { Error } from 'components/Error'
 import { usePostInput } from './hooks'
 
 import type { FC } from 'react'
-import type { Draft, Template } from 'types/data'
+import type { Draft, Hashtag, Template } from 'types/data'
 
 const EditPostPage: FC<{ newPost?: boolean }> = ({ newPost = false }) => {
   const isLoggedIn = useAppSelector(selectIsAuthenticatedAndActive)
@@ -102,6 +104,14 @@ const EditPostPage: FC<{ newPost?: boolean }> = ({ newPost = false }) => {
     skip: !isLoggedIn,
     notifyOnNetworkStatusChange: true
   })
+
+  const [loadHashtags, { loading: loadingHashtags, data: _hashtagData }] =
+    useLazyQuery(SEARCH_HASHTAGS, { fetchPolicy: 'cache-and-network' })
+  const [hashtagData, setHashtagData] = useState<Hashtag[]>([])
+  const hashtags = useMemo(
+    () => hashtagData.map((hashtag) => hashtag.name) ?? [],
+    [hashtagData]
+  )
 
   const [_createDraft, { loading: creatingDraft, error: errorCreatingDraft }] =
     useMutation(CREATE_DRAFT)
@@ -171,6 +181,19 @@ const EditPostPage: FC<{ newPost?: boolean }> = ({ newPost = false }) => {
       }))
     },
     [initialize]
+  )
+
+  const searchHashtags = useMemo(
+    () =>
+      debounce(250, (keyword: string) => {
+        loadHashtags({
+          variables: {
+            keyword,
+            limit: 5
+          }
+        }).then(({ data }) => setHashtagData(data?.hashtags ?? []))
+      }),
+    [loadHashtags, setHashtagData]
   )
 
   const saveChanges = useCallback(
@@ -287,6 +310,11 @@ const EditPostPage: FC<{ newPost?: boolean }> = ({ newPost = false }) => {
     inputRef.current = postInput
   }, [postInput])
 
+  // * load all hashtags for the first time
+  useLayoutEffect(() => {
+    if (hashtagData === undefined) searchHashtags('')
+  }, [hashtagData, searchHashtags])
+
   // * Auto save changes periodically
   useEffect(() => {
     const interval = setInterval(() => saveRef.current(), 5 * 60 * 1000)
@@ -365,6 +393,9 @@ const EditPostPage: FC<{ newPost?: boolean }> = ({ newPost = false }) => {
       removeImage={removeImage}
       setTags={setTags}
       hasChange={hasChange}
+      hashtags={hashtags}
+      loadingHashtags={loadingHashtags}
+      searchHashtags={searchHashtags}
       submitting={creatingPost || updatingPost}
       submit={newPost ? createPost : updatePost}
       save={saveChanges}

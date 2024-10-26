@@ -45,6 +45,14 @@ export interface PostSearchResult extends Post {
   contentHighlights?: HighlightInterval[]
 }
 
+export interface Hashtag {
+  id: number
+  name: string
+  taggedTemplates: Template[]
+  taggedDrafts: Draft[]
+  taggedPosts: Post[]
+}
+
 export interface ImageData {
   id: number
   url: string

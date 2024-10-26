@@ -1,4 +1,4 @@
-import { useLayoutEffect, useMemo } from 'react'
+import { useLayoutEffect, useMemo, useState } from 'react'
 import clsx from 'clsx'
 import {
   useLocation,
@@ -6,9 +6,10 @@ import {
   useParams,
   useSearchParams
 } from 'react-router-dom'
+import { debounce } from 'throttle-debounce'
 
-import { useQuery } from '@apollo/client'
-import { CATEGORY_INFO } from './api'
+import { useLazyQuery, useQuery } from '@apollo/client'
+import { CATEGORY_INFO, SEARCH_HASHTAGS } from './api'
 import { PostSortConditions } from 'components/postList/api'
 
 import { useAppSelector } from 'store/hooks'
@@ -28,6 +29,7 @@ import type { Action } from 'components/Error'
 import type { PostSortCondition } from 'components/postList/api'
 import type { GraphQLFormattedError } from 'graphql'
 import type { SearchKey } from 'pages/category/hooks'
+import type { Hashtag } from 'types/data'
 
 const CategoryPage: FC = () => {
   const navigate = useNavigate()
@@ -83,6 +85,27 @@ const CategoryPage: FC = () => {
   })
   const category = useMemo(() => categoryData?.category, [categoryData])
 
+  const [loadHashtags, { loading: loadingHashtags, data: _hashtagData }] =
+    useLazyQuery(SEARCH_HASHTAGS, { fetchPolicy: 'cache-and-network' })
+  const [hashtagData, setHashtagData] = useState<Hashtag[]>([])
+  const hashtags = useMemo(
+    () => hashtagData.map((hashtag) => hashtag.name) ?? [],
+    [hashtagData]
+  )
+
+  const searchHashtags = useMemo(
+    () =>
+      debounce(250, (keyword: string) => {
+        loadHashtags({
+          variables: {
+            keyword,
+            limit: 5
+          }
+        }).then(({ data }) => setHashtagData(data?.hashtags ?? []))
+      }),
+    [loadHashtags, setHashtagData]
+  )
+
   const searchPosts = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
@@ -101,9 +124,10 @@ const CategoryPage: FC = () => {
   }, [_categoryId, navigate])
 
   useLayoutEffect(() => {
+    const searchBy = (searchParams.get('key') as SearchKey) || 'titleAndContent'
     const searchKeyword = searchParams.get('value') ?? ''
     initializeSearchCondition({
-      searchBy: (searchParams.get('key') as SearchKey) || 'titleAndContent',
+      searchBy,
       searchKeyword,
       sortCondition: searchKeyword
         ? (searchParams.get('sort') as PostSortCondition) || 'relavant'
@@ -113,7 +137,8 @@ const CategoryPage: FC = () => {
         Number.parseInt(searchParams.get('pageSize') || '') || 10
       )
     })
-  }, [initializeSearchCondition, searchParams])
+    if (searchBy === 'tag') searchHashtags('')
+  }, [initializeSearchCondition, searchParams, searchHashtags])
 
   if (error) {
     if (error.networkError)
@@ -266,8 +291,10 @@ const CategoryPage: FC = () => {
             value={_searchBy}
             onChange={(e) => {
               setSearchBy(e.target.value as SearchKey)
-              if (_searchBy === 'tag' || e.target.value === 'tag')
+              if (_searchBy === 'tag' || e.target.value === 'tag') {
+                searchHashtags('')
                 setSearchKeyword('')
+              }
             }}
           >
             {SearchKeys.map(({ name, value }) => (
@@ -280,13 +307,19 @@ const CategoryPage: FC = () => {
           {_searchBy === 'tag' ? (
             <Combobox
               className='max-h-16 min-w-44 max-w-120'
-              value={_searchKeyword ? _searchKeyword.split(' ') : []}
-              onChange={(value) => setSearchKeyword(value.join(' '))}
+              name='태그'
+              value={_searchKeyword ? _searchKeyword.split('|') : []}
+              placeholder='태그'
+              items={hashtags}
+              loading={loadingHashtags}
+              onChange={(value) => setSearchKeyword(value.join('|'))}
+              onInputChange={searchHashtags}
             />
           ) : (
             <input
               type='text'
               value={_searchKeyword}
+              placeholder='검색어'
               onChange={(e) => setSearchKeyword(e.target.value)}
             />
           )}
@@ -306,11 +339,7 @@ const CategoryPage: FC = () => {
           searchArgs={{
             categoryId,
             [searchBy]:
-              searchBy === 'tag'
-                ? searchKeyword
-                  ? searchKeyword.split(' ')
-                  : []
-                : searchKeyword
+              searchBy === 'tag' ? searchKeyword.split('') : searchKeyword
           }}
           initialPagination={{
             offset: pageSize * pageIdx
