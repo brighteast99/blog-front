@@ -169,16 +169,28 @@ const EditPostPage: FC<{ newPost?: boolean }> = ({ newPost = false }) => {
       )
         return
 
-      initialize((prev) => ({
-        category: prev.category,
-        title: template.title,
-        content: template.content,
-        textContent: template.textContent,
-        isHidden: prev.isHidden,
-        thumbnail: template.thumbnail,
-        images: template.images,
-        tags: template.tags
-      }))
+      initialize((prev) => {
+        let useTitle = true
+        if (
+          prev.title &&
+          prev.title !== template.title &&
+          !window.confirm(
+            '작성한 제목이 존재합니다.\n템플릿의 제목으로 덮어쓸까요?'
+          )
+        )
+          useTitle = false
+
+        return {
+          category: prev.category,
+          title: useTitle ? template.title : prev.title,
+          content: template.content,
+          textContent: template.textContent,
+          isHidden: prev.isHidden,
+          thumbnail: template.thumbnail,
+          images: template.images,
+          tags: template.tags
+        }
+      })
     },
     [initialize]
   )
