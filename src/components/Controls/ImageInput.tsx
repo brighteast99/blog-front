@@ -89,6 +89,7 @@ export const ImageInput: FC<{
     )
     const dropzoneInfo = (
       <div
+        key='dropzoneInfo'
         className={clsx(
           'absolute inset-0 flex size-full items-center justify-center bg-primary bg-opacity-10 transition-opacity',
           !isDragging && 'pointer-events-none opacity-0'

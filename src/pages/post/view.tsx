@@ -327,7 +327,7 @@ export const PostPageView: FC<PostPageViewProps> = ({
               {searchKeyword ? (
                 `의 검색 결과 (${searchKeyword})`
               ) : searchArgs?.tag ? (
-                <div className='inline-flex gap-1'>
+                <span className='inline-flex gap-1'>
                   의 검색 결과 (
                   {searchArgs.tag.map((tag) => (
                     <Badge key={tag} icon={mdiPound} size='sm'>
@@ -335,7 +335,7 @@ export const PostPageView: FC<PostPageViewProps> = ({
                     </Badge>
                   ))}
                   )
-                </div>
+                </span>
               ) : (
                 '의 다른 게시글'
               )}
