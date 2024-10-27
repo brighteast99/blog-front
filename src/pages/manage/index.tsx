@@ -64,6 +64,13 @@ const ManagePage: FC = () => {
             <Link to={path}>{label}</Link>
           </div>
         ))}
+        <div className='shrink grow' />
+        <Link to='/api/' target='_blank'>
+          API test
+        </Link>
+        <Link to='/admin/' target='_blank'>
+          Admin page
+        </Link>
       </div>
       <div className='min-h-0 grow rounded-b bg-neutral-50 *:h-full'>
         <Outlet />
