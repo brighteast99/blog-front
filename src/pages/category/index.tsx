@@ -340,7 +340,7 @@ const CategoryPage: FC = () => {
           searchArgs={{
             categoryId,
             [searchBy]:
-              searchBy === 'tag' ? searchKeyword.split('') : searchKeyword
+              searchBy === 'tag' ? searchKeyword.split('|') : searchKeyword
           }}
           initialPagination={{
             offset: pageSize * pageIdx
