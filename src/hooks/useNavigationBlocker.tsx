@@ -52,14 +52,10 @@ export const NavigationBlockerProvider: FC<{ children: ReactNode }> = ({
     setEnableBlock(blockingSrcs.current.size > 0)
   }, [])
 
-  const unregisterBlocker = useCallback(
-    (id: string) => {
-      blockingSrcs.current.delete(id)
-      setEnableBlock(blockingSrcs.current.size > 0)
-      if (blockingSrcs.current.size === 0) blocker.reset?.()
-    },
-    [blocker]
-  )
+  const unregisterBlocker = useCallback((id: string) => {
+    blockingSrcs.current.delete(id)
+    setEnableBlock(blockingSrcs.current.size > 0)
+  }, [])
 
   useEffect(() => {
     const blockLeave = (e: BeforeUnloadEvent) => e.preventDefault()
@@ -68,9 +64,9 @@ export const NavigationBlockerProvider: FC<{ children: ReactNode }> = ({
     return () => window.removeEventListener('beforeunload', blockLeave)
   }, [enableBlock])
 
-  // useEffect(() => {
-  //   if (!enableBlock) blocker.reset?.()
-  // }, [blocker, enableBlock])
+  useEffect(() => {
+    if (!enableBlock) blocker.reset?.()
+  }, [blocker, enableBlock])
 
   return (
     <BlockerContext.Provider value={{ registerBlocker, unregisterBlocker }}>
@@ -88,14 +84,6 @@ export const NavigationBlockerProvider: FC<{ children: ReactNode }> = ({
             </div>
             <div className='flex'>
               <ThemedButton
-                color='error'
-                variant='text'
-                className='h-10 w-1/2 rounded-none'
-                onClick={blocker.proceed}
-              >
-                페이지 이동
-              </ThemedButton>
-              <ThemedButton
                 color='unset'
                 variant='hover-text'
                 className='h-10 w-1/2 rounded-none'
@@ -103,6 +91,14 @@ export const NavigationBlockerProvider: FC<{ children: ReactNode }> = ({
                 autoFocus
               >
                 머무르기
+              </ThemedButton>
+              <ThemedButton
+                color='error'
+                variant='text'
+                className='h-10 w-1/2 rounded-none'
+                onClick={blocker.proceed}
+              >
+                페이지 이동
               </ThemedButton>
             </div>
           </div>
