@@ -295,17 +295,19 @@ export const PostPageView: FC<PostPageViewProps> = ({
                 </p>
                 <div className='flex flex-wrap gap-2'>
                   {post?.tags.map((tag) => (
-                    <Badge
-                      key={tag}
-                      icon={mdiPound}
-                      size='md'
-                      color={
-                        searchArgs?.tag?.includes(tag) ? 'success' : 'primary'
-                      }
-                      interactive
-                    >
-                      {tag}
-                    </Badge>
+                    <Link key={tag} to={`/category/all?key=tag&value=${tag}`}>
+                      <Badge
+                        key={tag}
+                        icon={mdiPound}
+                        size='md'
+                        color={
+                          searchArgs?.tag?.includes(tag) ? 'success' : 'primary'
+                        }
+                        interactive
+                      >
+                        {tag}
+                      </Badge>
+                    </Link>
                   ))}
                 </div>
                 {post?.tags.length === 0 && (
