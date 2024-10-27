@@ -1,6 +1,8 @@
 import { lazy, Suspense } from 'react'
 import { createBrowserRouter } from 'react-router-dom'
 
+import { NavigationBlockerProvider } from 'hooks/useNavigationBlocker'
+
 import { MANAGE_ROUTES } from 'pages/manage'
 import { Error } from 'components/Error'
 import { Spinner } from 'components/Spinner'
@@ -23,7 +25,9 @@ export const router = createBrowserRouter([
           </div>
         }
       >
-        <App />
+        <NavigationBlockerProvider>
+          <App />
+        </NavigationBlockerProvider>
       </Suspense>
     ),
     children: [

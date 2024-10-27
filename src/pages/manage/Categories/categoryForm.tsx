@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react'
+import { useEffect, useLayoutEffect, useMemo } from 'react'
 
 import { useMutation, useQuery, useReadQuery } from '@apollo/client'
 import {
@@ -8,9 +8,10 @@ import {
   VALID_SUPERCATEGORIES
 } from 'api/category'
 
+import { useNavigationBlocker } from 'hooks/useNavigationBlocker'
+
 import { ThemedButton } from 'components/Buttons/ThemedButton'
 import { ImageInput } from 'components/Controls/ImageInput'
-import { NavigationBlocker } from 'components/utils/NavigationBlocker'
 import {
   Tooltip,
   TooltipContent,
@@ -40,6 +41,8 @@ export const CategoryForm: FC<{
     description: '',
     isHidden: false
   })
+
+  const { block, unblock } = useNavigationBlocker()
 
   const {
     data: { category }
@@ -106,122 +109,119 @@ export const CategoryForm: FC<{
     }
   }, [category, initialize])
 
+  // * block navigation if there are some changes
+  useLayoutEffect(() => {
+    if (hasChange) block()
+    else unblock()
+  }, [hasChange, block, unblock])
+
   return (
-    <>
-      <NavigationBlocker
-        enabled={hasChange}
-        localAlert
-        message={'변경점이 있습니다.\n계속하시겠습니까?'}
+    <form className='flex size-full flex-col gap-3' onSubmit={updateCategory}>
+      <ImageInput
+        key={category.id}
+        menuPlacement='top'
+        className='h-50 w-full'
+        initialImage={category.coverImage}
+        sizeLimit={3}
+        placeholder={
+          <span className='block size-fit select-none text-lg font-semibold text-neutral-400'>
+            커버 이미지
+          </span>
+        }
+        onInput={(file) => setCoverImage(file)}
       />
-      <form className='flex size-full flex-col gap-3' onSubmit={updateCategory}>
-        <ImageInput
-          key={category.id}
-          menuPlacement='top'
-          className='h-50 w-full'
-          initialImage={category.coverImage}
-          sizeLimit={3}
-          placeholder={
-            <span className='block size-fit select-none text-lg font-semibold text-neutral-400'>
-              커버 이미지
-            </span>
-          }
-          onInput={(file) => setCoverImage(file)}
+
+      <div className='flex gap-3'>
+        <span className='text-neutral-700'>상위 분류</span>
+        <select
+          className='grow'
+          value={subcategoryOf ?? 0}
+          onChange={(e) => {
+            if (
+              window.confirm(
+                '현재 분류 및 하위 분류들이 모두 해당 분류 아래로 이동합니다.'
+              )
+            ) {
+              setSubcategoryOf(Number(e.target.value))
+              if (e.target.selectedOptions[0].dataset.isHidden)
+                setIsHidden(true)
+            }
+          }}
+        >
+          <option value={0}>선택안함</option>
+          {validSupercategories.map((_category) => {
+            if (_category.id === category.id) return null
+            return (
+              <option
+                key={_category.id}
+                value={_category.id}
+                data-hidden={_category.isHidden || undefined}
+              >
+                {_category.name} {_category.isHidden && '(비공개)'}
+              </option>
+            )
+          })}
+        </select>
+      </div>
+
+      <div className='flex gap-3'>
+        <span className='text-neutral-700'>분류 이름</span>
+        <input
+          className='grow'
+          type='text'
+          required
+          placeholder={category.name}
+          value={name}
+          maxLength={100}
+          onChange={(e) => setName(e.target.value)}
         />
 
-        <div className='flex gap-3'>
-          <span className='text-neutral-700'>상위 분류</span>
-          <select
-            className='grow'
-            value={subcategoryOf ?? 0}
-            onChange={(e) => {
-              if (
-                window.confirm(
-                  '현재 분류 및 하위 분류들이 모두 해당 분류 아래로 이동합니다.'
-                )
-              ) {
-                setSubcategoryOf(Number(e.target.value))
-                if (e.target.selectedOptions[0].dataset.isHidden)
-                  setIsHidden(true)
-              }
-            }}
-          >
-            <option value={0}>선택안함</option>
-            {validSupercategories.map((_category) => {
-              if (_category.id === category.id) return null
-              return (
-                <option
-                  key={_category.id}
-                  value={_category.id}
-                  data-hidden={_category.isHidden || undefined}
-                >
-                  {_category.name} {_category.isHidden && '(비공개)'}
-                </option>
-              )
-            })}
-          </select>
-        </div>
+        <label>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <input
+                className='mr-2 accent-primary'
+                type='checkbox'
+                disabled={parentIsHidden}
+                checked={isHidden || parentIsHidden}
+                onChange={(e) => {
+                  if (
+                    e.target.checked &&
+                    !window.confirm('해당 분류와 하위 분류가 모두 숨겨집니다.')
+                  ) {
+                    return e.preventDefault()
+                  }
+                  setIsHidden(e.target.checked)
+                }}
+              />
+            </TooltipTrigger>
+            {parentIsHidden && (
+              <TooltipContent>상위 분류가 숨겨진 분류입니다</TooltipContent>
+            )}
+          </Tooltip>
+          <span className='text-neutral-700'>분류 숨기기</span>
+        </label>
+      </div>
 
-        <div className='flex gap-3'>
-          <span className='text-neutral-700'>분류 이름</span>
-          <input
-            className='grow'
-            type='text'
-            required
-            placeholder={category.name}
-            value={name}
-            maxLength={100}
-            onChange={(e) => setName(e.target.value)}
-          />
+      <div className='flex grow gap-3'>
+        <span className='text-neutral-700'>분류 설명</span>
+        <textarea
+          className='min-h-20 grow p-2'
+          value={description}
+          placeholder={category.description}
+          onChange={(e) => setDescription(e.target.value)}
+        />
+      </div>
 
-          <label>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <input
-                  className='mr-2 accent-primary'
-                  type='checkbox'
-                  disabled={parentIsHidden}
-                  checked={isHidden || parentIsHidden}
-                  onChange={(e) => {
-                    if (
-                      e.target.checked &&
-                      !window.confirm(
-                        '해당 분류와 하위 분류가 모두 숨겨집니다.'
-                      )
-                    ) {
-                      return e.preventDefault()
-                    }
-                    setIsHidden(e.target.checked)
-                  }}
-                />
-              </TooltipTrigger>
-              {parentIsHidden && (
-                <TooltipContent>상위 분류가 숨겨진 분류입니다</TooltipContent>
-              )}
-            </Tooltip>
-            <span className='text-neutral-700'>분류 숨기기</span>
-          </label>
-        </div>
-
-        <div className='flex grow gap-3'>
-          <span className='text-neutral-700'>분류 설명</span>
-          <textarea
-            className='min-h-20 grow p-2'
-            value={description}
-            placeholder={category.description}
-            onChange={(e) => setDescription(e.target.value)}
-          />
-        </div>
-
-        <ThemedButton
-          className='h-10 w-full py-0.5 text-lg'
-          color='primary'
-          disabled={!hasChange}
-          loading={updating}
-          spinnerSize='xs'
-        >
-          저장
-        </ThemedButton>
-      </form>
-    </>
+      <ThemedButton
+        className='h-10 w-full py-0.5 text-lg'
+        color='primary'
+        disabled={!hasChange}
+        loading={updating}
+        spinnerSize='xs'
+      >
+        저장
+      </ThemedButton>
+    </form>
   )
 }

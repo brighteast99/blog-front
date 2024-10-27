@@ -1,10 +1,11 @@
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useMemo } from 'react'
 
 import { useMutation, useQuery } from '@apollo/client'
 import { GET_INFO, UPDATE_INFO } from 'api/info'
 
 import { useAppDispatch } from 'store/hooks'
 import { updateBlogInfo } from 'store/slices/blog/blogSlice'
+import { useNavigationBlocker } from 'hooks/useNavigationBlocker'
 
 import Icon from '@mdi/react'
 import { mdiImage } from '@mdi/js'
@@ -13,7 +14,6 @@ import { ThemedButton } from 'components/Buttons/ThemedButton'
 import { ImageInput } from 'components/Controls/ImageInput'
 import { Error } from 'components/Error'
 import { Spinner } from 'components/Spinner'
-import { NavigationBlocker } from 'components/utils/NavigationBlocker'
 import { useBlogInfoInput } from './hooks'
 
 import type { FC, FormEvent } from 'react'
@@ -32,6 +32,7 @@ export const ManageInfoPage: FC = () => {
     title: '',
     description: ''
   })
+  const { block, unblock } = useNavigationBlocker()
 
   const {
     data: blogInfoData,
@@ -89,6 +90,12 @@ export const ManageInfoPage: FC = () => {
       })
   }, [blogInfo, initialize])
 
+  // * block navigation if there are some changes
+  useLayoutEffect(() => {
+    if (hasChange) block()
+    else unblock()
+  }, [hasChange, block, unblock])
+
   if (loadingBlogInfo) return <Spinner size='lg' />
   if (errorLoadingBlogInfo)
     return (
@@ -99,64 +106,58 @@ export const ManageInfoPage: FC = () => {
       />
     )
   return (
-    <>
-      <NavigationBlocker
-        enabled={hasChange}
-        message={'변경점이 있습니다.\n페이지를 벗어나시겠습니까?'}
-      />
-      <div className='relative p-5'>
-        <form
-          className='absolute inset-0 m-auto flex h-fit w-120 flex-col gap-3'
-          onSubmit={updateInfo}
-        >
+    <div className='relative p-5'>
+      <form
+        className='absolute inset-0 m-auto flex h-fit w-120 flex-col gap-3'
+        onSubmit={updateInfo}
+      >
+        <ImageInput
+          className='mx-auto'
+          initialImage={blogInfo?.avatar}
+          sizeLimit={3}
+          Viewer={<Avatar className='mx-auto border-2' size='2xl' />}
+          onInput={(file) => setAvatar(file)}
+        />
+
+        <div className='flex gap-2'>
           <ImageInput
-            className='mx-auto'
-            initialImage={blogInfo?.avatar}
-            sizeLimit={3}
-            Viewer={<Avatar className='mx-auto border-2' size='2xl' />}
-            onInput={(file) => setAvatar(file)}
+            className='bg-tranparent size-8 border-none'
+            initialImage={blogInfo?.favicon}
+            accept='.ico'
+            sizeLimit={1}
+            placeholder={<Icon path={mdiImage} />}
+            menuPlacement='left-start'
+            onInput={(file) => setFavicon(file)}
           />
-
-          <div className='flex gap-2'>
-            <ImageInput
-              className='bg-tranparent size-8 border-none'
-              initialImage={blogInfo?.favicon}
-              accept='.ico'
-              sizeLimit={1}
-              placeholder={<Icon path={mdiImage} />}
-              menuPlacement='left-start'
-              onInput={(file) => setFavicon(file)}
-            />
-            <input
-              className='h-8 grow px-1.5'
-              type='text'
-              required
-              placeholder={blogInfo?.title || '블로그 제목'}
-              value={title}
-              maxLength={100}
-              onChange={(e) => setTitle(e.target.value)}
-            />
-          </div>
-
-          <textarea
-            className='min-h-32 p-2'
+          <input
+            className='h-8 grow px-1.5'
+            type='text'
             required
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            placeholder={blogInfo?.description || '블로그 소개'}
+            placeholder={blogInfo?.title || '블로그 제목'}
+            value={title}
+            maxLength={100}
+            onChange={(e) => setTitle(e.target.value)}
           />
+        </div>
 
-          <ThemedButton
-            className='h-10 w-full py-0.5 text-lg'
-            color='primary'
-            disabled={!title.length || !description.length || !hasChange}
-            loading={updating}
-            spinnerSize='xs'
-          >
-            저장
-          </ThemedButton>
-        </form>
-      </div>
-    </>
+        <textarea
+          className='min-h-32 p-2'
+          required
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          placeholder={blogInfo?.description || '블로그 소개'}
+        />
+
+        <ThemedButton
+          className='h-10 w-full py-0.5 text-lg'
+          color='primary'
+          disabled={!title.length || !description.length || !hasChange}
+          loading={updating}
+          spinnerSize='xs'
+        >
+          저장
+        </ThemedButton>
+      </form>
+    </div>
   )
 }

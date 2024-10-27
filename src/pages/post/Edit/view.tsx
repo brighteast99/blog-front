@@ -1,10 +1,13 @@
+import { useLayoutEffect } from 'react'
+
+import { useNavigationBlocker } from 'hooks/useNavigationBlocker'
+
 import { mdiLock, mdiLockOpen } from '@mdi/js'
 import { IconButton } from 'components/Buttons/IconButton'
 import { ThemedButton } from 'components/Buttons/ThemedButton'
 import { Combobox } from 'components/Controls/Combobox'
 import { Spinner } from 'components/Spinner'
 import { Tiptap } from 'components/Tiptap'
-import { NavigationBlocker } from 'components/utils/NavigationBlocker'
 import { DraftManager } from './DraftManager'
 import { TemplateSelector } from './TemplateSelector'
 
@@ -80,6 +83,13 @@ export const EditPostPageView: FC<EditPostPageViewProps> = ({
 }) => {
   const { title, category, isHidden, content, images, thumbnail, tags } = inputs
 
+  const { block, unblock } = useNavigationBlocker()
+
+  useLayoutEffect(() => {
+    if (hasChange && !submitting) block()
+    else unblock()
+  }, [hasChange, submitting, block, unblock])
+
   return (
     <>
       {loadingPost && (
@@ -87,11 +97,6 @@ export const EditPostPageView: FC<EditPostPageViewProps> = ({
           <Spinner />
         </div>
       )}
-
-      <NavigationBlocker
-        enabled={hasChange && !submitting}
-        message={`${newPost ? '작성' : '수정'}중인 내용이 있습니다.\n페이지를 벗어나시겠습니까?`}
-      />
 
       <div className='mx-auto flex min-h-dvh w-full max-w-[1280px] flex-col p-10'>
         <div className='mb-3 flex w-full items-center justify-between gap-2'>

@@ -10,10 +10,11 @@ import {
   UPDATE_TEMPLATE
 } from 'api/template'
 
+import { useNavigationBlocker } from 'hooks/useNavigationBlocker'
+
 import { ThemedButton } from 'components/Buttons/ThemedButton'
 import { Combobox } from 'components/Controls/Combobox'
 import { Tiptap } from 'components/Tiptap'
-import { NavigationBlocker } from 'components/utils/NavigationBlocker'
 import { useTemplateInput } from './hooks'
 
 import type { FC, MouseEvent } from 'react'
@@ -24,6 +25,8 @@ export const TemplateForm: FC<{
   queryRef: QueryRef<{ template: Template }, { id: number }>
   onDelete?: () => any
 }> = ({ queryRef, onDelete }) => {
+  const { block, unblock } = useNavigationBlocker()
+
   const {
     data: { template }
   } = useReadQuery(queryRef)
@@ -141,89 +144,88 @@ export const TemplateForm: FC<{
     if (hashtagData === undefined) searchHashtags('')
   }, [hashtagData, searchHashtags])
 
+  // * block navigation if there are some changes
+  useLayoutEffect(() => {
+    if (hasChange) block()
+    else unblock()
+  }, [hasChange, block, unblock])
+
   return (
-    <>
-      <NavigationBlocker
-        enabled={hasChange}
-        localAlert
-        message={'수정 중인 내용이 있습니다.\n계속하시겠습니까?'}
+    <div className='flex min-h-full flex-col gap-2'>
+      <input
+        className='mb-3 w-full px-1 text-2xl'
+        type='text'
+        value={templateName}
+        placeholder={template.templateName}
+        onChange={(e) => setTemplateName(e.target.value)}
       />
-      <div className='flex min-h-full flex-col gap-2'>
-        <input
-          className='mb-3 w-full px-1 text-2xl'
-          type='text'
-          value={templateName}
-          placeholder={template.templateName}
-          onChange={(e) => setTemplateName(e.target.value)}
-        />
-        <input
-          className='w-full px-1 text-2xl'
-          type='text'
-          placeholder={template.title}
-          value={title}
-          maxLength={100}
-          onChange={(e) => setTitle(e.target.value)}
-        />
-        <Tiptap
-          key={template.id}
-          className='min-h-0 grow'
-          content={content}
-          status={
-            updating
-              ? 'saving'
-              : errorUpdatingTemplate
-                ? 'error'
-                : hasChange
-                  ? 'need-save'
-                  : 'saved'
-          }
-          thumbnail={thumbnail}
-          images={images}
-          onChange={(editor) => {
-            setContent(editor.getHTML())
-            setTextContent(editor.getText())
-          }}
-          onImageUploaded={addImage}
-          onImageImported={addImages}
-          onImageDeleted={removeImage}
-          onChangeThumbnail={setThumbnail}
-        />
-        <Combobox
-          className='mb-5 max-h-16'
-          name='태그'
-          value={tags}
-          placeholder='태그 선택'
-          allowNewValue
-          items={hashtags}
-          loading={loadingHashtags}
-          onChange={setTags}
-          onInputChange={searchHashtags}
-        />
-        <ThemedButton
-          className='h-10 w-full shrink-0'
-          type='submit'
-          variant='flat'
-          color='primary'
-          disabled={deleting}
-          loading={updating}
-          spinnerSize='xs'
-          onClick={updateTemplate}
-        >
-          저장
-        </ThemedButton>
-        <ThemedButton
-          className='h-10 w-full shrink-0'
-          type='button'
-          variant='text'
-          color='error'
-          disabled={updating}
-          loading={deleting}
-          spinnerSize='xs'
-          onClick={deleteTemplate}
-        >
-          삭제
-        </ThemedButton>
-      </div>
-    </>
+      <input
+        className='w-full px-1 text-2xl'
+        type='text'
+        placeholder={template.title}
+        value={title}
+        maxLength={100}
+        onChange={(e) => setTitle(e.target.value)}
+      />
+      <Tiptap
+        key={template.id}
+        className='min-h-0 grow'
+        content={content}
+        status={
+          updating
+            ? 'saving'
+            : errorUpdatingTemplate
+              ? 'error'
+              : hasChange
+                ? 'need-save'
+                : 'saved'
+        }
+        thumbnail={thumbnail}
+        images={images}
+        onChange={(editor) => {
+          setContent(editor.getHTML())
+          setTextContent(editor.getText())
+        }}
+        onImageUploaded={addImage}
+        onImageImported={addImages}
+        onImageDeleted={removeImage}
+        onChangeThumbnail={setThumbnail}
+      />
+      <Combobox
+        className='mb-5 max-h-16'
+        name='태그'
+        value={tags}
+        placeholder='태그 선택'
+        allowNewValue
+        items={hashtags}
+        loading={loadingHashtags}
+        onChange={setTags}
+        onInputChange={searchHashtags}
+      />
+      <ThemedButton
+        className='h-10 w-full shrink-0'
+        type='submit'
+        variant='flat'
+        color='primary'
+        disabled={deleting}
+        loading={updating}
+        spinnerSize='xs'
+        onClick={updateTemplate}
+      >
+        저장
+      </ThemedButton>
+      <ThemedButton
+        className='h-10 w-full shrink-0'
+        type='button'
+        variant='text'
+        color='error'
+        disabled={updating}
+        loading={deleting}
+        spinnerSize='xs'
+        onClick={deleteTemplate}
+      >
+        삭제
+      </ThemedButton>
+    </div>
   )
 }
