@@ -72,7 +72,7 @@ export const PostListItem: FC<{
   return (
     <li
       className={clsx(
-        'flex h-72 flex-col px-2 py-4 last-of-type:!border-b-0',
+        'flex h-80 flex-col px-2 py-4 last-of-type:!border-b-0',
         isActive && 'bg-primary bg-opacity-5'
       )}
     >
