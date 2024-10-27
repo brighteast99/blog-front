@@ -14,17 +14,19 @@ import type { DetailedHTMLProps, HTMLAttributes, ReactNode } from 'react'
 import type { TooltipOptions } from 'components/utils/Tooltip'
 import type { NamedColors, sizeLiteral } from 'types/commonProps'
 
+export type ButtonVariant =
+  | 'flat'
+  | 'hover-text'
+  | 'hover-text-toggle'
+  | 'text'
+  | 'text-toggle'
+  | 'outline'
+  | 'outline-toggle'
+
 interface ThemedButtonProps {
   type?: 'submit' | 'button'
   color: NamedColors
-  variant?:
-    | 'flat'
-    | 'hover-text'
-    | 'hover-text-toggle'
-    | 'text'
-    | 'text-toggle'
-    | 'outline'
-    | 'outline-toggle'
+  variant?: ButtonVariant
   active?: boolean
   loading?: boolean
   spinnerSize?: sizeLiteral

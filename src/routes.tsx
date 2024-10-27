@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react'
 import { createBrowserRouter } from 'react-router-dom'
 
+import { DialogProvider } from 'hooks/useDialog'
 import { NavigationBlockerProvider } from 'hooks/useNavigationBlocker'
 
 import { MANAGE_ROUTES } from 'pages/manage'
@@ -26,7 +27,9 @@ export const router = createBrowserRouter([
         }
       >
         <NavigationBlockerProvider>
-          <App />
+          <DialogProvider>
+            <App />
+          </DialogProvider>
         </NavigationBlockerProvider>
       </Suspense>
     ),

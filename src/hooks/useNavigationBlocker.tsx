@@ -52,10 +52,14 @@ export const NavigationBlockerProvider: FC<{ children: ReactNode }> = ({
     setEnableBlock(blockingSrcs.current.size > 0)
   }, [])
 
-  const unregisterBlocker = useCallback((id: string) => {
-    blockingSrcs.current.delete(id)
-    setEnableBlock(blockingSrcs.current.size > 0)
-  }, [])
+  const unregisterBlocker = useCallback(
+    (id: string) => {
+      blockingSrcs.current.delete(id)
+      setEnableBlock(blockingSrcs.current.size > 0)
+      if (blockingSrcs.current.size === 0) blocker.reset?.()
+    },
+    [blocker]
+  )
 
   useEffect(() => {
     const blockLeave = (e: BeforeUnloadEvent) => e.preventDefault()
@@ -64,14 +68,14 @@ export const NavigationBlockerProvider: FC<{ children: ReactNode }> = ({
     return () => window.removeEventListener('beforeunload', blockLeave)
   }, [enableBlock])
 
-  useEffect(() => {
-    if (!enableBlock) blocker.reset?.()
-  }, [blocker, enableBlock])
+  // useEffect(() => {
+  //   if (!enableBlock) blocker.reset?.()
+  // }, [blocker, enableBlock])
 
   return (
     <BlockerContext.Provider value={{ registerBlocker, unregisterBlocker }}>
       {children}
-      {blocker.state === 'blocked' && (
+      {blocker.state === 'blocked' && !blockingSrcs.current.has('dialog') && (
         <FloatingOverlay
           className='z-50 bg-neutral-50 bg-opacity-50'
           lockScroll
