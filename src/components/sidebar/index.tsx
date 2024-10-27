@@ -13,6 +13,7 @@ import {
   selectIsAuthenticatedAndActive
 } from 'store/slices/auth/authSlice'
 import { updateBlogInfo } from 'store/slices/blog/blogSlice'
+import { useDialog } from 'hooks/useDialog'
 
 import { mdiCog, mdiLogin, mdiLogout, mdiMenu } from '@mdi/js'
 import { Avatar } from 'components/Avatar'
@@ -50,6 +51,8 @@ export const Sidebar: FC<SidebarProps> = ({
     notifyOnNetworkStatusChange: true,
     onCompleted: (blogInfo) => dispatch(updateBlogInfo(blogInfo))
   })
+  const showDialog = useDialog()
+
   const blogInfo = useMemo(() => blogInfoData?.blogInfo, [blogInfoData])
   const {
     data: categoriesData,
@@ -72,11 +75,11 @@ export const Sidebar: FC<SidebarProps> = ({
     [location.pathname, navigate]
   )
 
-  const logOut = useCallback(() => {
-    if (window.confirm('로그아웃하시겠습니까?')) {
+  const logOut = useCallback(async () => {
+    if (await showDialog('로그아웃하시겠습니까?', 'NEGATIVECONFIRM')) {
       dispatch(revokeToken(null)).then(() => client.resetStore())
     }
-  }, [dispatch])
+  }, [dispatch, showDialog])
 
   useEffect(() => {
     if (foldOnLocationChange) fold?.()

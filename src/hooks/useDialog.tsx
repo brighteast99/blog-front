@@ -84,7 +84,7 @@ export const DialogProvider: FC<{ children: ReactNode }> = ({ children }) => {
         setResolver(() => resolve)
       })
     },
-    [block, open]
+    [block]
   )
 
   const onClick = useCallback(

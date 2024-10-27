@@ -8,6 +8,7 @@ import {
   VALID_SUPERCATEGORIES
 } from 'api/category'
 
+import { useDialog } from 'hooks/useDialog'
 import { useNavigationBlocker } from 'hooks/useNavigationBlocker'
 
 import { ThemedButton } from 'components/Buttons/ThemedButton'
@@ -43,6 +44,7 @@ export const CategoryForm: FC<{
   })
 
   const { block, unblock } = useNavigationBlocker()
+  const showDialog = useDialog()
 
   const {
     data: { category }
@@ -136,10 +138,11 @@ export const CategoryForm: FC<{
         <select
           className='grow'
           value={subcategoryOf ?? 0}
-          onChange={(e) => {
+          onChange={async (e) => {
             if (
-              window.confirm(
-                '현재 분류 및 하위 분류들이 모두 해당 분류 아래로 이동합니다.'
+              await showDialog(
+                '현재 분류 및 하위 분류들이 모두 해당 분류 아래로 이동합니다.',
+                'CONFIRM'
               )
             ) {
               setSubcategoryOf(Number(e.target.value))
@@ -184,10 +187,13 @@ export const CategoryForm: FC<{
                 type='checkbox'
                 disabled={parentIsHidden}
                 checked={isHidden || parentIsHidden}
-                onChange={(e) => {
+                onChange={async (e) => {
                   if (
                     e.target.checked &&
-                    !window.confirm('해당 분류와 하위 분류가 모두 숨겨집니다.')
+                    !(await showDialog(
+                      '해당 분류와 하위 분류가 모두 숨겨집니다.',
+                      'CONFIRM'
+                    ))
                   ) {
                     return e.preventDefault()
                   }

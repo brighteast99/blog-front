@@ -10,6 +10,7 @@ import {
   UPDATE_TEMPLATE
 } from 'api/template'
 
+import { useDialog } from 'hooks/useDialog'
 import { useNavigationBlocker } from 'hooks/useNavigationBlocker'
 
 import { ThemedButton } from 'components/Buttons/ThemedButton'
@@ -60,6 +61,7 @@ export const TemplateForm: FC<{
     addImages,
     removeImage
   } = useTemplateInput(template)
+  const showDialog = useDialog()
 
   const [loadHashtags, { loading: loadingHashtags, data: _hashtagData }] =
     useLazyQuery(SEARCH_HASHTAGS, { fetchPolicy: 'cache-and-network' })
@@ -105,15 +107,21 @@ export const TemplateForm: FC<{
         { query: GET_TEMPLATE, variables: { id: template.id } }
       ],
       onError: ({ networkError, graphQLErrors }) => {
-        if (networkError) alert('템플릿 수정 중 오류가 발생했습니다.')
-        if (graphQLErrors.length) alert(graphQLErrors[0].message)
+        if (networkError) showDialog('템플릿 수정 중 오류가 발생했습니다.')
+        if (graphQLErrors.length) showDialog(graphQLErrors[0].message)
         resetUpdateMutation()
       }
     })
   }
 
-  const deleteTemplate = useCallback(() => {
-    if (!window.confirm(`'${template.title}' 템플릿을 삭제합니다.`)) return
+  const deleteTemplate = useCallback(async () => {
+    if (
+      !(await showDialog(
+        `'${template.title}' 템플릿을 삭제합니다.`,
+        'NEGATIVECONFIRM'
+      ))
+    )
+      return
 
     _deleteTemplate({
       variables: {
@@ -122,8 +130,8 @@ export const TemplateForm: FC<{
       refetchQueries: [{ query: GET_TEMPLATES }],
       onCompleted: () => onDelete?.(),
       onError: ({ networkError, graphQLErrors }) => {
-        if (networkError) alert('템플릿 삭제 중 오류가 발생했습니다.')
-        else if (graphQLErrors.length) alert(graphQLErrors[0].message)
+        if (networkError) showDialog('템플릿 삭제 중 오류가 발생했습니다.')
+        else if (graphQLErrors.length) showDialog(graphQLErrors[0].message)
         resetDeleteMutation()
       }
     })
@@ -132,7 +140,8 @@ export const TemplateForm: FC<{
     onDelete,
     resetDeleteMutation,
     template.id,
-    template.title
+    template.title,
+    showDialog
   ])
 
   useLayoutEffect(() => {

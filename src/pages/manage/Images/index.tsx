@@ -12,6 +12,7 @@ import {
 
 import { useAppSelector } from 'store/hooks'
 import { selectIsMobile } from 'store/slices/window/windowSlice'
+import { useDialog } from 'hooks/useDialog'
 
 import Icon from '@mdi/react'
 import { mdiAlertCircle, mdiDelete } from '@mdi/js'
@@ -31,6 +32,7 @@ const IMAGE_SIZE_UNIT: fileSizeUnitLiteral = 'MB'
 
 export const ManageImagePage: FC = () => {
   const isMobile = useAppSelector(selectIsMobile)
+  const showDialog = useDialog()
 
   const { data, loading, error, refetch } = useQuery(
     GET_IMAGES_WITH_REFERENCE_CHECK,
@@ -65,39 +67,48 @@ export const ManageImagePage: FC = () => {
     })
 
   const deleteImage = useCallback(
-    ({ name, url }: ImageData) => {
-      if (!window.confirm(`이미지 '${name}'를 삭제합니다.`)) return
+    async ({ name, url }: ImageData) => {
+      if (
+        !(await showDialog(`이미지 '${name}'를 삭제합니다.`, 'NEGATIVECONFIRM'))
+      )
+        return
 
       _deleteImage({
         variables: { url },
         refetchQueries: [{ query: GET_IMAGES_WITH_REFERENCE_CHECK }],
         onCompleted: () => resetImage(),
         onError: ({ networkError, graphQLErrors }) => {
-          if (networkError) alert('이미지 삭제 중 오류가 발생했습니다.')
-          else if (graphQLErrors.length) alert(graphQLErrors[0].message)
+          if (networkError) showDialog('이미지 삭제 중 오류가 발생했습니다.')
+          else if (graphQLErrors.length) showDialog(graphQLErrors[0].message)
           resetDeleteMutation()
         }
       })
     },
-    [_deleteImage, resetImage, resetDeleteMutation]
+    [_deleteImage, resetImage, resetDeleteMutation, showDialog]
   )
 
   const pruneImages = useCallback(
-    (urls: string[]) => {
-      if (!window.confirm('사용된 적 없는 이미지들을 모두 제거합니다')) return
+    async (urls: string[]) => {
+      if (
+        !(await showDialog(
+          '사용된 적 없는 이미지들을 모두 제거합니다',
+          'NEGATIVECONFIRM'
+        ))
+      )
+        return
 
       _pruneImages({
         variables: { urls },
         refetchQueries: [{ query: GET_IMAGES_WITH_REFERENCE_CHECK }],
         onCompleted: () => resetImage(),
         onError: ({ networkError, graphQLErrors }) => {
-          if (networkError) alert('이미지 삭제 중 오류가 발생했습니다.')
-          else if (graphQLErrors.length) alert(graphQLErrors[0].message)
+          if (networkError) showDialog('이미지 삭제 중 오류가 발생했습니다.')
+          else if (graphQLErrors.length) showDialog(graphQLErrors[0].message)
           resetPruneMutation()
         }
       })
     },
-    [_pruneImages, resetImage, resetPruneMutation]
+    [_pruneImages, resetImage, resetPruneMutation, showDialog]
   )
 
   useEffect(() => {

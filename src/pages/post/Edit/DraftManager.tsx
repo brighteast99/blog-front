@@ -7,6 +7,7 @@ import { DELETE_DRAFT, GET_DRAFT, GET_DRAFTS } from 'api/draft'
 
 import { useAppSelector } from 'store/hooks'
 import { selectIsAuthenticatedAndActive } from 'store/slices/auth/authSlice'
+import { useDialog } from 'hooks/useDialog'
 import { getRelativeTimeFromNow } from 'utils/dayJS'
 
 import { mdiDelete, mdiPound } from '@mdi/js'
@@ -43,6 +44,7 @@ export const DraftManager: FC<DraftManagerProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState<boolean>(false)
   const isLoggedIn = useAppSelector(selectIsAuthenticatedAndActive)
+  const showDialog = useDialog()
 
   const {
     data: draftsData,
@@ -75,8 +77,14 @@ export const DraftManager: FC<DraftManagerProps> = ({
     useMutation(DELETE_DRAFT)
 
   const deleteDraft = useCallback(
-    ({ summary, id }: Draft) => {
-      if (!window.confirm(`임시 저장본 '${summary}'을(를) 삭제합니다.`)) return
+    async ({ summary, id }: Draft) => {
+      if (
+        !(await showDialog(
+          `임시 저장본 '${summary}'을(를) 삭제합니다.`,
+          'NEGATIVECONFIRM'
+        ))
+      )
+        return
 
       _deleteDraft({
         variables: { id },
@@ -86,13 +94,14 @@ export const DraftManager: FC<DraftManagerProps> = ({
           onDelete?.(id)
         },
         onError: ({ networkError, graphQLErrors }) => {
-          if (networkError) alert('임시 저장본 삭제 중 오류가 발생했습니다.')
-          else if (graphQLErrors.length) alert(graphQLErrors[0].message)
+          if (networkError)
+            showDialog('임시 저장본 삭제 중 오류가 발생했습니다.')
+          else if (graphQLErrors.length) showDialog(graphQLErrors[0].message)
           resetDeleteMutation()
         }
       })
     },
-    [_deleteDraft, onDelete, resetDeleteMutation]
+    [_deleteDraft, onDelete, resetDeleteMutation, showDialog]
   )
 
   useEffect(() => {

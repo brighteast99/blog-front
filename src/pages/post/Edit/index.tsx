@@ -22,6 +22,7 @@ import { CREATE_POST, GET_POST, UPDATE_POST } from 'api/post'
 
 import { useAppSelector } from 'store/hooks'
 import { selectIsAuthenticatedAndActive } from 'store/slices/auth/authSlice'
+import { useDialog } from 'hooks/useDialog'
 
 import { EditPostPageView } from 'pages/post/Edit/view'
 import { Error } from 'components/Error'
@@ -63,6 +64,7 @@ const EditPostPage: FC<{ newPost?: boolean }> = ({ newPost = false }) => {
     tags: []
   })
   const inputRef = useRef(postInput)
+  const showDialog = useDialog()
 
   const {
     loading: loadingPost,
@@ -127,12 +129,13 @@ const EditPostPage: FC<{ newPost?: boolean }> = ({ newPost = false }) => {
   )
 
   const importDraft = useCallback(
-    (draft: Draft) => {
+    async (draft: Draft) => {
       if (!draft) return
       if (
-        !window.confirm(
-          '임시 저장본을 불러오면 기존에 작성한 내용은 모두 사라집니다'
-        )
+        !(await showDialog(
+          '임시 저장본을 불러오면 기존에 작성한 내용은 모두 사라집니다',
+          'CONFIRM'
+        ))
       )
         return
 
@@ -148,30 +151,30 @@ const EditPostPage: FC<{ newPost?: boolean }> = ({ newPost = false }) => {
         tags: draft.tags
       })
     },
-    [initialize]
+    [initialize, showDialog]
   )
 
   const importTemplate = useCallback(
-    (template: Template) => {
+    async (template: Template) => {
       if (!template) return
       if (
-        !window.confirm(
-          '템플릿을 불러오면 기존에 작성한 내용은 모두 사라집니다'
-        )
+        !(await showDialog(
+          '템플릿을 불러오면 기존에 작성한 내용은 모두 사라집니다',
+          'CONFIRM'
+        ))
       )
         return
 
-      initialize((prev) => {
-        let useTitle = true
-        if (
-          prev.title &&
-          prev.title !== template.title &&
-          !window.confirm(
-            '작성한 제목이 존재합니다.\n템플릿의 제목으로 덮어쓸까요?'
-          )
-        )
-          useTitle = false
+      let useTitle: boolean | null = true
+      if (inputRef.current.title && inputRef.current.title !== template.title)
+        useTitle = (await showDialog(
+          '기존에 작성한 제목이 존재합니다.\n템플릿의 제목으로 덮어쓸까요?',
+          'YESNOCANCEL'
+        )) as boolean | null
 
+      if (useTitle === null) return
+
+      initialize((prev) => {
         return {
           category: prev.category,
           title: useTitle ? template.title : prev.title,
@@ -184,7 +187,7 @@ const EditPostPage: FC<{ newPost?: boolean }> = ({ newPost = false }) => {
         }
       })
     },
-    [initialize]
+    [initialize, showDialog]
   )
 
   const searchHashtags = useMemo(

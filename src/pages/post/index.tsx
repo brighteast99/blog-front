@@ -7,6 +7,7 @@ import { DELETE_POST, GET_POST, UPDATE_POST } from 'api/post'
 
 import { useAppSelector } from 'store/hooks'
 import { selectIsAuthenticatedAndActive } from 'store/slices/auth/authSlice'
+import { useDialog } from 'hooks/useDialog'
 
 import { PostPageView } from 'pages/post/view'
 import { Error } from 'components/Error'
@@ -21,6 +22,7 @@ const PostPage: FC = () => {
   const location = useLocation()
   const navigate = useNavigate()
   const { postId } = useParams()
+  const showDialog = useDialog()
   const {
     data: postData,
     loading,
@@ -64,12 +66,13 @@ const PostPage: FC = () => {
   const [_deletePost, { loading: deleting, reset: resetDeleteMutation }] =
     useMutation(DELETE_POST, { notifyOnNetworkStatusChange: true })
 
-  const toggleIsHidden = useCallback(() => {
+  const toggleIsHidden = useCallback(async () => {
     if (
       !post ||
-      !window.confirm(
-        (post?.isHidden ? '공개 게시글' : '비공개 게시글') + '로 전환합니다.'
-      )
+      !(await showDialog(
+        `${post?.isHidden ? '공개 게시글' : '비공개 게시글'}로 전환합니다.`,
+        'CONFIRM'
+      ))
     )
       return
 
@@ -89,27 +92,34 @@ const PostPage: FC = () => {
       },
       refetchQueries: [{ query: GET_POST, variables: { id: postId } }],
       onError: ({ networkError, graphQLErrors }) => {
-        if (networkError) alert('게시글 수정 중 오류가 발생했습니다.')
-        else if (graphQLErrors.length) alert(graphQLErrors[0].message)
+        if (networkError) showDialog('게시글 수정 중 오류가 발생했습니다.')
+        else if (graphQLErrors.length) showDialog(graphQLErrors[0].message)
         resetUpdateMutation()
       }
     })
-  }, [_toggleIsHidden, post, postId, resetUpdateMutation])
+  }, [_toggleIsHidden, post, postId, resetUpdateMutation, showDialog])
 
-  const deletePost = useCallback(() => {
-    if (!window.confirm('게시글을 삭제합니다.')) return
+  const deletePost = useCallback(async () => {
+    if (!(await showDialog('게시글을 삭제합니다.', 'NEGATIVECONFIRM'))) return
 
     _deletePost({
       variables: { id: postId as string },
       refetchQueries: [{ query: GET_CATEGORY_HIERARCHY }],
       onCompleted: () => navigate(`/category/${post?.category.id}`),
       onError: ({ networkError, graphQLErrors }) => {
-        if (networkError) alert('게시글 삭제 중 오류가 발생했습니다.')
-        else if (graphQLErrors.length) alert(graphQLErrors[0].message)
+        if (networkError) showDialog('게시글 삭제 중 오류가 발생했습니다.')
+        else if (graphQLErrors.length) showDialog(graphQLErrors[0].message)
         resetDeleteMutation()
       }
     })
-  }, [_deletePost, post?.category.id, navigate, postId, resetDeleteMutation])
+  }, [
+    _deletePost,
+    navigate,
+    post?.category.id,
+    postId,
+    resetDeleteMutation,
+    showDialog
+  ])
 
   if (error) {
     if (error.networkError)

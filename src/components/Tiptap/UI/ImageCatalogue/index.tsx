@@ -3,6 +3,7 @@ import { FloatingDelayGroup } from '@floating-ui/react'
 import { useCurrentEditor } from '@tiptap/react'
 import clsx from 'clsx'
 
+import { useDialog } from 'hooks/useDialog'
 import { useDropzone } from 'hooks/useDropzone'
 import { formatDate } from 'utils/dayJS'
 
@@ -58,6 +59,7 @@ export const ImageCatalogue: FC<ImageCatalogueProps> = ({
     dropzoneProps,
     inputRef: imageInput
   } = useDropzone({ accept: 'image/*' })
+  const showDialog = useDialog()
 
   const uploadImage = useCallback(
     (e: ChangeEvent<HTMLInputElement>) => {
@@ -117,12 +119,16 @@ export const ImageCatalogue: FC<ImageCatalogueProps> = ({
   )
 
   const onDeleteImage = useCallback(
-    (url: string, options?: { isThumbnail?: boolean; force?: boolean }) => {
+    async (
+      url: string,
+      options?: { isThumbnail?: boolean; force?: boolean }
+    ) => {
       if (
         !options?.force &&
-        !window.confirm(
-          `${options?.isThumbnail ? '대표 이미지가 해제되며 ' : ''}본문에 포함된 이미지도 모두 제거됩니다.`
-        )
+        !(await showDialog(
+          `${options?.isThumbnail ? '대표 이미지가 해제되며\n' : ''}본문에 포함된 이미지도 모두 제거됩니다.`,
+          'NEGATIVECONFIRM'
+        ))
       )
         return
 
@@ -147,14 +153,15 @@ export const ImageCatalogue: FC<ImageCatalogueProps> = ({
         editor.view.dispatch(transaction)
       }
     },
-    [onImageDeleted, editor]
+    [onImageDeleted, editor, showDialog]
   )
 
-  const pruneImages = useCallback(() => {
+  const pruneImages = useCallback(async () => {
     if (
-      !window.confirm(
-        '사용되지 않은 이미지를 모두 제거합니다.\n서버에서는 삭제되지 않습니다.'
-      )
+      !(await showDialog(
+        '사용되지 않은 이미지를 모두 제거합니다.\n서버에서는 삭제되지 않습니다.',
+        'NEGATIVECONFIRM'
+      ))
     )
       return
 
@@ -171,10 +178,10 @@ export const ImageCatalogue: FC<ImageCatalogueProps> = ({
     })
 
     const imagesToDelete = images.filter((image) => !imagesUsed.has(image))
-    if (!imagesToDelete.length) return alert('제거할 이미지가 없습니다')
+    if (!imagesToDelete.length) return showDialog('제거할 이미지가 없습니다')
 
     for (const image of imagesToDelete) onDeleteImage(image, { force: true })
-  }, [editor, images, thumbnail, onDeleteImage])
+  }, [editor, images, thumbnail, onDeleteImage, showDialog])
 
   useEffect(() => {
     window.addEventListener('paste', handlePaste)

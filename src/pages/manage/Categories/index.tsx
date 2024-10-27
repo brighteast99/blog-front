@@ -13,6 +13,7 @@ import {
 
 import { useAppSelector } from 'store/hooks'
 import { selectIsMobile } from 'store/slices/window/windowSlice'
+import { useDialog } from 'hooks/useDialog'
 
 import Icon from '@mdi/react'
 import { mdiLoading, mdiLock, mdiMinus, mdiPlus } from '@mdi/js'
@@ -67,6 +68,7 @@ export const ManageCategoryPage: FC = () => {
   const [searchParams, setSearchParams] = useSearchParams()
   const navigate = useNavigate()
   const isMobile = useAppSelector(selectIsMobile)
+  const showDialog = useDialog()
 
   const {
     data: categoriesData,
@@ -147,12 +149,26 @@ export const ManageCategoryPage: FC = () => {
     ]
   )
 
-  const deleteCategory = useCallback(() => {
+  const deleteCategory = useCallback(async () => {
     if (!selectedCategory) return
-    if (!window.confirm('해당 분류 및 하위 분류가 모두 삭제됩니다.')) return
-    const deletePosts = window.confirm(
-      '게시글도 삭제할까요?\n삭제하지 않으면 분류 미지정으로 이동합니다.'
+    if (
+      !(await showDialog(
+        '해당 분류 및 하위 분류가 모두 삭제됩니다.',
+        'NEGATIVECONFIRM'
+      ))
     )
+      return
+
+    const deletePosts = (await showDialog(
+      '게시글도 삭제할까요?\n삭제하지 않으면 분류 미지정으로 이동합니다.',
+      [
+        { label: '취소', value: null },
+        { label: '이동', value: false, variant: 'text' },
+        { label: '삭제', value: true, color: 'error', variant: 'text' }
+      ]
+    )) as boolean | null
+
+    if (deletePosts === null) return
 
     _deleteCategory({
       variables: {
@@ -171,7 +187,13 @@ export const ManageCategoryPage: FC = () => {
         resetDeleteMutation()
       }
     })
-  }, [_deleteCategory, resetDeleteMutation, selectCategory, selectedCategory])
+  }, [
+    _deleteCategory,
+    resetDeleteMutation,
+    selectCategory,
+    selectedCategory,
+    showDialog
+  ])
 
   useEffect(() => {
     if (!selectedCategory) resetCategory()
