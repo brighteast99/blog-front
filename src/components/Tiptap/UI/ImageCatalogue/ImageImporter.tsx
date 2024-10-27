@@ -117,6 +117,7 @@ export const ImageImporter: FC<ImageImporterProps> = ({
                         image={url}
                         active={selected}
                         disabled={excluded}
+                        scaleOnHover
                         onClick={() =>
                           setSelectedImages((prev) => {
                             if (prev.includes(url))

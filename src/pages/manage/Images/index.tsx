@@ -182,6 +182,7 @@ export const ManageImagePage: FC = () => {
                   key={image.url}
                   image={image.url}
                   active={selectedImage === image.url}
+                  scaleOnHover
                   onClick={setSelectedImage}
                 >
                   {!image.isReferenced && (

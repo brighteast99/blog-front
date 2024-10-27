@@ -9,6 +9,7 @@ import { getRelativeTimeFromNow } from 'utils/dayJS'
 import Icon from '@mdi/react'
 import { mdiLock, mdiPound } from '@mdi/js'
 import { Badge } from 'components/Badge'
+import { ImagePreview } from 'components/ImagePreview'
 import { PostListSearchContext } from 'components/postList'
 import { HighlightedText } from 'components/utils/HighlightedText'
 
@@ -121,18 +122,14 @@ export const PostListItem: FC<{
         </div>
 
         {post.thumbnail && (
-          <div
+          <ImagePreview
             className={clsx(
-              'aspect-square shrink-0',
+              'shrink-0 outline-neutral-100',
               minimized ? 'h-full' : 'h-4/5'
             )}
-          >
-            <img
-              src={post.thumbnail}
-              alt='thumbnail'
-              className='block size-full object-contain'
-            />
-          </div>
+            image={post.thumbnail}
+            scaleOnHover
+          />
         )}
       </div>
     </li>
