@@ -1,4 +1,5 @@
 import { useEffect, useMemo } from 'react'
+import { FloatingOverlay } from '@floating-ui/react'
 import clsx from 'clsx'
 import { useBlocker } from 'react-router-dom'
 
@@ -43,41 +44,44 @@ export const NavigationBlocker: FC<NavigationBlockerProps> = ({
   if (blocker.state !== 'blocked') return null
 
   return (
-    <div
-      className={clsx(
-        'fixed inset-0 z-50 bg-neutral-950 bg-opacity-25',
-        localAlert ? 'absolute size-full' : 'fixed h-dvh w-dvw'
-      )}
-    >
-      <div
+    <>
+      <FloatingOverlay
         className={clsx(
-          'margin-auto inset-1/2 z-50 h-fit w-1/5 min-w-80 -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-lg bg-background shadow-lg shadow-neutral-50',
-          localAlert ? 'absolute' : 'fixed'
+          'z-50 bg-neutral-950 bg-opacity-25',
+          localAlert && '!absolute !size-full'
         )}
+        lockScroll
       >
-        <div className='flex items-center justify-center whitespace-pre px-5 py-10 text-center'>
-          {message}
+        <div
+          className={clsx(
+            'margin-auto inset-1/2 z-50 h-fit w-1/5 min-w-80 -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-lg bg-background shadow-lg shadow-neutral-50',
+            localAlert ? 'absolute' : 'fixed'
+          )}
+        >
+          <div className='flex items-center justify-center whitespace-pre px-5 py-10 text-center'>
+            {message}
+          </div>
+          <div className='flex'>
+            <ThemedButton
+              color='unset'
+              variant='hover-text'
+              className='h-10 w-1/2 rounded-none'
+              onClick={blocker.reset}
+              autoFocus
+            >
+              취소
+            </ThemedButton>
+            <ThemedButton
+              color='error'
+              variant='text'
+              className='h-10 w-1/2 rounded-none'
+              onClick={blocker.proceed}
+            >
+              확인
+            </ThemedButton>
+          </div>
         </div>
-        <div className='flex'>
-          <ThemedButton
-            color='unset'
-            variant='hover-text'
-            className='h-10 w-1/2 rounded-none'
-            onClick={blocker.reset}
-            autoFocus
-          >
-            취소
-          </ThemedButton>
-          <ThemedButton
-            color='error'
-            variant='text'
-            className='h-10 w-1/2 rounded-none'
-            onClick={blocker.proceed}
-          >
-            확인
-          </ThemedButton>
-        </div>
-      </div>
-    </div>
+      </FloatingOverlay>
+    </>
   )
 }
