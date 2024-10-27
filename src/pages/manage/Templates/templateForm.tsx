@@ -1,7 +1,7 @@
 import { useCallback, useLayoutEffect, useMemo, useState } from 'react'
 import { debounce } from 'throttle-debounce'
 
-import { from, useLazyQuery, useMutation, useReadQuery } from '@apollo/client'
+import { useLazyQuery, useMutation, useReadQuery } from '@apollo/client'
 import { SEARCH_HASHTAGS } from 'api/hashtag'
 import {
   DELETE_TEMPLATE,
