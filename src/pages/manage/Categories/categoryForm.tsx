@@ -1,9 +1,15 @@
 import { useEffect, useMemo } from 'react'
 
 import { useMutation, useQuery, useReadQuery } from '@apollo/client'
+import {
+  CATEGORY_FULL_INFO,
+  GET_CATEGORY_HIERARCHY,
+  UPDATE_CATEGORY,
+  VALID_SUPERCATEGORIES
+} from 'api/category'
 
 import { ThemedButton } from 'components/Buttons/ThemedButton'
-import { ImageInput } from 'components/ImageInput'
+import { ImageInput } from 'components/Controls/ImageInput'
 import { NavigationBlocker } from 'components/utils/NavigationBlocker'
 import {
   Tooltip,
@@ -14,8 +20,8 @@ import { useCategoryInput } from './hooks'
 
 import type { FC, FormEvent } from 'react'
 import type { QueryRef } from '@apollo/client'
+import type { CategoryInput } from 'api/category'
 import type { Category } from 'types/data'
-import { CATEGORY_FULL_INFO, GET_CATEGORY_HIERARCHY, UPDATE_CATEGORY, VALID_SUPERCATEGORIES, type CategoryInput } from 'api/category'
 
 export const CategoryForm: FC<{
   queryRef: QueryRef<{ category: Category }, { id: number }>

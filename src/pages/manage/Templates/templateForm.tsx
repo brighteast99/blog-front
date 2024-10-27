@@ -11,7 +11,7 @@ import {
 } from 'api/template'
 
 import { ThemedButton } from 'components/Buttons/ThemedButton'
-import { Combobox } from 'components/Combobox'
+import { Combobox } from 'components/Controls/Combobox'
 import { Tiptap } from 'components/Tiptap'
 import { NavigationBlocker } from 'components/utils/NavigationBlocker'
 import { useTemplateInput } from './hooks'

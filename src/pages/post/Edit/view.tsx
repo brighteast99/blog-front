@@ -1,7 +1,7 @@
 import { mdiLock, mdiLockOpen } from '@mdi/js'
 import { IconButton } from 'components/Buttons/IconButton'
 import { ThemedButton } from 'components/Buttons/ThemedButton'
-import { Combobox } from 'components/Combobox'
+import { Combobox } from 'components/Controls/Combobox'
 import { Spinner } from 'components/Spinner'
 import { Tiptap } from 'components/Tiptap'
 import { NavigationBlocker } from 'components/utils/NavigationBlocker'

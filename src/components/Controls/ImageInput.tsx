@@ -7,8 +7,8 @@ import { useDropzone } from 'hooks/useDropzone'
 import { cn } from 'utils/handleClassName'
 
 import { mdiClose, mdiImageSearch, mdiRefresh } from '@mdi/js'
-import { PopoverMenu } from './PopoverMenu'
-import { PopoverMenuItem } from './PopoverMenu/PopoverMenuItem'
+import { PopoverMenu } from 'components/PopoverMenu'
+import { PopoverMenuItem } from 'components/PopoverMenu/PopoverMenuItem'
 
 import type { ChangeEvent, FC, ReactElement } from 'react'
 
