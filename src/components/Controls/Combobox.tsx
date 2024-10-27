@@ -113,7 +113,7 @@ export const Combobox: FC<ComboboxProps> = ({
         return
       }
 
-      if (e.key !== 'Enter') return
+      if (e.key !== 'Enter' || e.nativeEvent.isComposing) return
       e.preventDefault()
 
       if (activeIndex != null && items[activeIndex])
