@@ -22,7 +22,6 @@ import { CREATE_POST, GET_POST, UPDATE_POST } from 'api/post'
 
 import { useAppSelector } from 'store/hooks'
 import { selectIsAuthenticatedAndActive } from 'store/slices/auth/authSlice'
-import { useToggle } from 'hooks/useToggle'
 
 import { EditPostPageView } from 'pages/post/Edit/view'
 import { Error } from 'components/Error'
@@ -38,7 +37,7 @@ const EditPostPage: FC<{ newPost?: boolean }> = ({ newPost = false }) => {
   const { postId } = useParams()
   const [searchParams] = useSearchParams()
   const [draftId, setDraftId] = useState<number>()
-  const { value: loaded, setTrue: load } = useToggle(newPost)
+  const [loaded, setLoaded] = useState<boolean>(newPost)
 
   const {
     postInput,
@@ -74,7 +73,7 @@ const EditPostPage: FC<{ newPost?: boolean }> = ({ newPost = false }) => {
     skip: newPost || !postId,
     notifyOnNetworkStatusChange: true,
     onCompleted: ({ post }) => {
-      load()
+      setLoaded(true)
       initialize({
         title: post.title,
         category: post.category.id || undefined,

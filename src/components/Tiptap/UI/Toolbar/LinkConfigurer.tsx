@@ -1,8 +1,6 @@
 import { useEffect, useState } from 'react'
 import clsx from 'clsx'
 
-import { useToggle } from 'hooks/useToggle'
-
 import Icon from '@mdi/react'
 import { mdiOpenInNew } from '@mdi/js'
 import { ThemedButton } from 'components/Buttons/ThemedButton'
@@ -44,7 +42,7 @@ export const LinkConfigurer: FC<LinkConfigurerProps> = ({
   onDelete = () => {},
   children
 }) => {
-  const { value: isOpen, setTrue: open, setFalse: close } = useToggle(false)
+  const [isOpen, setIsOpen] = useState<boolean>(false)
   const [input, setInput] = useState<LinkInfo>({
     href,
     title,
@@ -67,12 +65,12 @@ export const LinkConfigurer: FC<LinkConfigurerProps> = ({
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     if (typeof onChange === 'function') onChange(input)
-    close()
+    setIsOpen(false)
   }
 
   const onClickDelete = () => {
     if (typeof onDelete === 'function') onDelete()
-    close()
+    setIsOpen(false)
   }
 
   useEffect(() => {
@@ -90,8 +88,8 @@ export const LinkConfigurer: FC<LinkConfigurerProps> = ({
       placement={placement}
       offset={10}
       tooltipPlacement={tooltipPlacement}
-      onOpen={open}
-      onClose={close}
+      onOpen={() => setIsOpen(true)}
+      onClose={() => setIsOpen(false)}
       menuBtn={
         children || <button>{`링크 ${active ? '편집' : '생성'}`}</button>
       }

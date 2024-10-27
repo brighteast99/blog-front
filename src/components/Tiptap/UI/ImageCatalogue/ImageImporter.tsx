@@ -4,7 +4,6 @@ import clsx from 'clsx'
 import { useQuery } from '@apollo/client'
 import { GET_IMAGES } from 'api/media'
 
-import { useToggle } from 'hooks/useToggle'
 import { cn } from 'utils/handleClassName'
 
 import { mdiClose, mdiImageSearch } from '@mdi/js'
@@ -29,13 +28,13 @@ export const ImageImporter: FC<ImageImporterProps> = ({
   description,
   onClickImport
 }) => {
-  const { value: isOpen, setFalse: close, toggle } = useToggle(false)
+  const [isOpen, setIsOpen] = useState<boolean>(false)
   const { data, loading, error, refetch } = useQuery(GET_IMAGES, {
     notifyOnNetworkStatusChange: true,
     skip: !isOpen
   })
   const [selectedImages, setSelectedImages] = useState<string[]>([])
-  const { value: hideExcluded, toggle: toggleHideExcluded } = useToggle(true)
+  const [hideExcluded, setHideExcluded] = useState<boolean>(true)
   const images = useMemo(() => data?.images || null, [data?.images])
   const filteredImages = images
     ? images.filter((image) => !hideExcluded || !exclude?.includes(image.url))
@@ -54,7 +53,7 @@ export const ImageImporter: FC<ImageImporterProps> = ({
         variant='hover-text-toggle'
         active={isOpen}
         tooltip={description}
-        onClick={toggle}
+        onClick={() => setIsOpen(true)}
       />
 
       {isOpen && (
@@ -67,7 +66,7 @@ export const ImageImporter: FC<ImageImporterProps> = ({
                   type='checkbox'
                   className='accent-primary'
                   checked={hideExcluded}
-                  onChange={toggleHideExcluded}
+                  onChange={() => setHideExcluded((prev) => !prev)}
                 />
                 <span className='ml-1 text-sm text-neutral-700'>
                   게시글에 포함된 항목 제외
@@ -78,7 +77,7 @@ export const ImageImporter: FC<ImageImporterProps> = ({
                 path={mdiClose}
                 variant='hover-text'
                 color='error'
-                onClick={close}
+                onClick={() => setIsOpen(false)}
               />
             </div>
 
@@ -148,7 +147,7 @@ export const ImageImporter: FC<ImageImporterProps> = ({
               disabled={selectedImages.length === 0}
               onClick={() => {
                 onClickImport?.(selectedImages)
-                close()
+                setIsOpen(false)
               }}
             >
               {selectedImages.length === 0 ? '선택된 이미지 없음' : '사용'}

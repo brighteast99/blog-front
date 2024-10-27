@@ -1,4 +1,4 @@
-import { Suspense, useLayoutEffect } from 'react'
+import { Suspense, useLayoutEffect, useState } from 'react'
 import clsx from 'clsx'
 import { ErrorBoundary } from 'react-error-boundary'
 import { Outlet } from 'react-router-dom'
@@ -9,7 +9,6 @@ import {
   selectBreakpoint,
   updateBreakpoint
 } from 'store/slices/window/windowSlice'
-import { useToggle } from 'hooks/useToggle'
 
 import { Error } from 'components/Error'
 import { Sidebar } from 'components/sidebar'
@@ -22,12 +21,9 @@ export default function App() {
   useAuth()
   const dispatch = useAppDispatch()
   const breakpoint = useAppSelector(selectBreakpoint)
-  const {
-    value: sidebarFolded,
-    setValue: setSidebarFolded,
-    setTrue: fold,
-    toggle
-  } = useToggle(breakpoint === 'mobile')
+  const [sidebarFolded, setSidebarFolded] = useState<boolean>(
+    breakpoint === 'mobile'
+  )
 
   // * Update window size
   useLayoutEffect(() => {
@@ -55,7 +51,7 @@ export default function App() {
         isFolded={sidebarFolded}
         useScrim={breakpoint === 'mobile'}
         foldOnLocationChange={breakpoint === 'mobile'}
-        fold={fold}
+        fold={() => setSidebarFolded(true)}
       />
       <div
         id='spacer'
@@ -70,7 +66,7 @@ export default function App() {
           <SidebarHandle
             className='absolute inset-y-0 left-4 my-auto'
             sidebarFolded={sidebarFolded}
-            toggle={toggle}
+            toggle={() => setSidebarFolded((prev) => !prev)}
           />
         </div>
 

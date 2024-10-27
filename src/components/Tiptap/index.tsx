@@ -11,7 +11,6 @@ import {
 import { useMutation } from '@apollo/client'
 
 import { useSet } from 'hooks/useSet'
-import { useToggle } from 'hooks/useToggle'
 import { cn } from 'utils/handleClassName'
 
 import {
@@ -73,7 +72,7 @@ export const Tiptap: FC<EditorProps> = ({
   onDoubleClickSaveStatus
 }) => {
   const [editor, setEditor] = useState<ReactEditor>()
-  const { value: initialized, setTrue: initialize } = useToggle(false)
+  const [initialized, setInitialized] = useState<boolean>(false)
   const {
     value: uploadQueue,
     addItem: addUploadQueue,
@@ -348,7 +347,7 @@ export const Tiptap: FC<EditorProps> = ({
           setEditor(editor as ReactEditor)
         }}
         onUpdate={({ editor }) => {
-          if (!initialized) return initialize()
+          if (!initialized) return setInitialized(true)
           if (editor.getHTML() !== content) onChange?.(editor as ReactEditor)
         }}
       >

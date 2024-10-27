@@ -6,7 +6,6 @@ import {
   selectIsAuthenticatedAndActive,
   setToken
 } from 'store/slices/auth/authSlice'
-import { useToggle } from 'hooks/useToggle'
 import { auth, AuthFailedError, NetworkError } from 'utils/Auth'
 
 import { ThemedButton } from 'components/Buttons/ThemedButton'
@@ -27,8 +26,8 @@ const LoginPage: FC = () => {
     username: '',
     password: ''
   })
-  const { value: keepLogin, toggle: toggleKeepLogin } = useToggle(true)
-  const { value: loading, setValue: setLoading } = useToggle(false)
+  const [keepLogin, setKeepLogin] = useState<boolean>(true)
+  const [loading, setLoading] = useState<boolean>(false)
   const [error, setError] = useState<string>()
 
   useEffect(() => {
@@ -111,7 +110,7 @@ const LoginPage: FC = () => {
             className='mr-1 accent-primary'
             type='checkbox'
             checked={keepLogin}
-            onChange={toggleKeepLogin}
+            onChange={() => setKeepLogin((prev) => !prev)}
           />
           로그인 유지
         </label>

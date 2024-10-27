@@ -12,8 +12,6 @@ import {
 } from '@floating-ui/react'
 import clsx from 'clsx'
 
-import { useToggle } from 'hooks/useToggle'
-
 import { mdiDotsVertical } from '@mdi/js'
 import { IconButton } from 'components/Buttons/IconButton'
 import {
@@ -68,11 +66,7 @@ export const PopoverMenu: FC<PopoverMenuProps> = ({
   onOpen,
   onClose
 }) => {
-  const {
-    value: isOpen,
-    setFalse: closeMenu,
-    setValue: setIsOpen
-  } = useToggle(false)
+  const [isOpen, setIsOpen] = useState<boolean>(false)
   const [emitOnCloseTimer, setEmitOnCloseTimer] =
     useState<ReturnType<typeof setTimeout>>()
 
@@ -97,10 +91,10 @@ export const PopoverMenu: FC<PopoverMenuProps> = ({
   ])
 
   useEffect(() => {
-    if (disabled) closeMenu()
-  }, [disabled, closeMenu])
+    if (disabled) setIsOpen(false)
+  }, [disabled])
 
-  useEffect(() => setIsOpen(controlledOpen), [controlledOpen, setIsOpen])
+  useEffect(() => setIsOpen(controlledOpen), [controlledOpen])
 
   // * 메뉴 열린 상태에서 상위 메뉴가 닫혀서 언마운트될 때 실행될 수 있도록
   useEffect(() => {

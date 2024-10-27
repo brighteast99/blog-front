@@ -7,7 +7,6 @@ import { DELETE_DRAFT, GET_DRAFT, GET_DRAFTS } from 'api/draft'
 
 import { useAppSelector } from 'store/hooks'
 import { selectIsAuthenticatedAndActive } from 'store/slices/auth/authSlice'
-import { useToggle } from 'hooks/useToggle'
 import { getRelativeTimeFromNow } from 'utils/dayJS'
 
 import { mdiDelete, mdiPound } from '@mdi/js'
@@ -42,7 +41,7 @@ export const DraftManager: FC<DraftManagerProps> = ({
   onSelect,
   onDelete
 }) => {
-  const { value: isOpen, setTrue: open, setFalse: close } = useToggle(false)
+  const [isOpen, setIsOpen] = useState<boolean>(false)
   const isLoggedIn = useAppSelector(selectIsAuthenticatedAndActive)
 
   const {
@@ -97,8 +96,8 @@ export const DraftManager: FC<DraftManagerProps> = ({
   )
 
   useEffect(() => {
-    if (!drafts?.length) close()
-  }, [drafts, close])
+    if (!drafts?.length) setIsOpen(false)
+  }, [drafts])
 
   return (
     <PopoverMenu
@@ -120,9 +119,9 @@ export const DraftManager: FC<DraftManagerProps> = ({
           {`임시 저장본 ${drafts?.length ? `(${drafts?.length})` : '없음'}`}
         </ThemedButton>
       }
-      onOpen={open}
+      onOpen={() => setIsOpen(true)}
       onClose={() => {
-        close()
+        setIsOpen(false)
         setSelectedDraft(undefined)
       }}
     >
@@ -228,7 +227,7 @@ export const DraftManager: FC<DraftManagerProps> = ({
                   onClick={() => {
                     setSelectedDraft(undefined)
                     onSelect?.(draft)
-                    close()
+                    setIsOpen(false)
                   }}
                 >
                   불러오기

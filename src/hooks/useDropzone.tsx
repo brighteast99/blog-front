@@ -1,6 +1,4 @@
-import { useCallback, useMemo, useRef } from 'react'
-
-import { useToggle } from './useToggle'
+import { useCallback, useMemo, useRef, useState } from 'react'
 
 import type { DragEvent } from 'react'
 
@@ -9,11 +7,7 @@ interface DropzoneProps {
 }
 
 export const useDropzone = ({ accept }: DropzoneProps = {}) => {
-  const {
-    value: isDragging,
-    setTrue: startDrag,
-    setFalse: stopDrag
-  } = useToggle(false)
+  const [isDragging, setIsDragging] = useState<boolean>(false)
   const inputRef = useRef<HTMLInputElement>(null)
 
   const handleDragEnter = useCallback((e: DragEvent) => {
@@ -21,32 +15,26 @@ export const useDropzone = ({ accept }: DropzoneProps = {}) => {
     e.stopPropagation()
   }, [])
 
-  const handleDragOver = useCallback(
-    (e: DragEvent) => {
-      e.preventDefault()
-      e.stopPropagation()
+  const handleDragOver = useCallback((e: DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
 
-      startDrag()
-    },
-    [startDrag]
-  )
+    setIsDragging(true)
+  }, [])
 
-  const handleDragLeave = useCallback(
-    (e: DragEvent) => {
-      e.preventDefault()
-      e.stopPropagation()
+  const handleDragLeave = useCallback((e: DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
 
-      if (!e.currentTarget.contains(e.relatedTarget as Node)) stopDrag()
-    },
-    [stopDrag]
-  )
+    if (!e.currentTarget.contains(e.relatedTarget as Node)) setIsDragging(false)
+  }, [])
 
   const handleDrop = useCallback(
     (e: DragEvent) => {
       e.preventDefault()
       e.stopPropagation()
 
-      stopDrag()
+      setIsDragging(false)
 
       if (!inputRef.current) return
 
@@ -72,7 +60,7 @@ export const useDropzone = ({ accept }: DropzoneProps = {}) => {
       inputRef.current.files = files
       inputRef.current.dispatchEvent(new Event('change', { bubbles: true }))
     },
-    [stopDrag, inputRef, accept]
+    [inputRef, accept]
   )
 
   const dropzoneProps = useMemo(

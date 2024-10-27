@@ -6,7 +6,6 @@ import { GET_TEMPLATE, GET_TEMPLATES } from 'api/template'
 
 import { useAppSelector } from 'store/hooks'
 import { selectIsAuthenticatedAndActive } from 'store/slices/auth/authSlice'
-import { useToggle } from 'hooks/useToggle'
 
 import { mdiPound } from '@mdi/js'
 import { Badge } from 'components/Badge'
@@ -36,7 +35,7 @@ export const TemplateSelector: FC<TemplateSelectorProps> = ({
   description,
   onSelect
 }) => {
-  const { value: isOpen, setTrue: open, setFalse: close } = useToggle(false)
+  const [isOpen, setIsOpen] = useState<boolean>(false)
   const isLoggedIn = useAppSelector(selectIsAuthenticatedAndActive)
 
   const {
@@ -83,9 +82,9 @@ export const TemplateSelector: FC<TemplateSelectorProps> = ({
           {`템플릿 ${templates?.length ? '' : '없음'}`}
         </ThemedButton>
       }
-      onOpen={open}
+      onOpen={() => setIsOpen(true)}
       onClose={() => {
-        close()
+        setIsOpen(false)
         setSelectedTemplate(undefined)
       }}
     >
@@ -165,7 +164,7 @@ export const TemplateSelector: FC<TemplateSelectorProps> = ({
                   onClick={() => {
                     setSelectedTemplate(undefined)
                     onSelect?.(template)
-                    close()
+                    setIsOpen(false)
                   }}
                 >
                   사용

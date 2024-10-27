@@ -1,7 +1,5 @@
 import { useEffect, useState } from 'react'
 
-import { useToggle } from 'hooks/useToggle'
-
 import { ThemedButton } from 'components/Buttons/ThemedButton'
 import { PopoverMenu } from 'components/PopoverMenu'
 
@@ -33,18 +31,18 @@ export function AttributeSetter<T extends string | number>(
     onDelete,
     children
   }) => {
-    const { value: isOpen, setFalse: close, setTrue: open } = useToggle(false)
+    const [isOpen, setIsOpen] = useState<boolean>(false)
     const [option, setOption] = useState<T>(_option)
 
     const onSubmit = (e: FormEvent<HTMLFormElement>) => {
       e.preventDefault()
       if (typeof onChange === 'function') onChange?.(option)
-      close()
+      setIsOpen(false)
     }
 
     const onClickDelete = () => {
       if (typeof onDelete === 'function') onDelete()
-      close()
+      setIsOpen(false)
     }
 
     useEffect(() => {
@@ -58,8 +56,8 @@ export function AttributeSetter<T extends string | number>(
         placement={placement}
         offset={10}
         tooltipPlacement={tooltipPlacement}
-        onOpen={open}
-        onClose={close}
+        onOpen={() => setIsOpen(true)}
+        onClose={() => setIsOpen(false)}
         menuBtn={
           children || (
             <button>{`${nodeName} ${active ? '편집' : '삽입'}`}</button>
