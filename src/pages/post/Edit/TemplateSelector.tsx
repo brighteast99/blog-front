@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import clsx from 'clsx'
 
 import { useLazyQuery, useQuery } from '@apollo/client'
-import { GET_TEMPLATE, GET_TEMPLATES } from './api'
+import { GET_TEMPLATE, GET_TEMPLATES } from 'api/template'
 
 import { useAppSelector } from 'store/hooks'
 import { selectIsAuthenticatedAndActive } from 'store/slices/auth/authSlice'

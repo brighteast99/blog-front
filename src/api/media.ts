@@ -4,17 +4,13 @@ import type { TypedDocumentNode } from '@apollo/client'
 import type { fileSizeUnitLiteral } from 'types/commonProps'
 import type { ImageData } from 'types/data'
 
-export const GET_IMAGES: TypedDocumentNode<
-  { images: ImageData[] },
-  { unit?: fileSizeUnitLiteral }
+export const UPLOAD_IMAGE: TypedDocumentNode<
+  { uploadImage: { url: string } },
+  { file: File }
 > = gql`
-  query Images($unit: FileSizeUnit) {
-    images {
-      id
-      name
+  mutation UploadImage($file: Upload!) {
+    uploadImage(file: $file) {
       url
-      size(unit: $unit)
-      isReferenced
     }
   }
 `
@@ -34,7 +30,6 @@ export const GET_IMAGE: TypedDocumentNode<
 > = gql`
   query Image($url: String!, $unit: FileSizeUnit) {
     image(url: $url) {
-      id
       url
       name
       size(unit: $unit)
@@ -74,11 +69,33 @@ export const GET_IMAGE: TypedDocumentNode<
   }
 `
 
-export const DELETE_IMAGE: TypedDocumentNode<
-  { success: boolean },
-  { url: string }
+export const GET_IMAGES: TypedDocumentNode<{
+  images: ImageData[]
+}> = gql`
+  query Images {
+    images {
+      url
+    }
+  }
+`
+
+export const GET_IMAGES_WITH_REFERENCE_CHECK: TypedDocumentNode<
+  { images: ImageData[] },
+  { unit?: fileSizeUnitLiteral }
 > = gql`
-  mutation delteImage($url: String!) {
+  query Images {
+    images {
+      url
+      isReferenced
+    }
+  }
+`
+
+export const DELETE_IMAGE: TypedDocumentNode<
+  { deleteImage: { success: boolean } },
+  { url: String }
+> = gql`
+  mutation DeleteImage($url: String!) {
     deleteImage(url: $url) {
       success
     }

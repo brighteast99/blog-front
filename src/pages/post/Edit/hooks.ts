@@ -3,7 +3,7 @@ import { useCallback } from 'react'
 import { useDiffState } from 'hooks/useDiffState'
 import { createSetter } from 'utils/stateSetter'
 
-import type { PostInput } from './api'
+import type { PostInput } from 'api/post'
 
 export const usePostInput = (initialValue: PostInput) => {
   const {

@@ -2,9 +2,8 @@ import { useCallback, useMemo } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 
 import { useMutation, useQuery } from '@apollo/client'
-import { DELETE_POST, GET_POST } from './api'
-import { UPDATE_POST } from './Edit/api'
-import { GET_CATEGORY_HIERARCHY } from 'pages/manage/Categories/api'
+import { GET_CATEGORY_HIERARCHY } from 'api/category'
+import { DELETE_POST, GET_POST, UPDATE_POST } from 'api/post'
 
 import { useAppSelector } from 'store/hooks'
 import { selectIsAuthenticatedAndActive } from 'store/slices/auth/authSlice'

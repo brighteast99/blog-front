@@ -9,9 +9,9 @@ import { DraftManager } from './DraftManager'
 import { TemplateSelector } from './TemplateSelector'
 
 import type { FC } from 'react'
+import type { PostInput } from 'api/post'
 import type { SaveStatus } from 'components/Tiptap'
 import type { Category, Draft, Template } from 'types/data'
-import type { PostInput } from './api'
 
 interface EditPostPageViewProps {
   newPost?: boolean

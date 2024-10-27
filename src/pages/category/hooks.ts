@@ -1,8 +1,8 @@
 import { useDiffState } from 'hooks/useDiffState'
 import { createSetter } from 'utils/stateSetter'
 
-import type { PostSortCondition } from 'components/postList/api'
 import type { PositiveInteger } from 'types/commonTypes'
+import type { PostSortCondition } from 'api/post'
 
 export const SearchKeys = [
   { name: '제목+내용', value: 'titleAndContent' },

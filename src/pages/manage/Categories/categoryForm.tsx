@@ -1,13 +1,6 @@
 import { useEffect, useMemo } from 'react'
 
 import { useMutation, useQuery, useReadQuery } from '@apollo/client'
-import {
-  CATEGORY_FULL_INFO,
-  CategoryInput,
-  GET_CATEGORY_HIERARCHY,
-  UPDATE_CATEGORY,
-  VALID_SUPERCATEGORIES
-} from './api'
 
 import { ThemedButton } from 'components/Buttons/ThemedButton'
 import { ImageInput } from 'components/ImageInput'
@@ -22,6 +15,7 @@ import { useCategoryInput } from './hooks'
 import type { FC, FormEvent } from 'react'
 import type { QueryRef } from '@apollo/client'
 import type { Category } from 'types/data'
+import { CATEGORY_FULL_INFO, GET_CATEGORY_HIERARCHY, UPDATE_CATEGORY, VALID_SUPERCATEGORIES, type CategoryInput } from 'api/category'
 
 export const CategoryForm: FC<{
   queryRef: QueryRef<{ category: Category }, { id: number }>

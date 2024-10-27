@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo } from 'react'
 
 import { useMutation, useQuery } from '@apollo/client'
-import { GET_INFO, UPDATE_INFO } from './api'
+import { GET_INFO, UPDATE_INFO } from 'api/info'
 
 import { useAppDispatch } from 'store/hooks'
 import { updateBlogInfo } from 'store/slices/blog/blogSlice'

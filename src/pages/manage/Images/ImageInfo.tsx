@@ -12,10 +12,7 @@ import { ImagePreview } from 'components/ImagePreview'
 
 import type { FC } from 'react'
 import type { QueryRef } from '@apollo/client'
-import type {
-  ImageQueryResult,
-  ImageQueryVariables
-} from 'pages/manage/Images/api'
+import type { ImageQueryResult, ImageQueryVariables } from 'api/media'
 import type { fileSizeUnitLiteral } from 'types/commonProps'
 
 export const ImageInfo: FC<{

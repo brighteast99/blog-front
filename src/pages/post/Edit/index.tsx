@@ -15,17 +15,10 @@ import {
 import { debounce } from 'throttle-debounce'
 
 import { useLazyQuery, useMutation, useQuery } from '@apollo/client'
-import {
-  CREATE_DRAFT,
-  CREATE_POST,
-  GET_POSTABLE_CATEGORIES,
-  SEARCH_HASHTAGS,
-  UPDATE_DRAFT,
-  UPDATE_POST
-} from './api'
-import { GET_DRAFTS } from './DraftManager/api'
-import { GET_CATEGORY_HIERARCHY } from 'pages/manage/Categories/api'
-import { GET_POST } from 'pages/post/api'
+import { GET_CATEGORY_HIERARCHY, GET_POSTABLE_CATEGORIES } from 'api/category'
+import { CREATE_DRAFT, GET_DRAFTS, UPDATE_DRAFT } from 'api/draft'
+import { SEARCH_HASHTAGS } from 'api/hashtag'
+import { CREATE_POST, GET_POST, UPDATE_POST } from 'api/post'
 
 import { useAppSelector } from 'store/hooks'
 import { selectIsAuthenticatedAndActive } from 'store/slices/auth/authSlice'

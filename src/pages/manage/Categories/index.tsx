@@ -9,7 +9,7 @@ import {
   CREATE_CATEGORY,
   DELETE_CATEGORY,
   GET_CATEGORY_HIERARCHY
-} from './api'
+} from 'api/category'
 
 import { useAppSelector } from 'store/hooks'
 import { selectIsMobile } from 'store/slices/window/windowSlice'

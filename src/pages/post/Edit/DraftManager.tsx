@@ -3,7 +3,7 @@ import { Placement } from '@floating-ui/react'
 import clsx from 'clsx'
 
 import { useLazyQuery, useMutation, useQuery } from '@apollo/client'
-import { DELETE_DRAFT, GET_DRAFT, GET_DRAFTS } from './api'
+import { DELETE_DRAFT, GET_DRAFT, GET_DRAFTS } from 'api/draft'
 
 import { useAppSelector } from 'store/hooks'
 import { selectIsAuthenticatedAndActive } from 'store/slices/auth/authSlice'

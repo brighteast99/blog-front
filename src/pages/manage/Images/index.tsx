@@ -3,7 +3,12 @@ import clsx from 'clsx'
 import { ErrorBoundary } from 'react-error-boundary'
 
 import { useLoadableQuery, useMutation, useQuery } from '@apollo/client'
-import { DELETE_IMAGE, DELETE_IMAGES, GET_IMAGE, GET_IMAGES } from './api'
+import {
+  DELETE_IMAGE,
+  DELETE_IMAGES,
+  GET_IMAGE,
+  GET_IMAGES_WITH_REFERENCE_CHECK
+} from 'api/media'
 
 import { useAppSelector } from 'store/hooks'
 import { selectIsMobile } from 'store/slices/window/windowSlice'
@@ -27,10 +32,13 @@ const IMAGE_SIZE_UNIT: fileSizeUnitLiteral = 'MB'
 export const ManageImagePage: FC = () => {
   const isMobile = useAppSelector(selectIsMobile)
 
-  const { data, loading, error, refetch } = useQuery(GET_IMAGES, {
-    fetchPolicy: 'cache-and-network',
-    notifyOnNetworkStatusChange: true
-  })
+  const { data, loading, error, refetch } = useQuery(
+    GET_IMAGES_WITH_REFERENCE_CHECK,
+    {
+      fetchPolicy: 'cache-and-network',
+      notifyOnNetworkStatusChange: true
+    }
+  )
   const [selectedImage, setSelectedImage] = useState<string>()
   const [
     loadImageInfo,
@@ -62,7 +70,7 @@ export const ManageImagePage: FC = () => {
 
       _deleteImage({
         variables: { url },
-        refetchQueries: [{ query: GET_IMAGES }],
+        refetchQueries: [{ query: GET_IMAGES_WITH_REFERENCE_CHECK }],
         onCompleted: () => resetImage(),
         onError: ({ networkError, graphQLErrors }) => {
           if (networkError) alert('이미지 삭제 중 오류가 발생했습니다.')
@@ -80,7 +88,7 @@ export const ManageImagePage: FC = () => {
 
       _pruneImages({
         variables: { urls },
-        refetchQueries: [{ query: GET_IMAGES }],
+        refetchQueries: [{ query: GET_IMAGES_WITH_REFERENCE_CHECK }],
         onCompleted: () => resetImage(),
         onError: ({ networkError, graphQLErrors }) => {
           if (networkError) alert('이미지 삭제 중 오류가 발생했습니다.')
@@ -171,8 +179,8 @@ export const ManageImagePage: FC = () => {
               )}
               {images.map((image) => (
                 <ImagePreview
+                  key={image.url}
                   image={image.url}
-                  key={image.id}
                   active={selectedImage === image.url}
                   onClick={setSelectedImage}
                 >

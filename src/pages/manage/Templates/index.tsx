@@ -3,7 +3,7 @@ import { ErrorBoundary } from 'react-error-boundary'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 
 import { useLoadableQuery, useMutation, useQuery } from '@apollo/client'
-import { CREATE_TEMPLATE, GET_TEMPLATE, GET_TEMPLATES } from './api'
+import { CREATE_TEMPLATE, GET_TEMPLATE, GET_TEMPLATES } from 'api/template'
 
 import { mdiPlus } from '@mdi/js'
 import { IconButton } from 'components/Buttons/IconButton'

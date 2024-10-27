@@ -9,8 +9,9 @@ import {
 import { debounce } from 'throttle-debounce'
 
 import { useLazyQuery, useQuery } from '@apollo/client'
-import { CATEGORY_INFO, SEARCH_HASHTAGS } from './api'
-import { PostSortConditions } from 'components/postList/api'
+import { CATEGORY_INFO } from 'api/category'
+import { SEARCH_HASHTAGS } from 'api/hashtag'
+import { PostSortConditions } from 'api/post'
 
 import { useAppSelector } from 'store/hooks'
 import { selectIsAuthenticatedAndActive } from 'store/slices/auth/authSlice'
@@ -25,8 +26,8 @@ import { PostList } from 'components/postList'
 import { SuspendedText } from 'components/SuspendedText'
 
 import type { FC, FormEvent } from 'react'
+import type { PostSortCondition } from 'api/post'
 import type { Action } from 'components/Error'
-import type { PostSortCondition } from 'components/postList/api'
 import type { GraphQLFormattedError } from 'graphql'
 import type { SearchKey } from 'pages/category/hooks'
 import type { Hashtag } from 'types/data'

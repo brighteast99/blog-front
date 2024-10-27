@@ -2,7 +2,7 @@ import { createContext, useCallback, useMemo, useRef } from 'react'
 import { useLocation, useSearchParams } from 'react-router-dom'
 
 import { useQuery } from '@apollo/client'
-import { GET_POSTS } from './api'
+import { GET_POSTS } from 'api/post'
 
 import { Error } from 'components/Error'
 import { Paginator } from 'components/Paginator'
@@ -10,7 +10,7 @@ import { Spinner } from 'components/Spinner'
 import { PostListItem } from './PostListItem'
 
 import type { FC } from 'react'
-import type { PostSortCondition } from './api'
+import type { PostSortCondition } from 'api/post'
 
 export interface PostSearchArgs {
   categoryId?: number

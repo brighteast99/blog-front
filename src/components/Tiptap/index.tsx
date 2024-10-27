@@ -9,7 +9,6 @@ import {
 } from '@tiptap/react'
 
 import { useMutation } from '@apollo/client'
-import { UPLOAD_IMAGE } from './api'
 
 import { useSet } from 'hooks/useSet'
 import { useToggle } from 'hooks/useToggle'
@@ -32,6 +31,8 @@ import type { AnyExtension } from '@tiptap/react'
 import './Tiptap.scss'
 
 import { debounce } from 'throttle-debounce'
+
+import { UPLOAD_IMAGE } from 'api/media'
 
 import Icon from '@mdi/react'
 import { ThemedButton } from 'components/Buttons/ThemedButton'

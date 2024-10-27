@@ -4,8 +4,8 @@ import clsx from 'clsx'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 
 import { useQuery } from '@apollo/client'
-import { GET_CATEGORY_HIERARCHY } from 'pages/manage/Categories/api'
-import { GET_INFO } from 'pages/manage/Info/api'
+import { GET_CATEGORY_HIERARCHY } from 'api/category'
+import { GET_INFO } from 'api/info'
 
 import { useAppDispatch, useAppSelector } from 'store/hooks'
 import {

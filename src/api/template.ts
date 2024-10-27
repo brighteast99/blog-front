@@ -1,11 +1,12 @@
-import { Template } from 'types/data'
-
 import { gql } from '@apollo/client'
 
 import type { TypedDocumentNode } from '@apollo/client'
-import type { Hashtag } from 'types/data'
+import type { Template } from 'types/data'
+import type { PostInput } from './post'
 
-export interface TemplateInput extends Omit<Template, 'id'> {}
+export interface TemplateInput extends Omit<PostInput, 'isHidden'> {
+  templateName: string
+}
 
 export const CREATE_TEMPLATE: TypedDocumentNode<
   { createTemplate: { createdTemplate: Template } },
@@ -16,14 +17,6 @@ export const CREATE_TEMPLATE: TypedDocumentNode<
       createdTemplate {
         id
       }
-    }
-  }
-`
-export const GET_TEMPLATES: TypedDocumentNode<{ templates: Template[] }> = gql`
-  query GetTemplates {
-    templates {
-      id
-      templateName
     }
   }
 `
@@ -46,6 +39,15 @@ export const GET_TEMPLATE: TypedDocumentNode<
   }
 `
 
+export const GET_TEMPLATES: TypedDocumentNode<{ templates: Template[] }> = gql`
+  query GetTemplates {
+    templates {
+      id
+      templateName
+    }
+  }
+`
+
 export const UPDATE_TEMPLATE: TypedDocumentNode<
   { updateTemplate: { success: boolean } },
   { id: number; data: TemplateInput }
@@ -64,17 +66,6 @@ export const DELETE_TEMPLATE: TypedDocumentNode<
   mutation DeleteTemplate($id: Int!) {
     deleteTemplate(id: $id) {
       success
-    }
-  }
-`
-
-export const SEARCH_HASHTAGS: TypedDocumentNode<
-  { hashtags: Hashtag[] },
-  { keyword?: string; limit?: number }
-> = gql`
-  query Hashtags($keyword: String, $limit: Int) {
-    hashtags(keyword: $keyword, limit: $limit) {
-      name
     }
   }
 `

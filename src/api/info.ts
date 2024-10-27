@@ -8,15 +8,22 @@ export interface BlogInfoInput extends Omit<BlogInfo, 'avatar' | 'favicon'> {
   favicon?: File | null
 }
 
+const FRAGMENT_INFO = gql`
+  fragment InfoFields on InfoType {
+    title
+    description
+    avatar
+    favicon
+  }
+`
+
 export const GET_INFO: TypedDocumentNode<{ blogInfo: BlogInfo }> = gql`
   query BlogInfo {
     blogInfo {
-      title
-      description
-      avatar
-      favicon
+      ...InfoFields
     }
   }
+  ${FRAGMENT_INFO}
 `
 
 export const UPDATE_INFO: TypedDocumentNode<
@@ -26,11 +33,9 @@ export const UPDATE_INFO: TypedDocumentNode<
   mutation UpdateInfo($data: InfoInput!) {
     updateInfo(data: $data) {
       updatedInfo {
-        title
-        description
-        avatar
-        favicon
+        ...InfoFields
       }
     }
   }
+  ${FRAGMENT_INFO}
 `

@@ -3,8 +3,6 @@ import { gql } from '@apollo/client'
 import type { TypedDocumentNode } from '@apollo/client'
 import type { Category } from 'types/data'
 
-export type CategoryHierarchyQueryResult = { categoryHierarchy: string }
-
 export interface CategoryInput {
   coverImage?: File | null
   name: string
@@ -26,10 +24,34 @@ export const CREATE_CATEGORY: TypedDocumentNode<
   }
 `
 
-export const GET_CATEGORY_HIERARCHY: TypedDocumentNode<CategoryHierarchyQueryResult> = gql`
-  query categoryHierarchy {
-    categoryHierarchy
+export const FRAGMENT_CATEGORY_MINIMAL = gql`
+  fragment CategoryMinimalFields on CategoryType {
+    id
+    name
+    isHidden
   }
+`
+
+const FRAGMENT_CATEGORY_DETAILED = gql`
+  fragment CategoryDetailedFields on CategoryType {
+    ...CategoryMinimalFields
+    description
+    coverImage
+  }
+  ${FRAGMENT_CATEGORY_MINIMAL}
+`
+
+export const CATEGORY_INFO: TypedDocumentNode<
+  { category: Category },
+  { id?: number }
+> = gql`
+  query Category($id: Int) {
+    category(id: $id) {
+      ...CategoryDetailedFields
+      postCount
+    }
+  }
+  ${FRAGMENT_CATEGORY_DETAILED}
 `
 
 export const CATEGORY_FULL_INFO: TypedDocumentNode<
@@ -38,15 +60,19 @@ export const CATEGORY_FULL_INFO: TypedDocumentNode<
 > = gql`
   query Category($id: Int) {
     category(id: $id) {
-      id
-      name
-      isHidden
-      description
-      coverImage
+      ...CategoryDetailedFields
       subcategoryOf {
         id
       }
     }
+  }
+  ${FRAGMENT_CATEGORY_DETAILED}
+`
+export type CategoryHierarchyQueryResult = { categoryHierarchy: string }
+
+export const GET_CATEGORY_HIERARCHY: TypedDocumentNode<CategoryHierarchyQueryResult> = gql`
+  query categoryHierarchy {
+    categoryHierarchy
   }
 `
 
@@ -56,11 +82,22 @@ export const VALID_SUPERCATEGORIES: TypedDocumentNode<
 > = gql`
   query ValidSupercategories($id: Int!) {
     validSupercategories(id: $id) {
-      id
-      name
-      isHidden
+      ...CategoryMinimalFields
     }
   }
+  ${FRAGMENT_CATEGORY_MINIMAL}
+`
+
+export const GET_POSTABLE_CATEGORIES: TypedDocumentNode<{
+  categories: Category[]
+}> = gql`
+  query PostableCategories {
+    categories {
+      ...CategoryMinimalFields
+      level
+    }
+  }
+  ${FRAGMENT_CATEGORY_MINIMAL}
 `
 
 export const UPDATE_CATEGORY: TypedDocumentNode<

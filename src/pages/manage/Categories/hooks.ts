@@ -1,7 +1,7 @@
 import { useDiffState } from 'hooks/useDiffState'
 import { createSetter } from 'utils/stateSetter'
 
-import type { CategoryInput } from './api'
+import type { CategoryInput } from 'api/category'
 
 export const useCategoryInput = (initialValue: CategoryInput) => {
   const {

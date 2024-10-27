@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import clsx from 'clsx'
 
 import { useQuery } from '@apollo/client'
-import { GET_IMAGES } from './api'
+import { GET_IMAGES } from 'api/media'
 
 import { useToggle } from 'hooks/useToggle'
 import { cn } from 'utils/handleClassName'

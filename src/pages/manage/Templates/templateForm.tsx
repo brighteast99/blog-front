@@ -1,14 +1,14 @@
 import { useCallback, useLayoutEffect, useMemo, useState } from 'react'
 import { debounce } from 'throttle-debounce'
 
-import { useLazyQuery, useMutation, useReadQuery } from '@apollo/client'
+import { from, useLazyQuery, useMutation, useReadQuery } from '@apollo/client'
+import { SEARCH_HASHTAGS } from 'api/hashtag'
 import {
   DELETE_TEMPLATE,
   GET_TEMPLATE,
   GET_TEMPLATES,
-  SEARCH_HASHTAGS,
   UPDATE_TEMPLATE
-} from './api'
+} from 'api/template'
 
 import { ThemedButton } from 'components/Buttons/ThemedButton'
 import { Combobox } from 'components/Combobox'

@@ -3,11 +3,7 @@ import { useCallback } from 'react'
 import { useDiffState } from 'hooks/useDiffState'
 import { createSetter } from 'utils/stateSetter'
 
-import type { PostInput } from 'pages/post/Edit/api'
-
-interface TemplateInput extends Omit<PostInput, 'isHidden'> {
-  templateName: string
-}
+import type { TemplateInput } from 'api/template'
 
 export const useTemplateInput = (initialValue: TemplateInput) => {
   const {
