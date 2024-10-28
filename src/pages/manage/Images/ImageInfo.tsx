@@ -52,7 +52,7 @@ export const ImageInfo: FC<{
         <ImagePreview
           className={clsx(isMobile ? 'w-64' : 'w-full')}
           image={url}
-          scaleOnHover
+          magnifyOnHover
         />
         <table
           className={clsx(

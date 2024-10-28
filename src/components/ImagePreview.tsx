@@ -12,9 +12,10 @@ interface ImagePreviewProps {
   active?: boolean
   loading?: boolean
   disabled?: boolean
-  children?: ReactNode
-  scaleOnHover?: boolean
+  magnifyOnHover?: boolean
+  openViewerOnClick?: boolean
   onClick?: (image: string) => any
+  children?: ReactNode
 }
 
 export const ImagePreview: FC<ImagePreviewProps> = ({
@@ -23,14 +24,22 @@ export const ImagePreview: FC<ImagePreviewProps> = ({
   active,
   loading: _loading,
   disabled,
-  scaleOnHover,
-  children,
-  onClick
+  magnifyOnHover,
+  onClick,
+  children
 }) => {
   const [loading, setIsLoading] = useState<boolean>(true)
   const areaRef = useRef<HTMLDivElement>(null)
   const imageRef = useRef<HTMLImageElement>(null)
   const [hover, setHover] = useState<boolean>(false)
+  const scale = (() => {
+    if (!magnifyOnHover || !areaRef.current || !imageRef.current) return 1
+
+    if (areaRef.current.clientWidth > imageRef.current.clientWidth)
+      return areaRef.current.clientWidth / imageRef.current.clientWidth
+    else if (areaRef.current.clientHeight > imageRef.current.clientHeight)
+      return areaRef.current.clientHeight / imageRef.current.clientHeight
+  })()
 
   return (
     <div
@@ -50,13 +59,13 @@ export const ImagePreview: FC<ImagePreviewProps> = ({
     >
       <img
         ref={imageRef}
-        className='absolute inset-0 m-auto block h-full object-contain transition-transform'
+        className='absolute inset-0 m-auto block max-h-full max-w-full object-contain transition-transform'
         src={image}
         alt=''
         style={{
           transform:
-            !disabled && scaleOnHover
-              ? `scale(${hover ? (areaRef.current?.clientWidth ?? 1) / (imageRef.current?.clientWidth ?? 1) : 1})`
+            !disabled && magnifyOnHover
+              ? `scale(${hover ? scale : 1})`
               : undefined
         }}
         onLoad={() => setIsLoading(false)}

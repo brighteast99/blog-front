@@ -128,7 +128,7 @@ export const PostListItem: FC<{
               minimized ? 'h-full' : 'h-4/5'
             )}
             image={post.thumbnail}
-            scaleOnHover
+            magnifyOnHover
           />
         )}
       </div>
