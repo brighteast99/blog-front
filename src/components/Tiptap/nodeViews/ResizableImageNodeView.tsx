@@ -7,8 +7,6 @@ import React, {
 } from 'react'
 import { FloatingDelayGroup } from '@floating-ui/react'
 import { NodeViewWrapper } from '@tiptap/react'
-import clsx from 'clsx'
-import { Link } from 'react-router-dom'
 
 import { mdiMagnifyExpand, mdiOpenInNew } from '@mdi/js'
 import { IconButton } from 'components/Buttons/IconButton'
