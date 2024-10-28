@@ -5,7 +5,14 @@ import React, {
   useRef,
   useState
 } from 'react'
+import { FloatingDelayGroup } from '@floating-ui/react'
 import { NodeViewWrapper } from '@tiptap/react'
+import clsx from 'clsx'
+import { Link } from 'react-router-dom'
+
+import { mdiMagnifyExpand, mdiOpenInNew } from '@mdi/js'
+import { IconButton } from 'components/Buttons/IconButton'
+import { useImageViewer } from 'components/ImageViewer'
 
 import type { CSSProperties } from 'react'
 import type { NodeViewProps } from '@tiptap/react'
@@ -46,6 +53,7 @@ export const ResizableImageNodeView = ({
   const [resizingStyle, setResizingStyle] = useState<
     Pick<CSSProperties, 'width'> | undefined
   >()
+  const { Viewer, open } = useImageViewer(node.attrs.src)
 
   const handleMouseDown = useEvent((e: React.MouseEvent<HTMLDivElement>) => {
     if (!imgRef.current) return
@@ -116,6 +124,7 @@ export const ResizableImageNodeView = ({
       }
     >
       <div
+        className='group/image'
         style={{
           overflow: 'visible',
           position: 'relative',
@@ -123,6 +132,29 @@ export const ResizableImageNodeView = ({
           lineHeight: '0px'
         }}
       >
+        {!editing && <Viewer />}
+        {!editing && (
+          <div className='absolute right-2 top-2 flex size-fit gap-2 opacity-0 transition-opacity group-hover/image:opacity-100'>
+            <FloatingDelayGroup delay={0}>
+              <IconButton
+                path={mdiMagnifyExpand}
+                tooltip='원본 크기 보기'
+                variant='hover-text-toggle'
+                size={1.2}
+                active={true}
+                onClick={open}
+              />
+              <IconButton
+                path={mdiOpenInNew}
+                tooltip='새 탭에서 이미지 열기'
+                variant='hover-text-toggle'
+                size={1.2}
+                active={true}
+                onClick={() => window.open(node.attrs.src, '_blank')}
+              />
+            </FloatingDelayGroup>
+          </div>
+        )}
         <img
           {...node.attrs}
           alt={node.attrs.src}

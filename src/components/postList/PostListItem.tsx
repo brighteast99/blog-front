@@ -129,6 +129,7 @@ export const PostListItem: FC<{
             )}
             image={post.thumbnail}
             magnifyOnHover
+            openViewerOnClick
           />
         )}
       </div>

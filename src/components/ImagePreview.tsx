@@ -2,6 +2,7 @@ import { useRef, useState } from 'react'
 
 import { cn } from 'utils/handleClassName'
 
+import { useImageViewer } from 'components/ImageViewer'
 import { Spinner } from 'components/Spinner'
 
 import type { FC, ReactNode } from 'react'
@@ -14,8 +15,8 @@ interface ImagePreviewProps {
   disabled?: boolean
   magnifyOnHover?: boolean
   openViewerOnClick?: boolean
-  onClick?: (image: string) => any
   children?: ReactNode
+  onClick?: (image: string) => any
 }
 
 export const ImagePreview: FC<ImagePreviewProps> = ({
@@ -25,12 +26,14 @@ export const ImagePreview: FC<ImagePreviewProps> = ({
   loading: _loading,
   disabled,
   magnifyOnHover,
+  openViewerOnClick,
   onClick,
   children
 }) => {
-  const [loading, setIsLoading] = useState<boolean>(true)
   const areaRef = useRef<HTMLDivElement>(null)
   const imageRef = useRef<HTMLImageElement>(null)
+  const [loading, setIsLoading] = useState<boolean>(true)
+  const { Viewer, open } = useImageViewer(image)
   const [hover, setHover] = useState<boolean>(false)
   const scale = (() => {
     if (!magnifyOnHover || !areaRef.current || !imageRef.current) return 1
@@ -42,40 +45,46 @@ export const ImagePreview: FC<ImagePreviewProps> = ({
   })()
 
   return (
-    <div
-      ref={areaRef}
-      className={cn(
-        'relative aspect-square overflow-hidden outline transition-colors',
-        active ? 'outline-2 outline-primary' : 'outline-1 outline-neutral-400',
-        disabled ? 'outline-1 outline-neutral-100' : 'cursor-pointer',
-        className
-      )}
-      onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
-      onClick={() => {
-        if (disabled || !image) return
-        onClick?.(image)
-      }}
-    >
-      <img
-        ref={imageRef}
-        className='absolute inset-0 m-auto block max-h-full max-w-full object-contain transition-transform'
-        src={image}
-        alt=''
-        style={{
-          transform:
-            !disabled && magnifyOnHover
-              ? `scale(${hover ? scale : 1})`
-              : undefined
+    <>
+      {openViewerOnClick && <Viewer />}
+      <div
+        ref={areaRef}
+        className={cn(
+          'relative aspect-square overflow-hidden outline transition-colors',
+          active
+            ? 'outline-2 outline-primary'
+            : 'outline-1 outline-neutral-400',
+          disabled ? 'outline-1 outline-neutral-100' : 'cursor-pointer',
+          className
+        )}
+        onMouseEnter={() => setHover(true)}
+        onMouseLeave={() => setHover(false)}
+        onClick={() => {
+          if (disabled || !image) return
+          onClick?.(image)
+          if (openViewerOnClick) open()
         }}
-        onLoad={() => setIsLoading(false)}
-      />
-      {(loading || _loading) && (
-        <div className='absolute size-full bg-neutral-50 bg-opacity-50'>
-          <Spinner className='absolute inset-0' />
-        </div>
-      )}
-      {children}
-    </div>
+      >
+        <img
+          ref={imageRef}
+          className='absolute inset-0 m-auto block max-h-full max-w-full object-contain transition-transform'
+          src={image}
+          alt=''
+          style={{
+            transform:
+              !disabled && magnifyOnHover
+                ? `scale(${hover ? scale : 1})`
+                : undefined
+          }}
+          onLoad={() => setIsLoading(false)}
+        />
+        {(loading || _loading) && (
+          <div className='absolute size-full bg-neutral-50 bg-opacity-50'>
+            <Spinner className='absolute inset-0' />
+          </div>
+        )}
+        {children}
+      </div>
+    </>
   )
 }
