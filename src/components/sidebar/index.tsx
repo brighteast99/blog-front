@@ -37,10 +37,10 @@ export interface SidebarProps {
 }
 
 export const Sidebar: FC<SidebarProps> = ({
-  foldable = false,
-  isFolded = false,
-  useScrim = false,
-  foldOnLocationChange = false,
+  foldable,
+  isFolded,
+  useScrim,
+  foldOnLocationChange,
   fold
 }) => {
   const dispatch = useAppDispatch()
@@ -91,7 +91,7 @@ export const Sidebar: FC<SidebarProps> = ({
         <div
           id='scrim'
           className={clsx(
-            'fixed z-40 h-lvh w-lvw bg-neutral-50 opacity-75 transition-opacity',
+            'fixed left-0 top-0 z-40 h-lvh w-lvw bg-neutral-50 opacity-75 transition-opacity',
             isFolded && 'pointer-events-none !opacity-0'
           )}
           onClick={() => fold?.()}

@@ -1,4 +1,4 @@
-import { Suspense, useLayoutEffect, useState } from 'react'
+import { Suspense, useCallback, useLayoutEffect, useState } from 'react'
 import clsx from 'clsx'
 import { ErrorBoundary } from 'react-error-boundary'
 import { Outlet } from 'react-router-dom'
@@ -25,6 +25,8 @@ export default function App() {
     breakpoint === 'mobile'
   )
 
+  const foldSidebar = useCallback(() => setSidebarFolded(true), [])
+
   // * Update window size
   useLayoutEffect(() => {
     const dispatchSizeUpdate = throttle(250, () =>
@@ -42,7 +44,7 @@ export default function App() {
       breakpoint === 'mobile' ? '12px' : '14px'
 
     setSidebarFolded(breakpoint === 'mobile')
-  }, [breakpoint, setSidebarFolded])
+  }, [breakpoint])
 
   return (
     <div className='min-w-dvw flex min-h-dvh'>
@@ -51,7 +53,7 @@ export default function App() {
         isFolded={sidebarFolded}
         useScrim={breakpoint === 'mobile'}
         foldOnLocationChange={breakpoint === 'mobile'}
-        fold={() => setSidebarFolded(true)}
+        fold={foldSidebar}
       />
       <div
         id='spacer'
