@@ -110,7 +110,7 @@ export const DialogProvider: FC<{ children: ReactNode }> = ({ children }) => {
           lockScroll
         >
           <div className='absolute inset-0 z-50 m-auto flex size-fit min-h-40 min-w-80 max-w-[50%] flex-col overflow-hidden rounded-lg bg-background shadow-lg shadow-neutral-50'>
-            <div className='flex grow items-center justify-center whitespace-pre px-5 py-10 text-center'>
+            <div className='flex grow items-center justify-center whitespace-pre text-balance px-5 py-10 text-center'>
               {message}
             </div>
             <div className='flex *:min-w-32 *:grow *:rounded-none *:py-4'>
