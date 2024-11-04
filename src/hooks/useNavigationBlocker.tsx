@@ -9,10 +9,9 @@ import {
   useRef,
   useState
 } from 'react'
-import { FloatingOverlay } from '@floating-ui/react'
 import { useBlocker } from 'react-router-dom'
 
-import { ThemedButton } from 'components/Buttons/ThemedButton'
+import { Dialog } from 'hooks/useDialog'
 
 import type { FC, ReactNode } from 'react'
 
@@ -57,6 +56,14 @@ export const NavigationBlockerProvider: FC<{ children: ReactNode }> = ({
     setEnableBlock(blockingSrcs.current.size > 0)
   }, [])
 
+  const resetOrProceed = useCallback(
+    (proceed: boolean) => {
+      if (proceed) return blocker.proceed?.()
+      else return blocker.reset?.()
+    },
+    [blocker]
+  )
+
   useEffect(() => {
     const blockLeave = (e: BeforeUnloadEvent) => e.preventDefault()
     if (enableBlock) window.addEventListener('beforeunload', blockLeave)
@@ -71,39 +78,27 @@ export const NavigationBlockerProvider: FC<{ children: ReactNode }> = ({
   return (
     <BlockerContext.Provider value={{ registerBlocker, unregisterBlocker }}>
       {children}
-      {blocker.state === 'blocked' && !blockingSrcs.current.has('dialog') && (
-        <FloatingOverlay
-          className='z-50 bg-neutral-50 bg-opacity-50'
-          lockScroll
-        >
-          <div className='absolute inset-0 z-50 m-auto h-fit w-1/5 min-w-80 flex-col overflow-hidden rounded-lg bg-background shadow-lg shadow-neutral-50'>
-            <div className='flex items-center justify-center whitespace-pre px-5 py-10 text-center'>
-              저장되지 않은 변경 사항이 있습니다.
-              <br />
-              계속하시겠습니까?
-            </div>
-            <div className='flex'>
-              <ThemedButton
-                color='unset'
-                variant='hover-text'
-                className='h-10 w-1/2 rounded-none'
-                onClick={blocker.reset}
-                autoFocus
-              >
-                머무르기
-              </ThemedButton>
-              <ThemedButton
-                color='error'
-                variant='text'
-                className='h-10 w-1/2 rounded-none'
-                onClick={blocker.proceed}
-              >
-                페이지 이동
-              </ThemedButton>
-            </div>
-          </div>
-        </FloatingOverlay>
-      )}
+      <Dialog
+        open={
+          blocker.state === 'blocked' && !blockingSrcs.current.has('dialog')
+        }
+        message={`저장되지 않은 변경 사항이 있습니다.\n계속하시겠습니까?`}
+        actions={[
+          {
+            label: '머무르기',
+            value: false,
+            keys: ['Escape', 'Backspace', 'N', 'n']
+          },
+          {
+            label: '페이지 이동',
+            value: true,
+            color: 'error',
+            variant: 'text',
+            keys: ['Enter', ' ']
+          }
+        ]}
+        onClick={resetOrProceed}
+      />
     </BlockerContext.Provider>
   )
 }

@@ -6,6 +6,7 @@ import {
   useState
 } from 'react'
 import { FloatingOverlay } from '@floating-ui/react'
+import clsx from 'clsx'
 
 import { useNavigationBlocker } from 'hooks/useNavigationBlocker'
 
@@ -114,6 +115,84 @@ export const defaultActions: { [key in DialogType]: DialogAction<any>[] } = {
   ]
 }
 
+export const Dialog: FC<{
+  open: boolean
+  message?: string
+  persist?: boolean
+  actions: DialogAction<any>[]
+  onClick: (_value?: any) => any
+}> = ({ open, message, persist, onClick, actions }) => {
+  useLayoutEffect(() => {
+    if (!open || persist) return
+
+    const dismiss = (e: KeyboardEvent) => {
+      for (const action of actions) {
+        if (typeof action === 'string') continue
+
+        if (action.keys?.includes(e.key)) return onClick(action.value)
+      }
+
+      if (['Escape', 'Backspace'].includes(e.key)) return onClick()
+    }
+
+    window.addEventListener('keydown', dismiss)
+
+    return () => {
+      window.removeEventListener('keydown', dismiss)
+    }
+  }, [open, persist, actions, onClick])
+
+  return (
+    <FloatingOverlay
+      className={clsx(
+        'z-50 bg-neutral-950 bg-opacity-25 transition-opacity',
+        open ? 'opacity-100' : 'pointer-events-none opacity-0'
+      )}
+      lockScroll={open}
+      onClick={
+        persist
+          ? undefined
+          : (e) => {
+              if (e.target === e.currentTarget) onClick()
+            }
+      }
+      style={{ transitionDuration: '50ms' }}
+    >
+      <div className='absolute inset-0 z-50 m-auto flex size-fit min-h-40 min-w-80 max-w-[50%] flex-col overflow-hidden rounded-lg bg-background shadow-lg shadow-neutral-50'>
+        <div className='flex grow items-center justify-center whitespace-pre text-balance p-5 text-center'>
+          {message}
+        </div>
+        <div className='*-focused:outline flex *:min-w-32 *:grow *:rounded-none *:py-3'>
+          {actions.map((action) => {
+            if (typeof action === 'string')
+              return (
+                <ThemedButton
+                  key={action}
+                  color='primary'
+                  variant='hover-text'
+                  onClick={() => onClick(action)}
+                >
+                  {action}
+                </ThemedButton>
+              )
+
+            return (
+              <ThemedButton
+                key={action.value}
+                color={action.color ?? 'primary'}
+                variant={action.variant ?? 'hover-text'}
+                onClick={() => onClick(action.value)}
+              >
+                {action.label}
+              </ThemedButton>
+            )
+          })}
+        </div>
+      </div>
+    </FloatingOverlay>
+  )
+}
+
 export const DialogProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const [open, setOpen] = useState<boolean>(false)
   const [message, setMessage] = useState<string>('')
@@ -147,82 +226,32 @@ export const DialogProvider: FC<{ children: ReactNode }> = ({ children }) => {
     [block]
   )
 
-  const onClick = useCallback(
+  const resolve = useCallback(
     (value?: any) => {
       resolver?.(value)
-      setOpen(false)
-      unblock()
-
-      setMessage('')
-      setDialogType('ALERT')
-      setActions(undefined)
       setResolver(undefined)
+      setOpen(false)
+
+      setTimeout(() => {
+        setMessage('')
+        setDialogType('ALERT')
+        setActions(undefined)
+        unblock()
+      }, 150)
     },
     [resolver, unblock]
   )
 
-  useLayoutEffect(() => {
-    if (!open || persist) return
-
-    const dismiss = (e: KeyboardEvent) => {
-      for (const action of actions ?? defaultActions[dialogType]) {
-        if (typeof action === 'string') continue
-
-        if (action.keys?.includes(e.key)) return onClick(action.value)
-      }
-
-      if (['Escape', 'Backspace'].includes(e.key)) return onClick()
-    }
-
-    window.addEventListener('keydown', dismiss)
-
-    return () => {
-      window.removeEventListener('keydown', dismiss)
-    }
-  }, [open, persist, actions, onClick, dialogType])
-
   return (
     <DialogContext.Provider value={showDialog}>
       {children}
-      {open && (
-        <FloatingOverlay
-          className='z-50 bg-neutral-50 bg-opacity-25'
-          lockScroll
-          onClick={persist ? undefined : () => onClick()}
-        >
-          <div className='absolute inset-0 z-50 m-auto flex size-fit min-h-40 min-w-80 max-w-[50%] flex-col overflow-hidden rounded-lg bg-background shadow-lg shadow-neutral-50'>
-            <div className='flex grow items-center justify-center whitespace-pre text-balance px-5 py-10 text-center'>
-              {message}
-            </div>
-            <div className='*-focused:outline flex *:min-w-32 *:grow *:rounded-none *:py-4'>
-              {(actions ?? defaultActions[dialogType]).map((action) => {
-                if (typeof action === 'string')
-                  return (
-                    <ThemedButton
-                      key={action}
-                      color='primary'
-                      variant='text'
-                      onClick={() => onClick(action)}
-                    >
-                      {action}
-                    </ThemedButton>
-                  )
-
-                return (
-                  <ThemedButton
-                    key={action.value}
-                    color={action.color ?? 'primary'}
-                    variant={action.variant ?? 'hover-text'}
-                    onClick={() => onClick(action.value)}
-                  >
-                    {action.label}
-                  </ThemedButton>
-                )
-              })}
-            </div>
-          </div>
-        </FloatingOverlay>
-      )}
+      <Dialog
+        open={open}
+        message={message}
+        persist={persist}
+        actions={actions ?? defaultActions[dialogType]}
+        onClick={resolve}
+      />
     </DialogContext.Provider>
   )
 }
