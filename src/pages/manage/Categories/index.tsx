@@ -162,9 +162,15 @@ export const ManageCategoryPage: FC = () => {
     const deletePosts = (await showDialog(
       '게시글도 삭제할까요?\n삭제하지 않으면 분류 미지정으로 이동합니다.',
       [
-        { label: '취소', value: null },
-        { label: '이동', value: false, variant: 'text' },
-        { label: '삭제', value: true, color: 'error', variant: 'text' }
+        { label: '취소', value: null, keys: ['Escape', 'Backspace'] },
+        { label: '이동', value: false, variant: 'text', keys: ['N', 'n'] },
+        {
+          label: '삭제',
+          value: true,
+          color: 'error',
+          variant: 'text',
+          keys: ['Enter', ' ', 'Y', 'y']
+        }
       ]
     )) as boolean | null
 
