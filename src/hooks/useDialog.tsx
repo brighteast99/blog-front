@@ -124,22 +124,34 @@ export const Dialog: FC<{
   onClick: (_value?: any) => any
 }> = ({ open, message, persist, onClick, actions }) => {
   useLayoutEffect(() => {
-    if (!open || persist) return
+    if (!open) return
 
-    const dismiss = (e: KeyboardEvent) => {
+    const handleDismiss = (e: KeyboardEvent) => {
+      e.preventDefault()
+      e.stopPropagation()
+      e.stopImmediatePropagation()
+
+      if (['Escape', 'Backspace'].includes(e.key)) return onClick()
+    }
+
+    const handleKeyInput = (e: KeyboardEvent) => {
+      e.preventDefault()
+      e.stopPropagation()
+      e.stopImmediatePropagation()
+
       for (const action of actions) {
         if (typeof action === 'string') continue
 
         if (action.keys?.includes(e.key)) return onClick(action.value)
       }
-
-      if (['Escape', 'Backspace'].includes(e.key)) return onClick()
     }
 
-    window.addEventListener('keydown', dismiss)
+    window.addEventListener('keydown', handleKeyInput)
+    if (!persist) window.addEventListener('keydown', handleDismiss)
 
     return () => {
-      window.removeEventListener('keydown', dismiss)
+      window.removeEventListener('keydown', handleKeyInput)
+      if (!persist) window.removeEventListener('keydown', handleDismiss)
     }
   }, [open, persist, actions, onClick])
 
