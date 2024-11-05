@@ -3,6 +3,7 @@ import {
   useCallback,
   useContext,
   useLayoutEffect,
+  useRef,
   useState
 } from 'react'
 import { FloatingOverlay } from '@floating-ui/react'
@@ -194,6 +195,7 @@ export const Dialog: FC<{
 }
 
 export const DialogProvider: FC<{ children: ReactNode }> = ({ children }) => {
+  const resetTimer = useRef<ReturnType<typeof setTimeout>>()
   const [open, setOpen] = useState<boolean>(false)
   const [message, setMessage] = useState<string>('')
   const [dialogType, setDialogType] = useState<DialogType>('ALERT')
@@ -212,6 +214,11 @@ export const DialogProvider: FC<{ children: ReactNode }> = ({ children }) => {
       actions: DialogType | DialogAction<any>[] = 'ALERT',
       options: DialogOptions = { persist: false }
     ) => {
+      if (resetTimer.current) {
+        clearTimeout(resetTimer.current)
+        resetTimer.current = undefined
+      }
+
       setMessage(message)
       if (isDialogType(actions)) setDialogType(actions)
       else setActions(actions)
@@ -232,7 +239,7 @@ export const DialogProvider: FC<{ children: ReactNode }> = ({ children }) => {
       setResolver(undefined)
       setOpen(false)
 
-      setTimeout(() => {
+      resetTimer.current = setTimeout(() => {
         setMessage('')
         setDialogType('ALERT')
         setActions(undefined)
