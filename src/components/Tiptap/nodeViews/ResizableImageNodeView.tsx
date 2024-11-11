@@ -131,7 +131,7 @@ export const ResizableImageNodeView = ({
       >
         {!focused && <Viewer />}
         {!editor.isEditable && (
-          <div className='absolute right-2 top-2 flex size-fit gap-2 opacity-0 transition-opacity group-hover/image:opacity-100'>
+          <div className='absolute right-2 top-2 flex size-fit gap-2 opacity-0 *:backdrop-blur-sm *:backdrop-brightness-75 group-hover/image:opacity-100'>
             <FloatingDelayGroup delay={0}>
               <IconButton
                 path={mdiMagnifyExpand}
