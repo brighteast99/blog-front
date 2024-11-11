@@ -44,7 +44,7 @@ export const ResizableImageNodeView = ({
 }: NodeViewProps) => {
   const containerRef = useRef<HTMLDivElement>(null)
   const imgRef = useRef<HTMLImageElement>(null)
-  const editing = useMemo(
+  const focused = useMemo(
     () => editor.isEditable && selected,
     [editor.isEditable, selected]
   )
@@ -61,7 +61,7 @@ export const ResizableImageNodeView = ({
     const initialXPosition = e.clientX
     const currentWidth = imgRef.current.width
     let newWidth = currentWidth
-    const transform = direction[1] === 'w' ? -1 : 1
+    const transform = direction === 'w' ? -1 : 1
 
     const removeListeners = () => {
       window.removeEventListener('mousemove', mouseMoveHandler)
@@ -87,23 +87,22 @@ export const ResizableImageNodeView = ({
   const dragCornerButton = (direction: string) => (
     <div
       role='button'
-      className='rounded-sm bg-primary'
+      className='rounded bg-primary opacity-25 transition-opacity group-hover/handles:opacity-100'
       tabIndex={0}
       onMouseDown={handleMouseDown}
       data-direction={direction}
       style={{
         position: 'absolute',
-        height: '10px',
-        width: '10px',
-        ...{ n: { top: 0 }, s: { bottom: 0 } }[direction[0]],
-        ...{ w: { left: 0 }, e: { right: 0 } }[direction[1]],
+        height: '50%',
+        width: '6px',
+        top: '0',
+        bottom: '0',
+        ...{ w: { left: -10 }, e: { right: -10 } }[direction],
         ...{
-          nw: { transform: 'translate(-50%, -50%)' },
-          ne: { transform: 'translate(50%, -50%)' },
-          sw: { transform: 'translate(-50%, 50%)' },
-          se: { transform: 'translate(50%, 50%)' }
+          w: { transform: 'translate(-50%, 50%)' },
+          e: { transform: 'translate(50%, 50%)' }
         }[direction],
-        cursor: `${direction}-resize`
+        cursor: `ew-resize`
       }}
     />
   )
@@ -130,8 +129,8 @@ export const ResizableImageNodeView = ({
           lineHeight: '0px'
         }}
       >
-        {!editing && <Viewer />}
-        {!editing && (
+        {!focused && <Viewer />}
+        {!editor.isEditable && (
           <div className='absolute right-2 top-2 flex size-fit gap-2 opacity-0 transition-opacity group-hover/image:opacity-100'>
             <FloatingDelayGroup delay={0}>
               <IconButton
@@ -162,13 +161,11 @@ export const ResizableImageNodeView = ({
             cursor: 'default'
           }}
         />
-        {editing && (
-          <>
-            {dragCornerButton('nw')}
-            {dragCornerButton('ne')}
-            {dragCornerButton('sw')}
-            {dragCornerButton('se')}
-          </>
+        {focused && (
+          <div className='group/handles contents'>
+            {dragCornerButton('w')}
+            {dragCornerButton('e')}
+          </div>
         )}
       </div>
     </NodeViewWrapper>
