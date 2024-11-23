@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useLayoutEffect, useState } from 'react'
 import { FloatingOverlay } from '@floating-ui/react'
 
 import { mdiClose } from '@mdi/js'
@@ -27,11 +27,33 @@ export const useImageViewer = (src?: string) => {
 export const ImageViewer: FC<{
   src?: string
   open?: boolean
-  onClickClose?: (_: any) => any
+  onClickClose?: (_?: any) => any
 }> = ({ src, open, onClickClose }) => {
+  useLayoutEffect(() => {
+    if (!open) return
+
+    const handleDismiss = (e: KeyboardEvent) => {
+      e.preventDefault()
+      e.stopPropagation()
+      e.stopImmediatePropagation()
+
+      if (['Escape', 'Backspace'].includes(e.key)) return onClickClose?.()
+    }
+
+    window.addEventListener('keydown', handleDismiss)
+
+    return () => {
+      window.removeEventListener('keydown', handleDismiss)
+    }
+  }, [open, onClickClose])
+
   if (!open) return null
   return (
-    <FloatingOverlay className='z-50 bg-neutral-50 bg-opacity-50' lockScroll>
+    <FloatingOverlay
+      className='z-50 bg-neutral-50 bg-opacity-80'
+      lockScroll
+      onClick={onClickClose}
+    >
       <IconButton
         className='absolute right-3 top-3'
         color='error'
@@ -42,7 +64,7 @@ export const ImageViewer: FC<{
         onClick={onClickClose}
       />
       <img
-        className='absolute inset-0 m-auto block max-h-[80%] max-w-[60%] border-2 border-primary border-opacity-50'
+        className='absolute inset-0 m-auto block max-h-[80dvh] !max-w-[80dvw] border-2 border-primary border-opacity-50 bg-background'
         src={src}
         alt='preview'
       />
