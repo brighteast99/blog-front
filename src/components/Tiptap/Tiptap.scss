@@ -39,6 +39,10 @@
         @apply whitespace-pre-wrap text-justify leading-7;
       }
 
+      hr {
+        @apply my-3;
+      }
+
       h1,
       h2,
       h3,
