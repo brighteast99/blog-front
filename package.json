@@ -2,7 +2,6 @@
   "name": "blog",
   "version": "0.1.0",
   "private": true,
-  "homepage": "",
   "dependencies": {
     "@apollo/client": "^3.11.4",
     "@floating-ui/react": "^0.26.23",

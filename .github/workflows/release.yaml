@@ -1,0 +1,46 @@
+name: Upload Build to MinIO on Release
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build-and-upload:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: |
+          npm config set "@tiptap-pro:registry" https://registry.tiptap.dev/
+          npm config set "//registry.tiptap.dev/:_authToken" ${{ secrets.TIPTAP_PRO_TOKEN }}
+          yarn install
+
+      - name: Build project
+        run: |
+          export REACT_APP_API_ENDPOINT=https://api.${{ vars.APP_BASE_URL }}/
+          export REACT_APP_ADMIN_ENDPOINT=https://admin.${{ vars.APP_BASE_URL }}/
+          export REACT_APP_PRODUCTION=true
+          export PUBLIC_URL=https://${{ vars.MINIO_ENDPOINT }}/${{ secrets.AWS_BUCKET }}/staticfiles/
+          yarn build
+
+      - name: Configure AWS CLI for MinIO
+        run: |
+          mkdir -p ~/.aws
+          echo "[default]" > ~/.aws/credentials
+          echo "aws_access_key_id=${{ secrets.AWS_ACCESS_KEY_ID }}" >> ~/.aws/credentials
+          echo "aws_secret_access_key=${{ secrets.AWS_SECRET_KEY }}" >> ~/.aws/credentials
+          echo "[default]" > ~/.aws/config
+          echo "region = us-east-1" >> ~/.aws/config
+          echo "output = json" >> ~/.aws/config
+
+      - name: Upload to MinIO
+        run: |
+          aws --endpoint-url https://${{ vars.MINIO_ENDPOINT }} s3 cp ./build s3://${{ secrets.AWS_BUCKET }}/staticfiles --recursive --exclude "*" --include "*.html" --include "*.js" --include "*.css"
