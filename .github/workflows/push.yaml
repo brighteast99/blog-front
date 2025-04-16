@@ -1,9 +1,9 @@
 name: Upload Build to MinIO on Release
 
 on:
-  release:
-    types:
-      - created
+  push:
+    branches:
+      - main
 
 jobs:
   build-and-upload:
@@ -26,22 +26,22 @@ jobs:
 
       - name: Build project
         run: |
-          export REACT_APP_API_ENDPOINT=https://api.${{ vars.APP_BASE_URL }}/
-          export REACT_APP_ADMIN_ENDPOINT=https://admin.${{ vars.APP_BASE_URL }}/
+          export REACT_APP_API_ENDPOINT=https://api.${{ vars.DEV_APP_BASE_URL }}/
+          export REACT_APP_ADMIN_ENDPOINT=https://admin.${{ vars.DEV_APP_BASE_URL }}/
           export REACT_APP_PRODUCTION=true
-          export PUBLIC_URL=https://${{ vars.MINIO_ENDPOINT }}/${{ secrets.AWS_BUCKET }}/staticfiles/
+          export PUBLIC_URL=https://${{ vars.MINIO_ENDPOINT }}/${{ secrets.DEV_AWS_BUCKET }}/staticfiles/
           yarn build
 
       - name: Configure AWS CLI for MinIO
         run: |
           mkdir -p ~/.aws
           echo "[default]" > ~/.aws/credentials
-          echo "aws_access_key_id=${{ secrets.AWS_ACCESS_KEY_ID }}" >> ~/.aws/credentials
-          echo "aws_secret_access_key=${{ secrets.AWS_SECRET_KEY }}" >> ~/.aws/credentials
+          echo "aws_access_key_id=${{ secrets.DEV_AWS_ACCESS_KEY_ID }}" >> ~/.aws/credentials
+          echo "aws_secret_access_key=${{ secrets.DEV_AWS_SECRET_KEY }}" >> ~/.aws/credentials
           echo "[default]" > ~/.aws/config
           echo "region = us-east-1" >> ~/.aws/config
           echo "output = json" >> ~/.aws/config
 
       - name: Upload to MinIO
         run: |
-          aws --endpoint-url https://${{ vars.MINIO_ENDPOINT }} s3 cp ./build s3://${{ secrets.AWS_BUCKET }}/staticfiles --recursive --exclude "*" --include "*.html" --include "*.js" --include "*.css"
+          aws --endpoint-url https://${{ vars.MINIO_ENDPOINT }} s3 cp ./build s3://${{ secrets.DEV_AWS_BUCKET }}/staticfiles --recursive --exclude "*" --include "*.html" --include "*.js" --include "*.css"
