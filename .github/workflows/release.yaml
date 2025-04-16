@@ -26,8 +26,8 @@ jobs:
 
       - name: Build project
         run: |
-          export REACT_APP_API_ENDPOINT=https://api.${{ vars.APP_BASE_URL }}/
-          export REACT_APP_ADMIN_ENDPOINT=https://admin.${{ vars.APP_BASE_URL }}/
+          export REACT_APP_API_ENDPOINT=https://${{ vars.DEV_APP_BASE_URL }}/api/
+          export REACT_APP_ADMIN_ENDPOINT=https://${{ vars.DEV_APP_BASE_URL }}/admin/
           export REACT_APP_PRODUCTION=true
           export PUBLIC_URL=https://${{ vars.MINIO_ENDPOINT }}/${{ secrets.AWS_BUCKET }}/staticfiles/
           yarn build
