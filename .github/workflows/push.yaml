@@ -13,24 +13,43 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Check changes
+        id: changes
+        run: |
+          # 변경된 파일 확인
+          CHANGED=$(git diff --name-only HEAD^ HEAD)
+          echo "Changed files:"
+          echo "$CHANGED"
+
+          # 변경된 파일이 패스 조건에 포함되면 true
+          if echo "$CHANGED" | grep -Eq '^(package\.json|tailwind\.config\.js|tsconfig\.json|yarn\.lock|src/|public/)' ; then
+            echo "changes_detected=true" >> $GITHUB_OUTPUT
+          else
+            echo "changes_detected=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Setup Node.js
+        if: steps.changes.outputs.changes_detected == 'true'
         uses: actions/setup-node@v4
         with:
           node-version: '20'
 
       - name: Install dependencies
+        if: steps.changes.outputs.changes_detected == 'true'
         run: |
           npm config set "@tiptap-pro:registry" https://registry.tiptap.dev/
           npm config set "//registry.tiptap.dev/:_authToken" ${{ secrets.TIPTAP_PRO_TOKEN }}
           yarn install
 
       - name: Build project
+        if: steps.changes.outputs.changes_detected == 'true'
         run: |
           export REACT_APP_PRODUCTION=true
           export PUBLIC_URL=https://${{ vars.MINIO_ENDPOINT }}/${{ secrets.DEV_AWS_BUCKET }}/staticfiles/
           yarn build
 
       - name: Configure AWS CLI for MinIO
+        if: steps.changes.outputs.changes_detected == 'true'
         run: |
           mkdir -p ~/.aws
           echo "[default]" > ~/.aws/credentials
@@ -41,10 +60,12 @@ jobs:
           echo "output = json" >> ~/.aws/config
 
       - name: Upload to MinIO
+        if: steps.changes.outputs.changes_detected == 'true'
         run: |
           aws --endpoint-url https://${{ vars.MINIO_ENDPOINT }} s3 cp ./build s3://${{ secrets.DEV_AWS_BUCKET }}/staticfiles --recursive --exclude "*" --include "*.html" --include "*.js" --include "*.css"
 
       - name: Notify release
+        if: steps.changes.outputs.changes_detected == 'true'
         run: |
           curl -X POST "https://n8n.brighteast.me/webhook/notification" \
           -u kdhnotification:kdh050508! \
