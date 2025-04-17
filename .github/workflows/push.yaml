@@ -43,3 +43,18 @@ jobs:
       - name: Upload to MinIO
         run: |
           aws --endpoint-url https://${{ vars.MINIO_ENDPOINT }} s3 cp ./build s3://${{ secrets.DEV_AWS_BUCKET }}/staticfiles --recursive --exclude "*" --include "*.html" --include "*.js" --include "*.css"
+
+      - name: Notify release
+        run: |
+          curl -X POST "https://n8n.brighteast.me/webhook/notification" \
+          -u kdhnotification:kdh050508! \
+          -H "Content-Type: application/json" \
+          -d '{"content": "🔔 **${{ github.event.repository.name }}** dev 빌드 완료"}'
+
+      - name: Notify on Failure
+        if: failure()
+        run: |
+          curl -X POST "https://n8n.brighteast.me/webhook/notification" \
+          -u ${{ secrets.WEBHOOK_BASIC_AUTH }} \
+          -H "Content-Type: application/json" \
+          -d '{"content": "🚨 **${{ github.event.repository.name }}** dev 빌드 실패"}'

@@ -65,10 +65,10 @@ const ManagePage: FC = () => {
           </div>
         ))}
         <div className='shrink grow' />
-        <Link to={`${window.location.origin}/api`} target='_blank'>
+        <Link to={`${window.location.origin}/api/`} target='_blank'>
           API test
         </Link>
-        <Link to={`${window.location.origin}/admin`} target='_blank'>
+        <Link to={`${window.location.origin}/admin/`} target='_blank'>
           Admin page
         </Link>
       </div>
