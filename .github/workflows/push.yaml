@@ -1,4 +1,4 @@
-name: Upload Build to MinIO on Release
+name: Upload Build to MinIO on Push to main
 
 on:
   push:
