@@ -13,7 +13,7 @@ import { isFuture } from 'utils/dayJS'
 import type { PropsWithChildren } from 'react'
 
 const uploadLink = createUploadLink({
-  uri: `${window.location.origin}/api`
+  uri: `${window.location.origin}/api/`
 }) as unknown as ApolloLink
 
 const authMiddleware = new ApolloLink((operation, forward) => {
