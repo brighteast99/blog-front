@@ -69,7 +69,7 @@ jobs:
         if: steps.changes.outputs.changes_detected == 'true'
         run: |
           curl -X POST "https://n8n.brighteast.me/webhook/notification" \
-          -u kdhnotification:kdh050508! \
+          -u ${{ secrets.WEBHOOK_BASIC_AUTH }} \
           -H "Content-Type: application/json" \
           -d '{"content": "🔔 **${{ github.event.repository.name }}** dev 빌드 완료"}'
 
