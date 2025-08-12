@@ -64,4 +64,4 @@ jobs:
       identity: github
       message: '🚨 **${{ github.event.repository.name }}** production 빌드 실패'
     secrets:
-      auth: ${{ secrets.WEBHOOK_
+      auth: ${{ secrets.WEBHOOK_BASIC_AUTH }}
